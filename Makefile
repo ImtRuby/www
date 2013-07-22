@@ -1,13 +1,13 @@
 .PHONY : all clean
 
-TOPDIR = $(shell pwd)
-FILES = $(TOPDIR)/file
+ROOT = $(realpath .)
+FILES = $(ROOT)/file
 
 all :
 	@set -e; \
 	for dir in $(FILES); \
 	do \
-		cd $$dir && make; \
+		cd $$dir && make -r ROOT=$(ROOT) $@ ; \
 	done
 
 clean : 
@@ -19,6 +19,5 @@ clean :
 
 push:
 	git add .
-	git config core.editor vim
 	git commit -s && git push -u origin master
 
