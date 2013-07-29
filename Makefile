@@ -1,14 +1,16 @@
-.PHONY : all clean
+.PHONY : default clean
 
 ROOT = $(realpath .)
 FILES = $(ROOT)/file
 
-all :
+default :
 	@set -e; \
-	for dir in $(FILES); \
-	do \
-		cd $$dir && make -r ROOT=$(ROOT) $@ ; \
-	done
+	cd $(FILES) && make special -r ROOT=$(ROOT) $@ ; \
+	#cd $(FILES) && make -r ROOT=$(ROOT) $@ ; \
+	#for dir in $(FILES); \
+	#do \
+	#	cd $$dir && make special -r ROOT=$(ROOT) $@ ; \
+	#done
 
 clean : 
 	@set -e; \
@@ -20,4 +22,3 @@ clean :
 push:
 	git add .
 	git commit -s && git push -u origin master
-

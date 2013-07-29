@@ -1,17 +1,21 @@
 .PHONY : all clean
 
-#MKDIR = mkdir
-#RM = rm
-#RMFLAGS = -rf
-#
-#CC = gcc
-#AR = ar
-#ARFLAGS = crs
-#
-#DIR_OBJS = objs
-#DIR_EXES = $(ROOT)/build/exes
-#DIR_DEPS = deps
-#DIR_LIBS = $(ROOT)/build/libs
+DIR_FILE = $(ROOT)/file/
+DIR_HTML = $(ROOT)/webpage/html
+DIR_CSS = $(ROOT)/webpage/css
+DIR_SCRIPT = $(ROOT)/webpage/script
+DIR_RES = $(ROOT)/webpage/res
+
+PWD_PATH = $(realpath .)
+
+html:
+	@echo "\033[32m Use make.rule html target build! \033[0m"
+	@echo
+
+default:
+	@echo "\033[32m Use make.rule default target build! \033[0m"
+	@echo
+
 #
 #DIRS = $(DIR_OBJS) $(DIR_DEPS) $(DIR_EXES) $(DIR_LIBS)
 #RMS = $(DIR_OBJS) $(DIR_DEPS)

@@ -1,2 +1,1 @@
-all:
-	echo ^_^
+include $(ROOT)/make.rule
