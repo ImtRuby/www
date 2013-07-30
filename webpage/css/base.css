@@ -1,0 +1,86 @@
+<style type="text/css">
+<!-
+
+/* 基本信息 */
+body {font:18px Tahoma;margin:0px;text-align:center;background:#FFF;}
+h1 {font:28px Tahoma; margin:2px; text-align:left; background:#FFF;}
+
+/* 页面层容器 */
+#container {width:100%}
+
+/* 页面头部 */
+#Header {width:800px;margin:0 auto;height:100px;background:#FFCC99}
+
+/* 页面主体 */
+#PageBody {width:800px;margin:0 auto;height:400px;background:#CCFF00}
+
+/* 页面底部 */
+#Footer {width:800px;margin:0 auto;height:50px;background:#00FFFF}
+
+/* Mark's style */
+/* .author { color:blue; background:#ff80c0; text-align:left; } */
+.author {
+    width: 160px;
+    height: 20px;
+    margin: 5px;
+    border-radius: 1px;
+    position: relative;
+    padding: 5px;
+    float: top;
+
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.8);
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.4);
+    font:16px Tahoma;
+    color: blue;
+    background: #ffffcf;
+}
+
+.text {
+    width: 80%;
+    margin-left: 36px;
+    margin-top: 10px;
+
+    position: relative;
+    font:18px Tahoma;
+    color: black;
+    background: #fff;
+}
+
+.code {
+    font-family: "Consolas" , "Courier New" , Courier, mono, serif;
+    font-size: 12px;
+    background-color: #E7E5DC;
+    width: 88%;
+    overflow: auto;
+    margin: 18px 0 18px 0 !important;
+    padding-top: 1px;
+    text-align: left;
+
+    margin: 16px, 0, 0, 0;
+    position: relative;
+    padding: 10px;
+}
+
+.picture {
+    width: 80%;
+    text-align: center;
+}
+
+.link {
+    text-align: left;
+}
+
+.article {
+    box-shadow: 0 -2px 1px rgba(0,0,0,0.8);
+    font-family: "Consolas" , "Courier New" , Courier, mono, serif;
+    margin: 18px 0 18px 0 !important;
+}
+
+.article.header {
+    font-size: 24px;
+    color: #2FEFAF;
+    padding: 10px;
+}
+
+–>
+</style>
