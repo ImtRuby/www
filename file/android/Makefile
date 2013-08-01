@@ -1,3 +1,1 @@
-html:
-	xdg-open demo.html
-#include $(ROOT)/make.rule
+include $(ROOT)/make.rule

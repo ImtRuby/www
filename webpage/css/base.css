@@ -20,16 +20,19 @@ h1 {font:28px Tahoma; margin:2px; text-align:left; background:#FFF;}
 /* Mark's style */
 /* .author { color:blue; background:#ff80c0; text-align:left; } */
 .author {
-    width: 160px;
+    width: 270px;
     height: 20px;
-    margin: 5px;
+    margin-left: 76%;
     border-radius: 1px;
     position: relative;
     padding: 5px;
     float: top;
 
-    box-shadow: 0 -1px 3px rgba(0,0,0,0.8);
-    text-shadow: 0 -1px 1px rgba(0,0,0,0.4);
+    -webkit-box-shadow:1px 1px 3px green, -1px -1px 3px blue;
+    -moz-box-shadow:1px 1px 3px green, -1px -1px 3px blue;
+    box-shadow:1px 1px 3px green, -1px -1px 3px blue;
+
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4);
     font:16px Tahoma;
     color: blue;
     background: #ffffcf;

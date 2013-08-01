@@ -13,6 +13,7 @@ special:
 #
 	@echo '</tr></tbody></table>' >> $(DIR_HTML)/index.html
 	@tail -n 4 base.html >> $(DIR_HTML)/index.html
+#xdg-open $(DIR_HTML)/index.html
 
 include $(ROOT)/make.rule
 
