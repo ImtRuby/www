@@ -4,6 +4,7 @@ ROOT = $(realpath .)
 FILES = $(ROOT)/file
 
 default :
+	rm -f $(ROOT)/webpage/html/*
 	@set -e; \
 	cd $(FILES) && make special -r ROOT=$(ROOT) $@ ; \
 	#cd $(FILES) && make -r ROOT=$(ROOT) $@ ; \

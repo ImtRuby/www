@@ -10,6 +10,7 @@ def text2html(file):
   mark = ''
   fp=open(file, "r")
 
+  print '<h2 align="center"> %s </h2>' % file
   for eachline in fp:
     if eachline.find('@author') != -1:
       print '%s' % (mark)
@@ -18,8 +19,8 @@ def text2html(file):
 
     elif eachline.find('@text') != -1:
       print '%s' % (mark)
-      print '<div class="text">'
-      mark = '</div>\n'
+      print '<pre class="text">'
+      mark = '</pre>\n'
 
     elif eachline.find('@code') != -1:
       print '%s' % (mark)
@@ -42,9 +43,16 @@ def text2html(file):
       mark = '</div>\n'
 
     else:
+      if mark == '':
+        mark = '-'
+        print '<pre class="text">'
       print eachline,
 
-  print '%s' % (mark)
+  if mark == '-':
+    print '</pre>'
+  else:
+    print '%s' % (mark)
+
   fp.close()
 
 

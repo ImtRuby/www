@@ -8,16 +8,20 @@ DIR_RES = $(ROOT)/webpage/res
 
 PWD_PATH = $(realpath .)
 FILE_LIST=$(strip $(filter-out Makefile, $(shell ls -r)))
+FILE_NAME=$(shell basename `pwd`).html
 
 html:
+	@head -n 14 $(DIR_FILE)/base.html > $(DIR_HTML)/$(FILE_NAME)
+	@echo "<body>" >> $(DIR_HTML)/$(FILE_NAME)
 	@for file in $(FILE_LIST) ; \
 	do \
-		python $(ROOT)/text2html.py $$file ; \
+		python $(ROOT)/text2html.py $$file >> $(DIR_HTML)/$(FILE_NAME) ; \
 	done
+	@tail -n 2 $(DIR_FILE)/base.html >> $(DIR_HTML)/$(FILE_NAME)
 
 default:
 	@echo
-	@echo "\033[32m Use make.rule default target build! \033[0m"
+	@echo "\033[32m Use rule.mk default target build! \033[0m"
 
 
 

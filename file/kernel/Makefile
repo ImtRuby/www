@@ -1,1 +1,1 @@
-include $(ROOT)/make.rule
+include $(ROOT)/rule.mk
