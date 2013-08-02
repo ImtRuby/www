@@ -10,7 +10,7 @@ def text2html(file):
   mark = ''
   fp=open(file, "r")
 
-  print '<h2 align="center"> %s </h2>' % file
+  print '<h2 align="center"> %s </h2>' % file.replace(".txt", "")
   for eachline in fp:
     if eachline.find('@author') != -1:
       print '%s' % (mark)

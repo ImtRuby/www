@@ -13,6 +13,11 @@ FILE_NAME=$(shell basename `pwd`).html
 html:
 	@head -n 14 $(DIR_FILE)/base.html > $(DIR_HTML)/$(FILE_NAME)
 	@echo "<body>" >> $(DIR_HTML)/$(FILE_NAME)
+	
+	@for file in $(FILE_LIST) ; \
+	do \
+	done
+	
 	@for file in $(FILE_LIST) ; \
 	do \
 		python $(ROOT)/text2html.py $$file >> $(DIR_HTML)/$(FILE_NAME) ; \
