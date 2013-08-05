@@ -40,7 +40,9 @@ h1 {font: 28px Tahoma; margin: 2px; text-align: left; background: #FFF}
 
 .title {
     color: blue;
-    margin-center: 20%;
+    margin-left: 36px;
+    font:22px Tahoma;
+    text-align: left;
 }
 
 .text {

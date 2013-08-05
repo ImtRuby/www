@@ -7,21 +7,26 @@ DIR_SCRIPT = $(ROOT)/webpage/script
 DIR_RES = $(ROOT)/webpage/res
 
 PWD_PATH = $(realpath .)
-FILE_LIST=$(strip $(filter-out Makefile, $(shell ls -r)))
+#FILE_LIST=$(strip $(filter-out Makefile, $(shell ls -r)))
 FILE_NAME=$(shell basename `pwd`).html
+
 
 html:
 	@head -n 14 $(DIR_FILE)/base.html > $(DIR_HTML)/$(FILE_NAME)
 	@echo "<body>" >> $(DIR_HTML)/$(FILE_NAME)
 	
-	@for file in $(FILE_LIST) ; \
-	do \
-	done
-	
-	@for file in $(FILE_LIST) ; \
-	do \
-		python $(ROOT)/text2html.py $$file >> $(DIR_HTML)/$(FILE_NAME) ; \
-	done
+	@python $(ROOT)/text2html.py $(PWD_PATH) >> $(DIR_HTML)/$(FILE_NAME)
+#	@for file in $(FILE_LIST) ; \
+#	do \
+#		file
+#		echo "<div><a href=\"#$$file\"> $$file </a></div>" >> $(DIR_HTML)/$(FILE_NAME) ; \
+#		COUNT=`expr $$COUNT + 1` ; \
+#	done
+#	
+#	@for file in $(FILE_LIST) ; \
+#	do \
+#		python $(ROOT)/text2html.py $$file >> $(DIR_HTML)/$(FILE_NAME) ; \
+#	done
 	@tail -n 2 $(DIR_FILE)/base.html >> $(DIR_HTML)/$(FILE_NAME)
 
 default:
