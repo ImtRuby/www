@@ -1,3 +1,4 @@
+#coding=utf-8
 #!/usr/bin/env python
 
 import sys
@@ -26,13 +27,21 @@ def text2html(path):
     if filename != 'Makefile':
       mark = ''
       filepath=[]
-      print '<h2 align="center"><a name="%s"> %s </a></h2>' % (filename.replace('.txt', ''), filename.replace(".txt", ""))
+      print '<h2 align="center"><a name="%s"> %s </a></h2>' % (filename.replace('.txt', ''), filename.replace('.txt', ''))
 
       # the mothod to join 2 strings
       filepath.append(filename)
       fp = open(path.join(filepath), "r")
 
       for eachline in fp:
+        '''
+        fixme the Character Entities
+        '''
+        eachline = eachline.replace('&', '&amp;')
+        eachline = eachline.replace('<', '&lt;')
+        eachline = eachline.replace('>', '&gt;')
+        eachline = eachline.replace('"', '&quot;')
+
         if eachline.find('@author') != -1:
           print '%s' % (mark)
           print '<div class="author">'

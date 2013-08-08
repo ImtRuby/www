@@ -14,6 +14,470 @@
 
 <body>
 </br></br></br></br>
+<div class="title"><a href="#LCD屏参"> 0 : LCD屏参 </a></div>
+<div class="title"><a href="#gslx680调试"> 1 : gslx680调试 </a></div>
+<div class="title"><a href="#wm8960调试"> 2 : wm8960调试 </a></div>
+<div class="title"><a href="#mt9p111调试"> 3 : mt9p111调试 </a></div>
+<div class="title"><a href="#wm8960移植"> 4 : wm8960移植 </a></div>
 </br></br></br></br></br></br></br></br>
+<h2 align="center"><a name="LCD屏参"> LCD屏参 </a></h2>
+
+<pre class="text">
+一般硬件OK，驱动根据屏参设置，驱动基本不用修改了。
+只要根据datasheet修改屏参即可。
+
+common/arch/arm/mach-meson6/board-m6ref-panel.c
+</pre>
+
+<pre class="code">
+Lcd_Config_t m6ref_lcd_config = {
+    // Refer to LCD Spec
+    .lcd_basic = {
+        .h_active = H_ACTIVE,
+        .v_active = V_ACTIVE,
+        .h_period = H_PERIOD,
+        .v_period = V_PERIOD,
+        .screen_ratio_width = 5,
+        .screen_ratio_height = 8,
+        .screen_actual_width=127, //this is value for 160 dpi please set real value according to spec. 
+        .screen_actual_height=203,//
+        .lcd_type = LCD_DIGITAL_LVDS,   //LCD_DIGITAL_TTL  //LCD_DIGITAL_LVDS  //LCD_DIGITAL_MINILVDS
+        .lcd_bits = 8,  //8  //6 
+    },  
+
+    .lcd_timing = {          
+        .pll_ctrl = 0x10225, //clk=63.4MHz, 50.1Hz
+        .div_ctrl = 0x18803, 
+        .clk_ctrl = 0x1111,  //[19:16]ss_ctrl, [12]pll_sel, [8]div_sel, [4]vclk_sel, [3:0]xd
+        //.sync_duration_num = 501,
+        //.sync_duration_den = 10, 
+   
+        .video_on_pixel = VIDEO_ON_PIXEL,
+        .video_on_line = VIDEO_ON_LINE,
+             
+        .sth1_hs_addr = 10,
+        .sth1_he_addr = 20,
+        .sth1_vs_addr = 0,
+        .sth1_ve_addr = V_PERIOD - 1,
+        .stv1_hs_addr = 10,
+        .stv1_he_addr = 20,
+        .stv1_vs_addr = 2,
+        .stv1_ve_addr = 4,
+
+        .pol_cntl_addr = (0x0 &lt;&lt; LCD_CPH1_POL) |(0x1 &lt;&lt; LCD_HS_POL) | (0x1 &lt;&lt; LCD_VS_POL),
+        .inv_cnt_addr = (0&lt;&lt;LCD_INV_EN) | (0&lt;&lt;LCD_INV_CNT),
+        .tcon_misc_sel_addr = (1&lt;&lt;LCD_STV1_SEL) | (1&lt;&lt;LCD_STV2_SEL),
+        .dual_port_cntl_addr = (1&lt;&lt;LCD_TTL_SEL) | (1&lt;&lt;LCD_ANALOG_SEL_CPH3) | (1&lt;&lt;LCD_ANALOG_3PHI_CLK_SEL) \
+            | (0&lt;&lt;LCD_RGB_SWP) | (0&lt;&lt;LCD_BIT_SWP),
+    },
+
+    .lcd_effect = {
+        .gamma_cntl_port = (1 &lt;&lt; LCD_GAMMA_EN) | (0 &lt;&lt; LCD_GAMMA_RVS_OUT) | (1 &lt;&lt; LCD_GAMMA_VCOM_POL),
+        .gamma_vcom_hswitch_addr = 0,
+        .rgb_base_addr = 0xf0,
+        .rgb_coeff_addr = 0x74a,
+    },
+
+    .lvds_mlvds_config = {
+        .lvds_config = &amp;lcd_lvds_config,
+        .lvds_phy_control = &amp;lcd_lvds_phy_control,
+    },
+
+    .lcd_power_ctrl = {
+        .cur_bl_level = 0,
+        .power_ctrl = m6ref_lcd_power_ctrl,
+        .backlight_ctrl = m6ref_backlight_power_ctrl,
+        .get_bl_level = m6ref_get_backlight_level,
+        .set_bl_level = m6ref_set_backlight_level,
+        .lcd_suspend = m6ref_lcd_suspend,
+        .lcd_resume = m6ref_lcd_resume,
+    },
+};
+
+</pre>
+
+<h2 align="center"><a name="gslx680调试"> gslx680调试 </a></h2>
+
+<pre class="text">
+1. 在bsp中加入i2c board info, 与driver中.id_table对应
+
+common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code">
+{
+    I2C_BOARD_INFO(&quot;gsl1680&quot;, 0x40),
+},
+</pre>
+
+<pre class="text">
+此处最好实现gpio的初始化实现
+
+2. 在probe函数中注册一个input device
+
+common/drivers/amlogic/input/touchscreen/gsl1680.c
+</pre>
+
+<pre class="code">
+    ...
+    /* gpio口设置, 测试i2c读写 */
+    gsl1680_chip_init();
+    ...
+    ts = kzalloc(sizeof(*ts), GFP_KERNEL);
+    ...
+</pre>
+
+<pre class="code">
+    /* 这里是input device 的设置 */
+    input_device = input_allocate_device();
+    if (!input_device) {
+        rc = -ENOMEM;
+        goto error_alloc_dev;
+    }
+
+    ts-&gt;input = input_device;
+    input_device-&gt;name = ts-&gt;pdata-&gt;ts_name;
+    input_device-&gt;id.bustype = BUS_I2C;
+    input_device-&gt;dev.parent = &amp;client-&gt;dev;
+    input_set_drvdata(input_device, ts);
+
+    __set_bit(EV_ABS, input_device-&gt;evbit);
+    __set_bit(EV_KEY, input_device-&gt;evbit);
+    __set_bit(EV_REP, input_device-&gt;evbit);
+    __set_bit(INPUT_PROP_DIRECT, input_device-&gt;propbit);
+    set_bit(ABS_MT_POSITION_X, input_device-&gt;absbit);
+    set_bit(ABS_MT_POSITION_Y, input_device-&gt;absbit);
+    set_bit(ABS_MT_TOUCH_MAJOR, input_device-&gt;absbit);
+    set_bit(ABS_MT_WIDTH_MAJOR, input_device-&gt;absbit);
+
+    input_mt_init_slots(input_device, (MAX_CONTACTS+1));
+
+    input_set_abs_params(input_device,ABS_MT_POSITION_X, 0, SCREEN_MAX_X, 0, 0);
+    input_set_abs_params(input_device,ABS_MT_POSITION_Y, 0, SCREEN_MAX_Y, 0, 0);
+    input_set_abs_params(input_device,ABS_MT_TOUCH_MAJOR, 0, PRESS_MAX, 0, 0);
+    input_set_abs_params(input_device,ABS_MT_WIDTH_MAJOR, 0, 200, 0, 0);
+
+    /* 创建工作队列 */
+    ts-&gt;wq = create_singlethread_workqueue(&quot;kworkqueue_ts&quot;);
+    if (!ts-&gt;wq) {
+        dev_err(&amp;client-&gt;dev, &quot;Could not create workqueue\n&quot;);
+        goto error_wq_create;
+    }
+    flush_workqueue(ts-&gt;wq);
+
+    INIT_WORK(&amp;ts-&gt;work, gsl_ts_xy_worker);
+
+    rc = input_register_device(input_device);
+    if (rc)
+        goto error_unreg_device;
+
+
+</pre>
+
+<pre class="code">
+    /* 申请irq中断 */
+    rc = request_irq(client-&gt;irq, gsl_ts_irq, 
+            IRQF_DISABLED, client-&gt;name, ts);
+    /* 下载firewave */
+    gsl_load_fw(ts-&gt;client);
+    enable_irq(ts-&gt;irq);
+
+</pre>
+
+<h2 align="center"><a name="wm8960调试"> wm8960调试 </a></h2>
+
+<pre class="text">
+debugfs节点 - 串口修改寄存器值
+</pre>
+
+<pre class="code">
+mount -t debugfs none /sys/kernel/debug
+chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
+ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
+
+</pre>
+
+<pre class="text">
+1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
+
+
+//snd_card的定义位于头文件：include/sound/core.h 
+</pre>
+
+<pre class="code">
+    3885: module_init(snd_soc_init);
+
+    3883 return platform_driver_register(&amp;soc_driver);
+    2106 .probe = soc_probe,
+    2022 ret = snd_soc_register_card(card);
+    3397 snd_soc_instantiate_cards();
+
+    // 下面两行是重头戏?
+    1842 soc_bind_dai_link(card, i);
+    1874 ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+</pre>
+
+<pre class="text">
+sound/soc/soc-core.c:1874:
+</pre>
+
+<pre class="code">
+    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+    // snd_card的driver字段保存着芯片的ID字符串
+    // user空间的alsa-lib会使用到该字符串
+
+    $ cat -l /proc/asound/cards
+    0 [AMLWM8960 ]: SOC-Audio - AML-WM8960
+    AML-WM8960
+
+    $ cat /proc/asound/card0/pcm0c/info
+</pre>
+
+<pre class="text">
+    未完待续...
+
+    
+
+2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
+
+
+// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device // alsa-driver的已经提供了一些常用的部件的创建函数
+    PCM -- snd_pcm_new()
+    RAWMIDI -- snd_rawmidi_new()
+    CONTROL -- snd_ctl_create()
+    TIMER -- snd_timer_new()
+    INFO -- snd_card_proc_new()
+    JACK -- snd_jack_new()
+</pre>
+
+<pre class="code">
+    $ ls -l /dev/snd
+
+    // 用于声卡的控制，例如通道选择，混音，麦克风的控制等
+    crw-rw---- system audio 116, 0 1970-01-04 22:38 controlC0
+
+    // 用于录音的pcm设备,capture
+    crw-rw---- system audio 116, 24 1970-01-04 22:38 pcmC0D0c
+
+    // 用于播放的pcm设备,play
+    crw-rw---- system audio 116, 16 1970-01-04 22:38 pcmC0D0p
+
+    // 定时器
+    crw-rw---- system audio 116, 33 1970-01-04 22:38 timer
+
+    
+</pre>
+
+<h2 align="center"><a name="mt9p111调试"> mt9p111调试 </a></h2>
+
+<div class="author">
+mark.huang@rich-power.com.cn
+
+</div>
+
+<pre class="text">
+1.修改板级文件common/customer/boards/board-m6g22.c
+1)添加i2c bus info
+</pre>
+
+<pre class="code">
+{
+    I2C_BOARD_INFO(&quot;mt9p111_i2c&quot;, 0x78 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_mt9p111_data,
+},
+</pre>
+
+<pre class="text">
+2)板级操作(如gpio)
+</pre>
+
+<pre class="code">
+static aml_plat_cam_data_t video_mt9p111_data = {
+    .name=&quot;video-mt9p111&quot;,    
+    .video_nr=0,   //1
+    .device_init= mt9p111_v4l2_init,    //上电
+    .device_uninit=mt9p111_v4l2_uninit,
+    .early_suspend = mt9p111_v4l2_early_suspend,
+    .late_resume = mt9p111_v4l2_late_resume,
+    .device_disable=mt9p111_v4l2_disable,
+    .custom_init_script = NULL,    
+    .flash_support = 1,
+    .flash_ctrl = &amp;mt9p111_flashlight_data,
+};
+
+//gpio_int
+//init gpio pin
+gpio_out(PAD_GPIOZ_0, 0);
+gpio_out(PAD_GPIOE_10, 1);
+//AVDD_CM
+gpio_out(PAD_GPIOE_10, 0);
+//select XTAL as camera clock
+msleep(20);
+aml_set_reg32_bits(P_HHI_GEN_CLK_CNTL, 1, 8, 5);
+//#RST
+msleep(50);
+gpio_out(PAD_GPIOZ_0, 1);
+msleep(1000);
+
+</pre>
+
+<pre class="text">
+2.在 V4L2 的 id 标识中( vi include/media/v4l2-chip-ident.h)加入mt9p111的chip_id
+</pre>
+
+<pre class="code">
+V4L2_IDENT_MT9P111 = 45033,
+
+</pre>
+
+<pre class="text">
+3.驱动实现common/drivers/amlogic/camera/mt9p111.*
+</pre>
+
+<pre class="code">
+static const struct v4l2_file_operations mt9p111_fops = {
+    .owner          = THIS_MODULE,
+    .open           = mt9p111_open,
+    .release        = mt9p111_close,
+    .read           = mt9p111_read,
+    .poll           = mt9p111_poll,
+    .ioctl          = video_ioctl2, /* V4L2 ioctl handler */
+    .mmap           = mt9p111_mmap,
+};
+static const struct v4l2_ioctl_ops mt9p111_ioctl_ops = {
+    .vidioc_querycap      = vidioc_querycap,
+    .vidioc_enum_fmt_vid_cap  = vidioc_enum_fmt_vid_cap,
+    .vidioc_g_fmt_vid_cap     = vidioc_g_fmt_vid_cap,  
+    .vidioc_try_fmt_vid_cap   = vidioc_try_fmt_vid_cap,
+    //设置帧格式，比如YUV422
+    .vidioc_s_fmt_vid_cap     = vidioc_s_fmt_vid_cap,
+    .vidioc_g_parm        = vidioc_g_parm,
+    .vidioc_reqbufs       = vidioc_reqbufs,
+    .vidioc_querybuf      = vidioc_querybuf,
+    .vidioc_qbuf          = vidioc_qbuf,
+    .vidioc_dqbuf         = vidioc_dqbuf,
+    .vidioc_s_std         = vidioc_s_std,
+    .vidioc_enum_input    = vidioc_enum_input,
+    .vidioc_g_input       = vidioc_g_input,
+    .vidioc_s_input       = vidioc_s_input,
+    .vidioc_queryctrl     = vidioc_queryctrl,
+    .vidioc_querymenu     = vidioc_querymenu,
+    .vidioc_g_ctrl        = vidioc_g_ctrl,
+    //这个设置对焦、白平衡等特效
+    .vidioc_s_ctrl        = vidioc_s_ctrl,
+    .vidioc_streamon      = vidioc_streamon,
+    .vidioc_streamoff     = vidioc_streamoff,
+    .vidioc_enum_framesizes = vidioc_enum_framesizes,
+    .vidioc_enum_frameintervals = vidioc_enum_frameintervals,
+#ifdef CONFIG_VIDEO_V4L1_COMPAT
+    .vidiocgmbuf          = vidiocgmbuf,
+#endif
+};
+static struct video_device mt9p111_handler = {
+    .name           = &quot;mt9p111_v4l&quot;,
+    .fops           = &amp;mt9p111_fops,
+    .ioctl_ops      = &amp;mt9p111_ioctl_ops,
+    .release        = video_device_release,        
+    .tvnorms        = V4L2_STD_525_60,
+    .current_norm   = V4L2_STD_NTSC_M,
+};
+
+</pre>
+
+<pre class="text">
+//注册流程
+</pre>
+
+<pre class="code">
+ddata-&gt;vdev = video_device_alloc();
+memcpy(ddata-&gt;vdev, &amp;mt9p111_handler, sizeof(*ddata-&gt;vdev));
+video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
+</pre>
+
+<h2 align="center"><a name="wm8960移植"> wm8960移植 </a></h2>
+
+<pre class="text">
+
+涉及文件工程文件：
+
+1.device/amlogic/g18ref/g18ref.mk
+修改BOARD_AUDIO_CODEC := dummy为BOARD_AUDIO_CODEC := wm8960
+
+2.common/customer/configs/meson6_g18_jbmr1_defconfig
+#CONFIG_SND_AML_M6_RT5631=y
+CONFIG_SND_AML_M6_WM8960=y
+#CONFIG_SND_AML_M_DUMMY_CODEC=y
+
+3.hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
+此处视你自己的需求设置通路
+
+4.BSP文件common/customer/boards/board-m6g18.c
+</pre>
+
+<pre class="code">
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt; ......   此处实现wm8960_padata  ......
+&lt; static struct wm8960_data wm8960_pdata = {
+&lt;     .hp_detect      = wm8960_hp_detect,
+&lt;     .device_init    = wm8960_device_init,
+&lt;     .device_uninit  = wm8960_device_deinit,
+&lt;     .capless        = 1,
+&lt;     .dres           = WM8960_DRES_600R,
+&lt;     
+&lt; };
+&lt; 
+&lt; static struct platform_device aml_wm8960_audio = {
+&lt;     .name           = &quot;aml_wm8960_audio&quot;,
+&lt;     .id             = 0,
+&lt;     .resource       = aml_m6_audio_resource,
+&lt;     .num_resources  = ARRAY_SIZE(aml_m6_audio_resource),
+&lt;     .dev = {
+&lt;         .platform_data = &amp;wm8960_pdata,
+&lt;     },
+&lt; };
+&lt; #endif
+
+static struct platform_device  *platform_devs[] = {
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt;     &amp;aml_wm8960_audio,
+&lt; #endif
+
+</pre>
+
+<pre class="text">
+5.添加驱动文件
+common/sound/soc/aml/aml_m6_wm8960.c
+common/sound/soc/codecs/wm8960.*
+
+
+驱动修改指南:
+1.初始化
+</pre>
+
+<pre class="code">
+static int wm8960_probe(struct snd_soc_codec *codec)
+    ...
+    ret = wm8960_reset(codec);
+    ...
+    snd_soc_write(codec, WM8960_DACCTL1, 0x0);
+    
+</pre>
+
+<pre class="text">
+2.在录音播放时相关的寄存器设置
+1)软件设置
+hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
+
+2)硬件设置
+</pre>
+
+<pre class="code">
+static int wm8960_mute(struct snd_soc_dai *dai, int mute)
+    snd_soc_write(codec, WM8960_LINPATH, 0x148);
+
+</pre>
+
     </body>
 </html>

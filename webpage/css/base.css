@@ -58,7 +58,8 @@ h1 {font: 28px Tahoma; margin: 2px; text-align: left; background: #FFF}
 
 .code {
     font-family: "Consolas" , "Courier New" , Courier, mono, serif;
-    font-size: 12px;
+    font-size: 15px;
+    color: blue;
     background-color: #E7E5DC;
     width: 88%;
     overflow: auto;
