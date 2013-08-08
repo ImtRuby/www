@@ -24,3 +24,7 @@ push:
 	tar -cjvf file_backup.tar.bz2 file/
 	git add .
 	git commit -s && git push -u origin master
+
+tag:
+	@git log
+	@echo "git tag R1.0.0 962ee63dde5a5b7b3ae693e1d5108d5a43fb8d6d"
