@@ -7,11 +7,9 @@ default :
 	@rm -f $(ROOT)/webpage/html/*
 	@set -e; \
 	cd $(FILES) && make special -r ROOT=$(ROOT) $@ ; \
-	#cd $(FILES) && make -r ROOT=$(ROOT) $@ ; \
-	#for dir in $(FILES); \
-	#do \
-	#	cd $$dir && make special -r ROOT=$(ROOT) $@ ; \
-	#done
+	sleep 1
+	@sudo rm /var/www/* -rf
+	@sudo cp webpage/* /var/www/ -r
 
 clean : 
 	@set -e; \

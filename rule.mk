@@ -1,6 +1,7 @@
 .PHONY : all clean
 
 DIR_FILE = $(ROOT)/file/
+INDEX_HTML = $(ROOT)/webpage/index.html
 DIR_HTML = $(ROOT)/webpage/html
 DIR_CSS = $(ROOT)/webpage/css
 DIR_SCRIPT = $(ROOT)/webpage/script

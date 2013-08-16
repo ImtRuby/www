@@ -17,8 +17,9 @@
 <div class="title"><a href="#LCD屏参"> 0 : LCD屏参 </a></div>
 <div class="title"><a href="#gslx680调试"> 1 : gslx680调试 </a></div>
 <div class="title"><a href="#wm8960调试"> 2 : wm8960调试 </a></div>
-<div class="title"><a href="#mt9p111调试"> 3 : mt9p111调试 </a></div>
-<div class="title"><a href="#wm8960移植"> 4 : wm8960移植 </a></div>
+<div class="title"><a href="#红外遥控器修改"> 3 : 红外遥控器修改 </a></div>
+<div class="title"><a href="#mt9p111调试"> 4 : mt9p111调试 </a></div>
+<div class="title"><a href="#wm8960移植"> 5 : wm8960移植 </a></div>
 </br></br></br></br></br></br></br></br>
 <h2 align="center"><a name="LCD屏参"> LCD屏参 </a></h2>
 
@@ -268,6 +269,30 @@ sound/soc/soc-core.c:1874:
     crw-rw---- system audio 116, 33 1970-01-04 22:38 timer
 
     
+</pre>
+
+<h2 align="center"><a name="红外遥控器修改"> 红外遥控器修改 </a></h2>
+
+<pre class="text">
+1. 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
+填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
+tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
+
+
+2. 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
+</pre>
+
+<pre class="code">
+                ^0x55 97  //sam                                 
+                ^0x51 65
+</pre>
+
+<pre class="text">
+常用的功能码:
+KEY_BACK    158
+KEY_MENU    139
+KEY_HOME    102
+KEY_SEARCH  217
 </pre>
 
 <h2 align="center"><a name="mt9p111调试"> mt9p111调试 </a></h2>
