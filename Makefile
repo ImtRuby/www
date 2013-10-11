@@ -20,6 +20,8 @@ default :
 
 push:
 	tar -cjvf file_backup.tar.bz2 file/
+	echo "sleep 10s..."
+	sleep 10
 	rm file -rf
 	git add .
 	git commit -s && git push -u origin master
