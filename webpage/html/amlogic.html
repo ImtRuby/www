@@ -1,0 +1,886 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- saved from url=(0049)file:///home/mark/project/www/www/html/index.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- use charset utf-8 -->
+
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <!-- set stylesheet -->
+        <link rel="stylesheet" type="text/css" href="../css/base.css">
+
+        <!-- title name -->
+        <title>Mark's home!</title>
+    </head>
+
+<body>
+</br></br></br></br>
+<div class="title"><a href="#Camera-SP0838"> 0 : Camera-SP0838 </a></div>
+<div class="title"><a href="#SD卡挂载目录"> 1 : SD卡挂载目录 </a></div>
+<div class="title"><a href="#DDR"> 2 : DDR </a></div>
+<div class="title"><a href="#Codec"> 3 : Codec </a></div>
+<div class="title"><a href="#WIFI-8188eu"> 4 : WIFI-8188eu </a></div>
+<div class="title"><a href="#Logo墙纸"> 5 : Logo墙纸 </a></div>
+<div class="title"><a href="#Gsensor"> 6 : Gsensor </a></div>
+<div class="title"><a href="#Battery"> 7 : Battery </a></div>
+<div class="title"><a href="#buglist"> 8 : buglist </a></div>
+<div class="title"><a href="#TP-icn838x"> 9 : TP-icn838x </a></div>
+<div class="title"><a href="#LCD-H-B070D"> 10 : LCD-H-B070D </a></div>
+<div class="title"><a href="#AmlMiracast"> 11 : AmlMiracast </a></div>
+<div class="title"><a href="#VDD_EE电压修改"> 12 : VDD_EE电压修改 </a></div>
+<div class="title"><a href="#USB升级包制作"> 13 : USB升级包制作 </a></div>
+<div class="title"><a href="#Camera-SP0A19"> 14 : Camera-SP0A19 </a></div>
+</br></br></br></br></br></br></br></br>
+<h2 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h2>
+
+<pre class="text-style">
+1 打开编译开关
+</pre>
+
+<pre class="code-style">
+	vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_VIDEO_AMLOGIC_CAPTURE=y
+CONFIG_V4L_AMLOGIC_VIDEO=y
+CONFIG_AMLOGIC_CAPTURE_FRAME_ROTATE=y
+CONFIG_AMLOGIC_VM_DISABLE_VIDEOLAYER=y
+# CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308=y
+CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838=y
+
+</pre>
+
+<pre class="text-style">
+2 修改BSP的I2C_BOARD_INFO, 其中注意aml_plat_cam_data_t中.video_nr=0,//1,为前置摄像头
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308
+    {
+        /*gc0308 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;gc0308_i2c&quot;,  0x42 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_gc0308_data,
+    }, 
+#endif 
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838
+    {  
+        /*sp0838 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;sp0838_i2c&quot;,  0x30 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_sp0838_data,
+    }, 
+#endif
+
+</pre>
+
+<pre class="text-style">
+3 问题总结
+1) can't connected
+	aml_plat_cam_data_t中.video_nr不对
+2) 绿屏(I2C报错)
+	上电时序错误, 芯片没工作
+3) 红绿屏
+	YUV设置反了
+</pre>
+
+<h2 align="center"><a name="SD卡挂载目录"> SD卡挂载目录 </a></h2>
+
+<pre class="text-style">
+1 编译修改
+</pre>
+
+<pre class="code-style">
+    vi device/amlogic/g33refNew/vold.fstab
+</pre>
+
+<pre class="code-style">
+dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
+
+</pre>
+
+<pre class="text-style">
+2 在线修改
+</pre>
+
+<pre class="code-style">
+   vi /etc/vold.fstab
+</pre>
+
+<pre class="code-style">
+dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
+</pre>
+
+<h2 align="center"><a name="DDR"> DDR </a></h2>
+
+<pre class="text-style">
+1 修改DDR 时钟
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/m6_g33new_1GB/firmware/timming.c
+</pre>
+
+<pre class="code-style">
+                #ifdef DDR3_7_7_7
+                    .cl             =   7,  
+                    .t_faw          =  30,	/* Mark fixme 20-&gt;30 */	//27:page size 2KB; 20:page size 1KB 
+                    .t_ras          =  20, 
+                    .t_rc           =  27, 
+                    .t_rcd          =   7,  
+                    .t_rfc          =  160,	/* Mark fixme 86-&gt;160 */	//4Gb:139~160; 2Gb:86; 1Gb:59
+                    .t_rp           =   7,  
+                    .t_rrd          =   6,	/* Mark fixme 4-&gt;6 */	//6 or 5:page size 2KB; 4:page size 1KB 
+                    .t_rtp          =   4,  
+                    .t_wr           =   8,  
+                    .t_wtr          =   4,  
+                    .t_cwl          =   6,
+                    .t_mod          =   8,
+                #endif
+
+</pre>
+
+<pre class="text-style">
+2 修改DDR 频率
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+#define M6_DDR_CLK (468)
+
+</pre>
+
+<h2 align="center"><a name="Codec"> Codec </a></h2>
+
+<pre class="text-style">
+1 修改codec代码(关闭耳机检测)
+</pre>
+
+<pre class="code-style">
+	vi common/sound/soc/codecs/wm8960.c
+</pre>
+
+<pre class="code-style">
+#if 0	//mark fixme
+ 	snd_soc_update_bits(codec,24, 0x040, 0);// HPDETECT LOW = Speaker
+
+ 	snd_soc_update_bits(codec,27, 0x008, 0);// OUT3 buffer Enabled and disabled with HPL and HPR jack detect
+
+ 	snd_soc_update_bits(codec,48, 0x03A, 0);// JD2 used for Jack Detect Input, GPIO function = jack detect output
+#endif  //mark end
+
+</pre>
+
+<pre class="text-style">
+2 修改板级相关代码(关闭耳机检测)
+</pre>
+
+<pre class="code-style">
+	vi common/sound/soc/aml/aml_m6_wm8960.c
+</pre>
+
+<pre class="code-style">
+#if 0
+    if(!wm8960_snd_pdata-&gt;dis_hp_det){
+        //JD2 as headphone detect
+        snd_soc_update_bits(codec,27, 0x008, 0x008);// OUT3 buffer Enabled and disabled with HPL and HPR jack detect                  
+        //INSERT_DELAY    [1] 
+        mdelay(1);            
+        ///GPIO1 output the &quot;jack detect output&quot;
+        snd_soc_update_bits(codec,48, 0x03A, 0x03A);// JD2 used for Jack Detect Input, GPIO function = jack detect output 
+
+        snd_soc_update_bits(codec,24, 0x040, 0x040);// HPDETECT LOW = Speaker 
+    }   
+#endif
+</pre>
+
+<h2 align="center"><a name="WIFI-8188eu"> WIFI-8188eu </a></h2>
+
+<pre class="text-style">
+Tips:
+	可以通过lsusb确认是否用对了芯片模组!
+
+1 wifi编译配置
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/g33refNew.mk
+</pre>
+
+<pre class="code-style">
+#########################################################################
+#
+#                                                WiFi
+#
+#########################################################################
+
+WIFI_MODULE := rtl8188eu    #bcm40181
+WIFI_AP6xxx_MODULE := AP6181
+include device/amlogic/common/wifi.mk
+
+# Change this to match target country
+# 11 North America; 14 Japan; 13 rest of world
+PRODUCT_DEFAULT_WIFI_CHANNELS := 11
+
+</pre>
+
+<pre class="text-style">
+2 修改内核编译选项
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/Kernel.mk
+</pre>
+
+<pre class="code-style">
+cp $(KERNEL_OUT)/drivers/amlogic/wifi/rtl8xxx_EU/8188eu.ko $(TARGET_OUT)/lib/
+#cp $(KERNEL_OUT)/drivers/amlogic/wifi/broadcm_40181/dhd.ko $(TARGET_OUT)/lib/
+
+
+</pre>
+
+<pre class="text-style">
+4 修改Kconfig
+</pre>
+
+<pre class="code-style">
+	vi common/drivers/amlogic/wifi/Kconfig
+</pre>
+
+<pre class="code-style">
+source &quot;drivers/amlogic/wifi/rtl8xxx_EU/Kconfig&quot;
+
+</pre>
+
+<pre class="code-style">
+	vi common/drivers/amlogic/wifi/rtl8xxx_EU/Kconfig
+</pre>
+
+<pre class="code-style">
+config RTL8188EU
+    tristate &quot;Realtek 8188E USB WiFi&quot;
+    depends on USB 
+    default m
+    ---help---
+      Help message of RTL8188EU
+
+</pre>
+
+<pre class="text-style">
+5 修改项目配置文件
+</pre>
+
+<pre class="code-style">
+	vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_AM_WIFI=y
+CONFIG_AM_WIFI_SD_MMC=y
+# CONFIG_AM_WIFI_USB=y
+#CONFIG_SDIO_DHD_CDC_WIFI_40181_MODULE=m
+#CONFIG_BCM40181_WIFI=y
+CONFIG_RTL8188EU=m
+
+</pre>
+
+<pre class="text-style">
+6 注释quick_build_kernel.sh
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/quick_build_kernel.sh
+</pre>
+
+<pre class="code-style">
+#cp $KERNEL_OUT/drivers/amlogic/wifi/broadcm_40181/dhd.ko $PRODUCT_OUT/system/lib/
+</pre>
+
+<h2 align="center"><a name="Logo墙纸"> Logo墙纸 </a></h2>
+
+<pre class="text-style">
+1 uboot logo
+1) 修改logo
+</pre>
+
+<pre class="code-style">
+	device/amlogic/g33refNew/res_pack/*
+</pre>
+
+<pre class="text-style">
+2) 删除out/target/product/g33refNew/res-package.img 重新编译
+</pre>
+
+<pre class="code-style">
+	rm out/target/product/g33refNew/res-package.img
+	make otapackage -j4
+
+</pre>
+
+<pre class="text-style">
+2 墙纸-android的静态壁纸, 默认是frameworks/base/core/res/res/drawable*/*
+(至于默认动态壁纸，这个要修改/framework/base/core/res/res/values/config.xml)
+</pre>
+
+<pre class="code-style">
+drawable-nodpi-1024×600
+drawable-nodpi-1280×800
+drawable-nodpi-800×480
+</pre>
+
+<h2 align="center"><a name="Gsensor"> Gsensor </a></h2>
+
+<pre class="text-style">
+1 加入驱动编译开关
+</pre>
+
+<pre class="code-style">
+	vi common/customer/drivers/misc/Kconfig 
+</pre>
+
+<pre class="code-style">
+config SENSORS_LIS3DH
+    tristate &quot;LIS3DH acceleration sensor driver&quot;
+    depends on I2C 
+    default y
+    help
+      If you say yes here you get support for the Freescale's accelerometer sensor LIS3DH
+
+</pre>
+
+<pre class="text-style">
+2 修改项目配置文件的开关
+</pre>
+
+<pre class="code-style">
+	vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+# CONFIG_SENSORS_MMA7660=y
+# CONFIG_SENSORS_STK8312=y
+CONFIG_SENSORS_LIS3DH =y
+
+</pre>
+
+<pre class="text-style">
+3 修改BSP中I2C_BOARD_INFO
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+#ifdef CONFIG_SENSORS_STK8312 
+    {  
+        I2C_BOARD_INFO(&quot;stk831x&quot;, 0x3d),
+    }, 
+#endif 
+
+#ifdef CONFIG_SENSORS_LIS3DH  
+    {  
+		/* 
+			SDO/SA0 pad can be used to modify less 
+			significant bit of the device address. 
+		*/
+        I2C_BOARD_INFO(&quot;lis3dh_acc&quot;, 0x29),	/* 7-bit addr 0x28/0x29 */
+    }  
+#endif
+
+</pre>
+
+<pre class="text-style">
+4 Gsensor方向
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/system.prop
+</pre>
+
+<pre class="code-style">
+ro.sf.gsensorposition=0
+</pre>
+
+<h2 align="center"><a name="Battery"> Battery </a></h2>
+
+<pre class="text-style">
+1 替换device/amlogic/g33refNew/res_pack/Battery_Parameter.txt
+
+2 修改uboot
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+#define BATTERYCAP              2800                            //battery capability
+
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/m6_g33new_1GB/m6_g33new_1GB.c
+</pre>
+
+<pre class="code-style">
+int config_battery_rdc = 126;
+
+struct battery_curve config_battery_curve[] = { 
+    {3132,      0,      0},  
+    {3273,      0,      0},  
+    {3414,      0,      0},  
+    {3555,      0,      0},  
+    {3625,      1,      3},  
+    {3660,      2,      8},  
+    {3696,      3,     16}, 
+    {3731,     10,     24}, 
+    {3766,     15,     38}, 
+    {3801,     26,     48}, 
+    {3836,     42,     56},
+    {3872,     52,     63},
+    {3942,     66,     74},
+    {4012,     79,     85},
+    {4083,     90,     94},
+    {4153,    100,    100}
+},
+
+</pre>
+
+<pre class="text-style">
+3 修改kernel
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+    .pmu_battery_rdc = 126,     ////150,
+    .pmu_battery_cap = 2800,    ////8000,
+
+    .pmu_bat_curve = {
+    // ocv, charge, discharge
+    {3132,      0,      0},  
+    {3273,      0,      0},  
+    {3414,      0,      0},  
+    {3555,      0,      0},  
+    {3625,      1,      4},  
+    {3660,      3,      8},  
+    {3696,      6,     14}, 
+    {3731,     11,     25}, 
+    {3766,     16,     42}, 
+    {3801,     30,     51}, 
+    {3836,     44,     59}, 
+    {3872,     55,     65}, 
+    {3942,     69,     76}, 
+    {4012,     79,     85}, 
+    {4083,     89,     94}, 
+    {4153,    100,    100}
+    };
+</pre>
+
+<h2 align="center"><a name="buglist"> buglist </a></h2>
+
+<pre class="text-style">
+1 UI显示完整
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/system.prop
+</pre>
+
+<pre class="code-style">
+ro.sf.lcd_density=120
+
+</pre>
+
+<pre class="text-style">
+2 UI的分栏
+</pre>
+
+<pre class="code-style">
+	vi frameworks/base/core/res/res/values/bools.xml
+</pre>
+
+<pre class="code-style">
+	&lt;bool name=&quot;preferences_prefer_dual_pane&quot;&gt;true&lt;/bool&gt;
+
+</pre>
+
+<pre class="text-style">
+3 HDMI连不上
+	对照MXS公板原理图，板子漏焊一个0欧姆电阻
+</pre>
+
+<h2 align="center"><a name="TP-icn838x"> TP-icn838x </a></h2>
+
+<pre class="text-style">
+1 修改配置文件
+</pre>
+
+<pre class="code-style">
+	vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_MESON_INPUT_TOUCHSCREEN=y
+#CONFIG_GSL1680_CAPACITIVE_TOUCHSCREEN_86V=y
+#CONFIG_FOCALTECH_CAPACITIVE_TOUCHSCREEN_G05_M76=y
+# CONFIG_GOODIX_GT801_CAPACITIVE_TOUCHSCREEN is not set 
+# CONFIG_FOCALTECH_CAPACITIVE_TOUCHSCREEN_G24 is not set 
+# CONFIG_GSl1680_CAPACITIVE_TOUCHSCREEN_G12_ANDA_M708A2 is not set 
+CONFIG_ICN838x_CAPACITIVE_TOUCHSCREEN=y
+
+</pre>
+
+<pre class="text-style">
+2 修改BSP
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+#ifdef CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN
+    {  
+        I2C_BOARD_INFO(&quot;Goodix-TS&quot;, 0x5d),
+    }, 
+#endif 
+    //RP mark add here
+#ifdef CONFIG_ICN838x_CAPACITIVE_TOUCHSCREEN
+    {  
+        I2C_BOARD_INFO(&quot;chipone-ts&quot;,  (0x60&gt;&gt;1)),
+    }, 
+#endif 
+#ifdef CONFIG_FOCALTECH_CAPACITIVE_TOUCHSCREEN_G24
+    {  
+        I2C_BOARD_INFO(&quot;ft5x06&quot;, 0x38),
+        .irq = INT_GPIO_0,    
+        .platform_data = (void *)&amp;ts_pdata,
+    }, 
+#endif
+
+</pre>
+
+<pre class="text-style">
+3 修改脚本device/amlogic/g33refNew/g33refNew.mk 
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/g33refNew.mk
+</pre>
+
+<pre class="code-style">
+#########################################################################
+#
+#                                                Tp  
+#
+#########################################################################
+PRODUCT_COPY_FILES += $(LOCAL_PATH)/icn838x_para.bin:system/vendor/icn838x_para.bin
+
+</pre>
+
+<pre class="text-style">
+4 修改驱动中读取firmware的路径
+</pre>
+
+<pre class="code-style">
+  vi common/drivers/amlogic/input/touchscreen/icn838x/icn838x_iic_slave.c
+</pre>
+
+<pre class="code-style">
+#if SUPPORT_AMLOGIC
+static char para[128] = {&quot;/system/vendor/icn838x_para.bin&quot;};
+#endif
+</pre>
+
+<h2 align="center"><a name="LCD-H-B070D"> LCD-H-B070D </a></h2>
+
+<pre class="text-style">
+1 修改分辨率
+1) uboot中设置分辨率
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+    &quot;display_width=800\0&quot; \
+    &quot;display_height=480\0&quot; \
+
+</pre>
+
+<pre class="text-style">
+2) kernel中设置buffer OSD大小
+</pre>
+
+<pre class="code-style">
+	vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_FB_AM=y
+CONFIG_FB_OSD2_CURSOR=y
+CONFIG_FB_OSD2_DEFAULT_WIDTH=32
+CONFIG_FB_OSD2_DEFAULT_HEIGHT=32
+CONFIG_FB_OSD2_DEFAULT_WIDTH_VIRTUAL=32
+CONFIG_FB_OSD2_DEFAULT_HEIGHT_VIRTUAL=32
+CONFIG_FB_OSD1_DEFAULT_BITS_PER_PIXEL=32
+CONFIG_FB_OSD1_DEFAULT_WIDTH=800
+CONFIG_FB_OSD1_DEFAULT_HEIGHT=480
+CONFIG_FB_OSD1_DEFAULT_WIDTH_VIRTUAL=800
+CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
+
+</pre>
+
+<pre class="text-style">
+3) 修改开机设置显示脚本
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/set_display_mode.sh
+</pre>
+
+<pre class="code-style">
+    panel)
+        fbset -fb /dev/graphics/fb0 -g 800 480 800 960 32
+        echo 1 &gt; /sys/class/graphics/fb1/blank
+        fbset -fb /dev/graphics/fb1 -g 32 32 32 32 32
+        echo $1 &gt; /sys/class/display/mode
+        echo 0 0 800 480 0 0 32 32 &gt; /sys/class/display/axis
+    ;;  
+        
+    mode_set_before)
+        fbset -fb /dev/graphics/fb0 -g 800 480 800 960 32
+        fbset -fb /dev/graphics/fb1 -g 32 32 32 32 32
+        echo 0 0 800 480 0 0 32 32 &gt; /sys/class/display/axis
+    ;;  
+
+
+</pre>
+
+<pre class="text-style">
+2 修改屏参
+1) 修改屏参(uboot)
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/m6_g33new_1GB/lcd.c
+</pre>
+
+<pre class="code-style">
+#include &quot;../../include/panel/CLAPABCD.h&quot;
+
+</pre>
+
+<pre class="text-style">
+2) 放入自己的屏参配置文件
+</pre>
+
+<pre class="code-style">
+	uboot/customer/include/panel/CLAPABCD.h
+
+</pre>
+
+<pre class="text-style">
+3) 修改屏参(kernel)
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-panel.c
+</pre>
+
+<pre class="code-style">
+#include &quot;../include/panel/CLAPABCD.h&quot;
+
+</pre>
+
+<pre class="text-style">
+4) 放入自己的屏参配置文件(与2)同一份)
+</pre>
+
+<pre class="code-style">
+	common/customer/include/panel/CLAPABCD.h
+
+</pre>
+
+<pre class="text-style">
+5) 修改其余OSD的参数
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-new.h
+</pre>
+
+<h2 align="center"><a name="AmlMiracast"> AmlMiracast </a></h2>
+
+<pre class="text-style">
+打开Setting中wifi_display选项
+</pre>
+
+<pre class="code-style">
+	vi frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+</pre>
+
+<pre class="code-style">
+&lt;bool name=&quot;def_wifi_display_on&quot;&gt;true&lt;/bool&gt;
+</pre>
+
+<h2 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h2>
+
+<pre class="text-style">
+1 修改uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+	vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+#define CONFIG_DCDC3_VOLTAGE    1200
+
+</pre>
+
+<pre class="text-style">
+2 修改uboot/arch/arm/cpu/aml_meson/m6/firmware/arc_power/config.h
+</pre>
+
+<pre class="code-style">
+#define CONFIG_DCDC3_VOLTAGE    1200
+
+</pre>
+
+<pre class="text-style">
+3 保证device/amlogic/g33refNew/init.amlogic.board.rc中注释了此行
+</pre>
+
+<pre class="code-style">
+#    write /sys/class/power_supply/battery/aml_pmu_vddao 1100
+</pre>
+
+<h2 align="center"><a name="USB升级包制作"> USB升级包制作 </a></h2>
+
+<pre class="text-style">
+步驟1、2已經不需要，只要生成recovery即可
+
+1 修改device/amlogic/g33refNew/quick_build_kernel.sh，对应common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+	vi device/amlogic/g33refNew/quick_build_kernel.sh
+</pre>
+
+<pre class="code-style">
+KERNEL_USBBURN_CONFIG=meson6_g33_new_jb_usb_burn_defconfig
+
+</pre>
+
+<pre class="text-style">
+2 对照meson6_g18_jbmr1_defconfig和meson6_g18_usb_burning_defconfig，
+把meson6_g33_new_jb_defconfig修改为meson6_g33_new_jb_usb_burn_defconfig
+
+3 关机插掉nand打开usb烧录工具烧写resource.zip（也可以通过重启按组合键进入fastboot模式）
+	resource.zip放置路径请不要带中文字符。
+
+
+Tips:注意config_progress.xml中最后一个common应为shutdown，若是reset会导致升级好的android系统缺recovery.img，
+会导致恢复出厂设置无法清除自安装apk
+
+</pre>
+
+<pre class="code-style">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;progress_configs&gt;
+ 	&lt;command sn=&quot;0&quot; path=&quot;usb_spl.bin&quot; address=&quot;0xd9000000&quot; run=&quot;true&quot;&gt;load spl&lt;/command&gt;
+	&lt;command sn=&quot;1&quot; path=&quot;u-boot-orig.bin&quot; address=&quot;0x8f800000&quot; run=&quot;false&quot;&gt;load uboot&lt;/command&gt;
+	&lt;command sn=&quot;2&quot; &gt;crc 0x8f800000 size value&lt;/command&gt;
+	&lt;command sn=&quot;3&quot; count=&quot;10&quot;&gt;run 0x8f800000&lt;/command&gt;
+	&lt;command sn=&quot;4&quot;&gt;set_chgcur 0&lt;/command&gt;
+	&lt;command sn=&quot;5&quot;&gt;video dev bl_off&lt;/command&gt;
+	&lt;command sn=&quot;6&quot;&gt;video dev disable&lt;/command&gt;
+	&lt;command sn=&quot;7&quot;&gt;nand rom_protect off&lt;/command&gt;
+	&lt;command sn=&quot;8&quot;&gt;nand erase 0&lt;/command&gt;
+	&lt;command sn=&quot;9&quot;&gt;nand info&lt;/command&gt;
+	&lt;command sn=&quot;10&quot;&gt;defenv&lt;/command&gt;
+	&lt;command sn=&quot;11&quot;&gt;setenv bootargs ${bootargs} a9_clk_max=600000000&lt;/command&gt;
+	&lt;command sn=&quot;12&quot; cmd=&quot;setenv recovery_command --usb_burning&quot; address=&quot;0x82000000&quot;&gt;load addr&lt;/command&gt;
+	&lt;command sn=&quot;13&quot;&gt;cmd_in_mem 0x82000000&lt;/command&gt;
+	&lt;command sn=&quot;14&quot;&gt;save&lt;/command&gt;
+	&lt;command sn=&quot;15&quot; path=&quot;uImage_usb_burning&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
+	&lt;command sn=&quot;16&quot; &gt;crc 0x82000000 size value&lt;/command&gt;
+	&lt;command sn=&quot;17&quot; count=&quot;100&quot;&gt;bootm 0x82000000&lt;/command&gt;
+	&lt;command sn=&quot;18&quot;&gt;wipe_data&lt;/command&gt;
+	&lt;command sn=&quot;19&quot;&gt;wipe_cache&lt;/command&gt;
+	&lt;command sn=&quot;20&quot;&gt;copy_media&lt;/command&gt;
+	&lt;command sn=&quot;21&quot; count=&quot;400&quot;&gt;update:update.zip&lt;/command&gt;
+	&lt;command sn=&quot;22&quot;&gt;shutdown&lt;/command&gt;
+&lt;/progress_configs&gt;
+</pre>
+
+<h2 align="center"><a name="Camera-SP0A19"> Camera-SP0A19 </a></h2>
+
+<pre class="text-style">
+1 打开编译开关
+</pre>
+
+<pre class="code-style">
+	vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_VIDEO_AMLOGIC_CAPTURE=y
+CONFIG_V4L_AMLOGIC_VIDEO=y
+CONFIG_AMLOGIC_CAPTURE_FRAME_ROTATE=y
+CONFIG_AMLOGIC_VM_DISABLE_VIDEOLAYER=y
+# CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308=y
+CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0A19=y
+
+</pre>
+
+<pre class="text-style">
+2 修改BSP的I2C_BOARD_INFO, 其中注意aml_plat_cam_data_t中.video_nr=0,//1,为前置摄像头
+</pre>
+
+<pre class="code-style">
+	vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308
+    {
+        /*gc0308 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;gc0308_i2c&quot;,  0x42 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_gc0308_data,
+    }, 
+#endif 
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0A19
+    {  
+        /*sp0838 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;sp0a19_i2c&quot;,  0x42 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_sp0A19_data,
+    }, 
+#endif
+
+</pre>
+
+<pre class="text-style">
+3 问题总结
+1) can't connected
+	aml_plat_cam_data_t中.video_nr不对
+2) 绿屏(I2C报错)
+	上电时序错误, 芯片没工作
+3) 红绿屏
+	YUV设置反了
+4) 0A19 绿色屏,修改0x31 pclk 为 0x20, 使pclk匹配
+</pre>
+
+    </body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- saved from url=(0049)file:///home/mark/project/www/www/html/index.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- use charset utf-8 -->
+
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <!-- set stylesheet -->
+        <link rel="stylesheet" type="text/css" href="../css/base.css">
+
+        <!-- title name -->
+        <title>Mark's home!</title>
+    </head>
+
+<body>
+</br></br></br></br>
+<div class="title"><a href="#m6_编译说明"> 0 : m6_编译说明 </a></div>
+<div class="title"><a href="#git"> 1 : git </a></div>
+<div class="title"><a href="#ssh公密匙"> 2 : ssh公密匙 </a></div>
+</br></br></br></br></br></br></br></br>
+<h2 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h2>
+
+<pre class="text-style">
+    环境搭建：
+    gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2
+</pre>
+
+<pre class="code-style">
+    sudo tar -jxvf gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2 -C /opt/
+</pre>
+
+<pre class="text-style">
+    arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
+    arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+</pre>
+
+<pre class="code-style">
+    sudo tar -jxvf arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
+    sudo tar -jxvf arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
+</pre>
+
+<pre class="text-style">
+    arc_gnutools.sh
+</pre>
+
+<pre class="code-style">
+    sudo cp arc_gnutools.sh /etc/profile.d/
+</pre>
+
+<h2>
+    1 uboot编译
+</h2>
+
+<pre class="code-style">
+    cd uboot
+    make m6_gXX_config   
+    make
+</pre>
+
+<h2>
+    2 kernel编译
+</h2>
+
+<h2>
+    3 android文件系统编译
+</h2>
+
+<pre class="text-style">
+    编译是需要java环境的！
+    安装jdk-6u23-linux-i586.bin，特别要注意的是java se版本应该在java 1.6 u26以下！
+</pre>
+
+<pre class="code-style">
+    update-alternatives --install /usr/bin/jar jar /opt/jdk1.6.0_23/bin/jar 655
+    update-alternatives --install /usr/bin/java java /opt/jdk1.6.0_23/bin/java 655
+    update-alternatives --install /usr/bin/javac javac /opt/jdk1.6.0_23/bin/javac 655
+</pre>
+
+<pre class="text-style">
+    选择需要的java
+</pre>
+
+<pre class="code-style">
+    update-alternatives --config jar
+    update-alternatives --config java
+    update-alternatives --config javac
+</pre>
+
+<pre class="text-style">
+    编译工程！
+</pre>
+
+<pre class="code-style">
+    source build/envsetup.sh
+</pre>
+
+<pre class="code-style">
+    echo 公版mid &amp;&amp; lunch g33refNew-eng
+</pre>
+
+<pre class="code-style">
+    make -j4
+</pre>
+
+<h2 align="center"><a name="git"> git </a></h2>
+
+<pre class="text-style">
+    创建一个用于git的用户
+</pre>
+
+<pre class="code-style">
+    sudo adduser git
+    su git
+    cd; mkdir .ssh
+</pre>
+
+<a>
+    添加开发者公匙到服务器
+NULL
+<h2>
+    1 服务器建立一个裸库
+</h2>
+
+<pre class="code-style">
+    cd; mkdir project.git
+    cd prject.git
+    git --bare init
+</pre>
+
+<h2>
+    2 开发者创建项目并推送
+</h2>
+
+<pre class="code-style">
+    cd myproject
+    git init
+    git add .
+    git commit -m 'initial commit'
+    git remote add origin git@10.86.133.33:~/project.git
+    git push origin master
+</pre>
+
+<h2>
+    3 其他开发者参与
+</h2>
+
+<pre class="code-style">
+    git clone git@10.86.133.33:~/project.git
+    cd prject
+    touch README
+    git commit -am 'fix for the README file'
+    git push origin master
+</pre>
+
+<h2>
+    Or
+</h2>
+
+<pre class="code-style">
+    git pull origin master
+</pre>
+
+<h2 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h2>
+
+<pre class="text-style">
+A为本地主机(即用于控制其他主机的机器);
+B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
+
+    在A上的命令:
+</pre>
+
+<pre class="code-style">
+    # ssh-keygen -t rsa (连续三次回车,即在本地生成了公钥和私钥)
+    # scp ~/.ssh/id_rsa.pub root@172.24.253.2:.ssh/id_rsa.pub
+</pre>
+
+<pre class="text-style">
+    然后在B上的命令:
+</pre>
+
+<pre class="code-style">
+    # touch /root/.ssh/authorized_keys (如果已经存在这个文件, 跳过这条)
+    # cat /root/.ssh/id_rsa.pub   &gt;&gt; /root/.ssh/authorized_keys (将id_rsa.pub的内容追加到 authorized_keys 中)
+
+</pre>
+
+<pre class="code-style">
+    # ssh root@172.24.253.2 (因为没有设置私钥密码, 所以不需要密码,登录成功)
+
+</pre>
+
+<pre class="text-style">
+    从表面上简单的理解一下登录的过程,首先 ssh-keygen -t rsa 命令生成了一个密钥和一个公钥,
+    而且密钥可以设置自己的密码可以把密钥理解成一把钥匙, 公钥理解成这把钥匙对应的锁头,
+    把锁头(公钥)放到想要控制的server上, 锁住server,只有拥有钥匙(密钥)的人, 才能打开
+    锁头, 进入server并控制  而对于拥有这把钥匙的人, 必需得知道钥匙本身的密码,才能使
+    用这把钥匙 (除非这把钥匙没设置密码),这样就可以防止钥匙被了配了(私钥被人复制)         
+</pre>
+
+    </body>
+</html>
