@@ -1,33 +1,32 @@
 WWW
 ===================================
 
-1.rules
+1. Print format
 -----------------------------------
-### 1)print format
-### author
+###     author
 		<h2> 这是一篇示范 </h2>
 
-### title
+###     title
 		<address> mark.huang@rich-power.com.cn </address>
 
-### text
+###     text
 		<pre class="text-style">
 		...
 		</pre>
 
-### code
+###     code
 		<pre class="code-style">
 		...
 		</pre>
 
-### picture
+###     picture
 		<img src="webpage/res/logo.png" border="0" id="imgLogo" />       
 
-### link
+###     link
 		<a href="www.baidu.com">rich-power</a>
 
-### item
+###     item
 		<li>item - li</li>
 
-### emphasize
+###     emphasize
 		<strong>important</strong>
