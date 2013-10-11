@@ -11,12 +11,12 @@ default :
 	@sudo rm /var/www/* -rf
 	@sudo cp webpage/* /var/www/ -r
 
-clean : 
-	@set -e; \
-	for dir in $(FILES); \
-	do \
-		cd $$dir && rm -rf *.o; \
-	done
+#clean : 
+#	@set -e; \
+#	for dir in $(FILES); \
+#	do \
+#		cd $$dir && rm -rf *.o; \
+#	done
 
 push:
 	tar -cjvf file_backup.tar.bz2 file/

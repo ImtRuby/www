@@ -23,14 +23,14 @@
 </br></br></br></br></br></br></br></br>
 <h2 align="center"><a name="LCD屏参"> LCD屏参 </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 一般硬件OK，驱动根据屏参设置，驱动基本不用修改了。
 只要根据datasheet修改屏参即可。
 
 common/arch/arm/mach-meson6/board-m6ref-panel.c
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 Lcd_Config_t m6ref_lcd_config = {
     // Refer to LCD Spec
     .lcd_basic = {
@@ -99,19 +99,19 @@ Lcd_Config_t m6ref_lcd_config = {
 
 <h2 align="center"><a name="gslx680调试"> gslx680调试 </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 1. 在bsp中加入i2c board info, 与driver中.id_table对应
 
 common/customer/boards/board-m6g33-new.c
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 {
     I2C_BOARD_INFO(&quot;gsl1680&quot;, 0x40),
 },
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 此处最好实现gpio的初始化实现
 
 2. 在probe函数中注册一个input device
@@ -119,7 +119,7 @@ common/customer/boards/board-m6g33-new.c
 common/drivers/amlogic/input/touchscreen/gsl1680.c
 </pre>
 
-<pre class="code">
+<pre class="code-style">
     ...
     /* gpio口设置, 测试i2c读写 */
     gsl1680_chip_init();
@@ -128,7 +128,7 @@ common/drivers/amlogic/input/touchscreen/gsl1680.c
     ...
 </pre>
 
-<pre class="code">
+<pre class="code-style">
     /* 这里是input device 的设置 */
     input_device = input_allocate_device();
     if (!input_device) {
@@ -175,7 +175,7 @@ common/drivers/amlogic/input/touchscreen/gsl1680.c
 
 </pre>
 
-<pre class="code">
+<pre class="code-style">
     /* 申请irq中断 */
     rc = request_irq(client-&gt;irq, gsl_ts_irq, 
             IRQF_DISABLED, client-&gt;name, ts);
@@ -187,25 +187,25 @@ common/drivers/amlogic/input/touchscreen/gsl1680.c
 
 <h2 align="center"><a name="wm8960调试"> wm8960调试 </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 debugfs节点 - 串口修改寄存器值
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 mount -t debugfs none /sys/kernel/debug
 chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
 ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
 
 
 //snd_card的定义位于头文件：include/sound/core.h 
 </pre>
 
-<pre class="code">
+<pre class="code-style">
     3885: module_init(snd_soc_init);
 
     3883 return platform_driver_register(&amp;soc_driver);
@@ -219,11 +219,11 @@ ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 sound/soc/soc-core.c:1874:
 </pre>
 
-<pre class="code">
+<pre class="code-style">
     ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
 
     // snd_card的driver字段保存着芯片的ID字符串
@@ -236,7 +236,7 @@ sound/soc/soc-core.c:1874:
     $ cat /proc/asound/card0/pcm0c/info
 </pre>
 
-<pre class="text">
+<pre class="text-style">
     未完待续...
 
     
@@ -253,7 +253,7 @@ sound/soc/soc-core.c:1874:
     JACK -- snd_jack_new()
 </pre>
 
-<pre class="code">
+<pre class="code-style">
     $ ls -l /dev/snd
 
     // 用于声卡的控制，例如通道选择，混音，麦克风的控制等
@@ -273,7 +273,7 @@ sound/soc/soc-core.c:1874:
 
 <h2 align="center"><a name="红外遥控器修改"> 红外遥控器修改 </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 1. 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
 填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
 tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
@@ -282,12 +282,12 @@ tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
 2. 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
 </pre>
 
-<pre class="code">
+<pre class="code-style">
                 ^0x55 97  //sam                                 
                 ^0x51 65
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 常用的功能码:
 KEY_BACK    158
 KEY_MENU    139
@@ -297,28 +297,28 @@ KEY_SEARCH  217
 
 <h2 align="center"><a name="mt9p111调试"> mt9p111调试 </a></h2>
 
-<div class="author">
+<address>
 mark.huang@rich-power.com.cn
 
-</div>
+</address>
 
-<pre class="text">
+<pre class="text-style">
 1.修改板级文件common/customer/boards/board-m6g22.c
 1)添加i2c bus info
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 {
     I2C_BOARD_INFO(&quot;mt9p111_i2c&quot;, 0x78 &gt;&gt; 1),
         .platform_data = (void *)&amp;video_mt9p111_data,
 },
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 2)板级操作(如gpio)
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 static aml_plat_cam_data_t video_mt9p111_data = {
     .name=&quot;video-mt9p111&quot;,    
     .video_nr=0,   //1
@@ -348,20 +348,20 @@ msleep(1000);
 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 2.在 V4L2 的 id 标识中( vi include/media/v4l2-chip-ident.h)加入mt9p111的chip_id
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 V4L2_IDENT_MT9P111 = 45033,
 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 3.驱动实现common/drivers/amlogic/camera/mt9p111.*
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 static const struct v4l2_file_operations mt9p111_fops = {
     .owner          = THIS_MODULE,
     .open           = mt9p111_open,
@@ -411,11 +411,11 @@ static struct video_device mt9p111_handler = {
 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 //注册流程
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 ddata-&gt;vdev = video_device_alloc();
 memcpy(ddata-&gt;vdev, &amp;mt9p111_handler, sizeof(*ddata-&gt;vdev));
 video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
@@ -423,7 +423,7 @@ video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
 
 <h2 align="center"><a name="wm8960移植"> wm8960移植 </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 
 涉及文件工程文件：
 
@@ -441,7 +441,7 @@ CONFIG_SND_AML_M6_WM8960=y
 4.BSP文件common/customer/boards/board-m6g18.c
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 &lt; #if defined(CONFIG_SND_SOC_WM8960)
 &lt; ......   此处实现wm8960_padata  ......
 &lt; static struct wm8960_data wm8960_pdata = {
@@ -471,7 +471,7 @@ static struct platform_device  *platform_devs[] = {
 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 5.添加驱动文件
 common/sound/soc/aml/aml_m6_wm8960.c
 common/sound/soc/codecs/wm8960.*
@@ -481,7 +481,7 @@ common/sound/soc/codecs/wm8960.*
 1.初始化
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 static int wm8960_probe(struct snd_soc_codec *codec)
     ...
     ret = wm8960_reset(codec);
@@ -490,7 +490,7 @@ static int wm8960_probe(struct snd_soc_codec *codec)
     
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 2.在录音播放时相关的寄存器设置
 1)软件设置
 hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
@@ -498,7 +498,7 @@ hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
 2)硬件设置
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 static int wm8960_mute(struct snd_soc_dai *dai, int mute)
     snd_soc_write(codec, WM8960_LINPATH, 0x148);
 

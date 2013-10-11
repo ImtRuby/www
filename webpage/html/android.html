@@ -20,7 +20,7 @@
 </br></br></br></br></br></br></br></br>
 <h2 align="center"><a name="adb无法连接"> adb无法连接 </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 
  请先看下设备管理器（lsusb）是否识别了设备
 A：可用的ADB 工具以及之前使用ADB调试过其他项目（此处略去ADB的下载和安装）
@@ -31,11 +31,11 @@ D: 修改系统USB ID vendor，以支持新的设备：
 在您登录的用户名中新的 .android 文件夹中创建一个名为 adb_usb.ini 的文件，例如： 
 </pre>
 
-<pre class="code">
+<pre class="code-style">
  vi ~/.android/adb_usb.ini 
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 打开此文件并添加 0x0956，然后按回车键，从而用您为其安装驱动程序的设备的 VID一
 起显示的值代替当前值。保存文件。 您现在应该看到设备列在 adb 设备下。
 
@@ -44,36 +44,36 @@ D: 修改系统USB ID vendor，以支持新的设备：
  一般情况下/etc/udev/rules.d/会有“51-android.rules” 或“50-android.rules” &quot;90-android.rules&quot;
 </pre>
 
-<pre class="code">
+<pre class="code-style">
  $ cat /etc/udev/rules.d/51-android.rules
  SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
  $ sudo chmod 777 /etc/udev/rules.d/*android*
 </pre>
 
-<pre class="text">
+<pre class="text-style">
  将其属性改为可写后，将新的USB的idVendor加入：如下
 </pre>
 
-<pre class="code">
+<pre class="code-style">
  $ vi /etc/udev/rules.d/51-android.rules
  SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
  SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;0956&quot;,MODE=&quot;0666&quot;
 </pre>
 
-<pre class="text">
+<pre class="text-style">
  2，Window XP/ WIN7 系统：
  	下载91手机助手安装驱动连接手机后,退出91手机助手用adb shell连接！
 </pre>
 
 <h2 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h2>
 
-<pre class="code">
+<pre class="code-style">
 mount -o rw,remount yaffs2 /system
 </pre>
 
 <h2 align="center"><a name="导入已有apk"> 导入已有apk </a></h2>
 
-<pre class="text">
+<pre class="text-style">
 在做Android开发时，有时需要事先将应用程序烧写到板子上去而不必让用户在板子出厂后自行安装。将应用导入到android源码树可以分为两种情况：应用的apk文件和源码工程，下面将一一介绍。
 
 
@@ -81,16 +81,16 @@ apk文件形式导入
 1、在应用程序所在目录创建文件夹
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 mkdir Hello
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 2、将Hello.apk拷贝到刚才所创建的文件夹下
 3、在apk同级创建Android.mk文件
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := Hello.apk
@@ -101,29 +101,29 @@ LOCAL_SRC_FILES := $(LOCAL_MODULE)
 include $(BUILD_PREBUILT)
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 4、到android根目录进行编译
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 make
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 应用源码形式导入
 1、在应用程序所在目录创建文件夹
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 mkdir Hello
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 2、将eclipse里的工程拷贝到Hello里
 3、新建Android.mk文件
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 LOCAL_PATH:= $(call my-dir) 
 include $(CLEAR_VARS)
 
@@ -133,21 +133,21 @@ LOCAL_MODULE_TAGS := eng
 include $(BUILD_PACKAGE)
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 4、到android根目录进行编译
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 make
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 5、如果java中调用了c库，则工程中会有个jni目录
 
 这里的Android.mk是用来编译C文件产生lib*.so的，如
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 LOCAL_PATH := $(call my-dir) 
 include $(CLEAR_VARS) 
 LOCAL_MODULE := SerialPort(java中System.loadLibray()使用) 
@@ -156,11 +156,11 @@ LOCAL_LDLIBS := -llog
 include $(BUILD_SHARED_LIBRARY)
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 6、此时工程的Android.mk可如下
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 LOCAL_PATH:= $(call my-dir) 
 include $(CLEAR_VARS) 
 LOCAL_MODULE_TAGS := eng 
@@ -173,11 +173,11 @@ include $(BUILD_PACKAGE)
 include $(call all-makefiles-under,$(LOCAL_PATH))
 </pre>
 
-<pre class="text">
+<pre class="text-style">
 7、重新编译
 </pre>
 
-<pre class="code">
+<pre class="code-style">
 make
 </pre>
 

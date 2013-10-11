@@ -1,0 +1,5 @@
+#header {width:100%;background: #f60;}
+#container {width:100%; overflow:hidden }
+#aside {float: left; width: 20%; background: #ccc;}
+#main {float: right; width: 80%; background: orange;}
+#footer {width: 100%; ; background: #08f;}

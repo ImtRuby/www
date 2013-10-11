@@ -29,38 +29,43 @@ def deal_file(path, filename):
 
         if eachline.find('@author') != -1:
             print '%s' % (mark)
-            print '<div class="author">'
-            mark = '</div>\n'
-
-        elif eachline.find('@text') != -1:
-            print '%s' % (mark)
-            print '<pre class="text">'
-            mark = '</pre>\n'
+            print '<address>'
+            mark = '</address>\n'
 
         elif eachline.find('@title') != -1:
             print '%s' % (mark)
-            print '<div class="title">'
-            mark = '</div>\n'
+            print '<h2>'
+            mark = '</h2>\n'
+
+        elif eachline.find('@text') != -1:
+            print '%s' % (mark)
+            print '<pre class="text-style">'
+            mark = '</pre>\n'
 
         elif eachline.find('@code') != -1:
             print '%s' % (mark)
-            print '<pre class="code">'
+            print '<pre class="code-style">'
             mark = '</pre>\n'
 
         elif eachline.find('@picture') != -1:
             print '%s' % (mark)
-            print '<div class="picture">'
-            mark = 'pass'
+            print '<img>'
+            mark = 'NULL'
 
         elif eachline.find('@link') != -1:
             print '%s' % (mark)
-            print '<div class="link">'
-            mark = '</div>\n'
+            print '<a>'
+            mark = 'NULL'
 
-        elif eachline.find('@article') != -1:
+        elif eachline.find('@item') != -1:
             print '%s' % (mark)
-            print '<div class="article">'
-            mark = '</div>\n'
+            print '<li>'
+            mark = '</li>\n'
+
+        elif eachline.find('@emphasize') != -1:
+            print '%s' % (mark)
+            print '<li>'
+            mark = '</li>\n'
 
         else:
             if mark == '':
