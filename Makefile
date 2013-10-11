@@ -20,6 +20,7 @@ clean :
 
 push:
 	tar -cjvf file_backup.tar.bz2 file/
+	rm file -rf
 	git add .
 	git commit -s && git push -u origin master
 

@@ -29,55 +29,48 @@ C：当前项目所用USB的VID/PID数据；
 D: 修改系统USB ID vendor，以支持新的设备：
 
 在您登录的用户名中新的 .android 文件夹中创建一个名为 adb_usb.ini 的文件，例如： 
-~/.android/adb_usb.ini 
+</pre>
+
+<pre class="code">
+ vi ~/.android/adb_usb.ini 
+</pre>
+
+<pre class="text">
 打开此文件并添加 0x0956，然后按回车键，从而用您为其安装驱动程序的设备的 VID一
 起显示的值代替当前值。保存文件。 您现在应该看到设备列在 adb 设备下。
 
   
-
  1，Ubuntu 10.04以上版本；
-
-
  一般情况下/etc/udev/rules.d/会有“51-android.rules” 或“50-android.rules” &quot;90-android.rules&quot;
+</pre>
 
+<pre class="code">
  $ cat /etc/udev/rules.d/51-android.rules
-
  SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
-
  $ sudo chmod 777 /etc/udev/rules.d/*android*
+</pre>
 
+<pre class="text">
  将其属性改为可写后，将新的USB的idVendor加入：如下
+</pre>
 
+<pre class="code">
  $ vi /etc/udev/rules.d/51-android.rules
  SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
-
  SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;0956&quot;,MODE=&quot;0666&quot;
+</pre>
 
-   
-
-    
-
+<pre class="text">
  2，Window XP/ WIN7 系统：
- 
- 
- 为了安装 USB 驱动程序，您首先需要下载并安装下列网址上的安卓 SDK：
- http://developer.android.com/sdk/index.html 
- 完成安装，然后在文本编辑器中打开 USB 驱动程序 - android_winusb.inf。 
- 修改该文件以包括新的条目，即与已连接设备的 PID/VID 匹配的条目。打开设备管理器，
- 右键单击设备并选择属性，即可在 Windows® 系统中找到该条目。浏览至第 3 个选项卡
- “详细信息”，并从下拉菜单中选择“硬件 Id”。这里找到的值需要输入驱动程序文件。 
- 条目如下面的例子所示： 
- %SingleAdbInterface% = USB_Install, USB\VID_0956&amp;PID_9025 
- %CompositeAdbInterface% = USB_Install, USB\VID_0956&amp;PID_9025&amp;MI_01 
- 有时 Windows 系统需要额外的一个步骤。
-
-
+ 	下载91手机助手安装驱动连接手机后,退出91手机助手用adb shell连接！
 </pre>
 
 <h2 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h2>
-<pre class="text">
+
+<pre class="code">
 mount -o rw,remount yaffs2 /system
 </pre>
+
 <h2 align="center"><a name="导入已有apk"> 导入已有apk </a></h2>
 
 <pre class="text">
