@@ -49,13 +49,13 @@ def deal_file(path, filename):
 
         elif eachline.find('@picture') != -1:
             print '%s' % (mark)
-            print '<img>'
-            mark = 'NULL'
+            print '<img src="'
+            mark = '" />'
 
         elif eachline.find('@link') != -1:
             print '%s' % (mark)
             print '<a>'
-            mark = 'NULL'
+            mark = ''
 
         elif eachline.find('@item') != -1:
             print '%s' % (mark)
@@ -69,16 +69,18 @@ def deal_file(path, filename):
 
         else:
             if mark == '':
-                mark = '-'
-                print '<pre class="text">'
+                print '<pre class="text-style">'
+                mark = '</pre>\n'
 
             # logic -- if no label for this line then print the content
             print eachline,
 
-    if mark == '-':
-        print '</pre>'
-    else:
-        print '%s' % (mark)
+            if mark == '" />':
+                print '%s' % (mark)
+                print '<pre class="text-style">'
+                mark = '</pre>\n'
+
+    print '%s' % (mark)
 
     fp.close()
 

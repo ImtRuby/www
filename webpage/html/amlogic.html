@@ -767,7 +767,6 @@ CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
 </pre>
 
 <h2 align="center"><a name="USB升级包制作"> USB升级包制作 </a></h2>
-
 <pre class="text-style">
 步驟1、2已經不需要，只要生成recovery即可
 
@@ -786,6 +785,13 @@ KERNEL_USBBURN_CONFIG=meson6_g33_new_jb_usb_burn_defconfig
 <pre class="text-style">
 2 对照meson6_g18_jbmr1_defconfig和meson6_g18_usb_burning_defconfig，
 把meson6_g33_new_jb_defconfig修改为meson6_g33_new_jb_usb_burn_defconfig
+
+</pre>
+
+<img src="
+../res/amlogic/picture1.jpg
+" />
+<pre class="text-style">
 
 3 关机插掉nand打开usb烧录工具烧写resource.zip（也可以通过重启按组合键进入fastboot模式）
 	resource.zip放置路径请不要带中文字符。
