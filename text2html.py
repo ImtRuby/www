@@ -11,7 +11,8 @@ import os
 def deal_file(path, filename):
     mark = ''
     filepath=[]
-    print '<h2 align="center"><a name="%s"> %s </a></h2>' \
+    print '</br>' * 8
+    print '<h1 align="center"><a name="%s"> %s </a></h1>' \
 			% (filename.replace('.txt', ''), filename.replace('.txt', ''))
 
     # the mothod to join 2 strings

@@ -16,9 +16,11 @@
 </br></br></br></br>
 <div class="title"><a href="#m6_编译说明"> 0 : m6_编译说明 </a></div>
 <div class="title"><a href="#git"> 1 : git </a></div>
-<div class="title"><a href="#ssh公密匙"> 2 : ssh公密匙 </a></div>
+<div class="title"><a href="#你可能不知道的Shell"> 2 : 你可能不知道的Shell </a></div>
+<div class="title"><a href="#ssh公密匙"> 3 : ssh公密匙 </a></div>
 </br></br></br></br></br></br></br></br>
-<h2 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h1>
 
 <pre class="text-style">
     环境搭建：
@@ -55,15 +57,24 @@
     cd uboot
     make m6_gXX_config   
     make
+    cp build/u-boot.bin ../device/gXX/
 </pre>
 
 <h2>
     2 kernel编译
 </h2>
 
+<pre class="code-style">
+    make bootimage -j4
+</pre>
+
 <h2>
     3 android文件系统编译
 </h2>
+
+<pre class="code-style">
+    make otapackage -j4
+</pre>
 
 <pre class="text-style">
     编译是需要java环境的！
@@ -102,7 +113,8 @@
     make -j4
 </pre>
 
-<h2 align="center"><a name="git"> git </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="git"> git </a></h1>
 
 <pre class="text-style">
     创建一个用于git的用户
@@ -162,7 +174,132 @@
     git pull origin master
 </pre>
 
-<h2 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="你可能不知道的Shell"> 你可能不知道的Shell </a></h1>
+
+<li>
+!$
+</li>
+
+<pre class="text-style">
+!$是一个特殊的环境变量，它代表了上一个命令的最后一个字符串。如：你可能会这样：
+</pre>
+
+<pre class="code-style">
+$mkdir mydir
+$mv mydir yourdir
+$cd yourdir
+</pre>
+
+<pre class="text-style">
+可以改成：
+</pre>
+
+<pre class="code-style">
+$mkdir mydir
+$mv !$ yourdir
+$cd !$
+
+</pre>
+
+<li>
+!!
+</li>
+
+<pre class="text-style">
+以root的身份执行上一条命令 。
+场景举例：比如Ubuntu里用apt-get 安装软件包的时候是需要root身份的，
+我们经常会忘记在apt-get前加sudo。每次不得不加上sudo再重新键入这行命令，
+这时可以很方便的用sudo !!完事。
+（陈皓注：在shell下，有时候你会输入很长的命令，你可以使用!xxx
+来重复最近的一次命令，比如，你以前输入过，vi /where/the/file/is,
+下次你可以使用 !vi 重得上次最近一次的vi命令。）
+
+</pre>
+
+<li>
+‘ALT+.’ or ‘&lt;ESC&gt; .’
+</li>
+
+<pre class="text-style">
+热建alt+. 或 esc+. 可以把上次命令行的参数给重复出来。
+
+</pre>
+
+<li>
+:w !sudo tee %
+</li>
+
+<pre class="text-style">
+在vi中保存一个只有root可以写的文件
+
+</pre>
+
+<li>
+ssh user@server bash &lt; /path/to/local/script.sh
+</li>
+
+<pre class="text-style">
+在远程机器上运行一段脚本。这条命令最大的好处就是不用把脚本拷到远程机器上。
+
+</pre>
+
+<li>
+ssh user@host cat /path/to/remotefile diff /path/to/localfile -
+</li>
+
+<pre class="text-style">
+比较一个远程文件和一个本地文件
+
+</pre>
+
+<li>
+wget --random-wait -r -p -e robots=off -U mozilla http://www.example.com
+</li>
+
+<pre class="text-style">
+下载整个 www.example.com 网站。（注：别太过分，大部分网站都有防爬功能了：））
+
+</pre>
+
+<li>
+curl ifconfig.me
+</li>
+
+<pre class="text-style">
+当你的机器在内网的时候，可以通过这个命令查看外网的 IP。
+
+</pre>
+
+<li>
+convert input.png -gravity NorthWest -background transparent -extent 720×200  output.png
+</li>
+
+<pre class="text-style">
+改一下图片的大小尺寸
+
+</pre>
+
+<li>
+vim scp://username@host//path/to/somefile
+</li>
+
+<pre class="text-style">
+vim 一个远程文件
+
+</pre>
+
+<li>
+python -m SimpleHTTPServer
+</li>
+
+<pre class="text-style">
+一句话实现一个 HTTP 服务，把当前目录设为 HTTP 服务目录，可以通过
+http://localhost:8000访问这也许是这个星球上最简单的 HTTP 服务器的实现了。
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h1>
 
 <pre class="text-style">
 A为本地主机(即用于控制其他主机的机器);

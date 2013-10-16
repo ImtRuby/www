@@ -30,7 +30,8 @@
 <div class="title"><a href="#USB升级包制作"> 13 : USB升级包制作 </a></div>
 <div class="title"><a href="#Camera-SP0A19"> 14 : Camera-SP0A19 </a></div>
 </br></br></br></br></br></br></br></br>
-<h2 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h1>
 
 <pre class="text-style">
 1 打开编译开关
@@ -86,7 +87,8 @@ CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838=y
 	YUV设置反了
 </pre>
 
-<h2 align="center"><a name="SD卡挂载目录"> SD卡挂载目录 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="SD卡挂载目录"> SD卡挂载目录 </a></h1>
 
 <pre class="text-style">
 1 编译修改
@@ -113,7 +115,8 @@ dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/c
 dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
 </pre>
 
-<h2 align="center"><a name="DDR"> DDR </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="DDR"> DDR </a></h1>
 
 <pre class="text-style">
 1 修改DDR 时钟
@@ -155,7 +158,8 @@ dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/c
 
 </pre>
 
-<h2 align="center"><a name="Codec"> Codec </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Codec"> Codec </a></h1>
 
 <pre class="text-style">
 1 修改codec代码(关闭耳机检测)
@@ -199,7 +203,8 @@ dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/c
 #endif
 </pre>
 
-<h2 align="center"><a name="WIFI-8188eu"> WIFI-8188eu </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="WIFI-8188eu"> WIFI-8188eu </a></h1>
 
 <pre class="text-style">
 Tips:
@@ -301,7 +306,8 @@ CONFIG_RTL8188EU=m
 #cp $KERNEL_OUT/drivers/amlogic/wifi/broadcm_40181/dhd.ko $PRODUCT_OUT/system/lib/
 </pre>
 
-<h2 align="center"><a name="Logo墙纸"> Logo墙纸 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Logo墙纸"> Logo墙纸 </a></h1>
 
 <pre class="text-style">
 1 uboot logo
@@ -333,7 +339,8 @@ drawable-nodpi-1280×800
 drawable-nodpi-800×480
 </pre>
 
-<h2 align="center"><a name="Gsensor"> Gsensor </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Gsensor"> Gsensor </a></h1>
 
 <pre class="text-style">
 1 加入驱动编译开关
@@ -407,7 +414,8 @@ CONFIG_SENSORS_LIS3DH =y
 ro.sf.gsensorposition=0
 </pre>
 
-<h2 align="center"><a name="Battery"> Battery </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Battery"> Battery </a></h1>
 
 <pre class="text-style">
 1 替换device/amlogic/g33refNew/res_pack/Battery_Parameter.txt
@@ -485,7 +493,8 @@ struct battery_curve config_battery_curve[] = {
     };
 </pre>
 
-<h2 align="center"><a name="buglist"> buglist </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="buglist"> buglist </a></h1>
 
 <pre class="text-style">
 1 UI显示完整
@@ -518,7 +527,8 @@ ro.sf.lcd_density=120
 	对照MXS公板原理图，板子漏焊一个0欧姆电阻
 </pre>
 
-<h2 align="center"><a name="TP-icn838x"> TP-icn838x </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="TP-icn838x"> TP-icn838x </a></h1>
 
 <pre class="text-style">
 1 修改配置文件
@@ -601,7 +611,8 @@ static char para[128] = {&quot;/system/vendor/icn838x_para.bin&quot;};
 #endif
 </pre>
 
-<h2 align="center"><a name="LCD-H-B070D"> LCD-H-B070D </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="LCD-H-B070D"> LCD-H-B070D </a></h1>
 
 <pre class="text-style">
 1 修改分辨率
@@ -720,7 +731,8 @@ CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
 	vi common/customer/boards/board-m6g33-new.h
 </pre>
 
-<h2 align="center"><a name="AmlMiracast"> AmlMiracast </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="AmlMiracast"> AmlMiracast </a></h1>
 
 <pre class="text-style">
 打开Setting中wifi_display选项
@@ -734,7 +746,8 @@ CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
 &lt;bool name=&quot;def_wifi_display_on&quot;&gt;true&lt;/bool&gt;
 </pre>
 
-<h2 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h1>
 
 <pre class="text-style">
 1 修改uboot/customer/board/configs/m6_g33new_1GB.h
@@ -766,7 +779,8 @@ CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
 #    write /sys/class/power_supply/battery/aml_pmu_vddao 1100
 </pre>
 
-<h2 align="center"><a name="USB升级包制作"> USB升级包制作 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="USB升级包制作"> USB升级包制作 </a></h1>
 <pre class="text-style">
 步驟1、2已經不需要，只要生成recovery即可
 
@@ -831,7 +845,8 @@ Tips:注意config_progress.xml中最后一个common应为shutdown，若是reset�
 &lt;/progress_configs&gt;
 </pre>
 
-<h2 align="center"><a name="Camera-SP0A19"> Camera-SP0A19 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Camera-SP0A19"> Camera-SP0A19 </a></h1>
 
 <pre class="text-style">
 1 打开编译开关

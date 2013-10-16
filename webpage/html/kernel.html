@@ -21,7 +21,8 @@
 <div class="title"><a href="#mt9p111调试"> 4 : mt9p111调试 </a></div>
 <div class="title"><a href="#wm8960移植"> 5 : wm8960移植 </a></div>
 </br></br></br></br></br></br></br></br>
-<h2 align="center"><a name="LCD屏参"> LCD屏参 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="LCD屏参"> LCD屏参 </a></h1>
 
 <pre class="text-style">
 一般硬件OK，驱动根据屏参设置，驱动基本不用修改了。
@@ -97,7 +98,8 @@ Lcd_Config_t m6ref_lcd_config = {
 
 </pre>
 
-<h2 align="center"><a name="gslx680调试"> gslx680调试 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="gslx680调试"> gslx680调试 </a></h1>
 
 <pre class="text-style">
 1. 在bsp中加入i2c board info, 与driver中.id_table对应
@@ -185,7 +187,8 @@ common/drivers/amlogic/input/touchscreen/gsl1680.c
 
 </pre>
 
-<h2 align="center"><a name="wm8960调试"> wm8960调试 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wm8960调试"> wm8960调试 </a></h1>
 
 <pre class="text-style">
 debugfs节点 - 串口修改寄存器值
@@ -271,7 +274,8 @@ sound/soc/soc-core.c:1874:
     
 </pre>
 
-<h2 align="center"><a name="红外遥控器修改"> 红外遥控器修改 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="红外遥控器修改"> 红外遥控器修改 </a></h1>
 
 <pre class="text-style">
 1. 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
@@ -295,7 +299,8 @@ KEY_HOME    102
 KEY_SEARCH  217
 </pre>
 
-<h2 align="center"><a name="mt9p111调试"> mt9p111调试 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="mt9p111调试"> mt9p111调试 </a></h1>
 
 <address>
 mark.huang@rich-power.com.cn
@@ -421,7 +426,8 @@ memcpy(ddata-&gt;vdev, &amp;mt9p111_handler, sizeof(*ddata-&gt;vdev));
 video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
 </pre>
 
-<h2 align="center"><a name="wm8960移植"> wm8960移植 </a></h2>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
 
 <pre class="text-style">
 
