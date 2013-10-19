@@ -18,6 +18,7 @@
 <div class="title"><a href="#git"> 1 : git </a></div>
 <div class="title"><a href="#MID常用命令"> 2 : MID常用命令 </a></div>
 <div class="title"><a href="#你可能不知道的Shell"> 3 : 你可能不知道的Shell </a></div>
+<div class="title"><a href="#Ubuntu相关"> 4 : Ubuntu相关 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h1>
@@ -41,12 +42,10 @@ B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
 <pre class="code-style">
     # touch /root/.ssh/authorized_keys (如果已经存在这个文件, 跳过这条)
     # cat /root/.ssh/id_rsa.pub   &gt;&gt; /root/.ssh/authorized_keys (将id_rsa.pub的内容追加到 authorized_keys 中)
-
 </pre>
 
 <pre class="code-style">
     # ssh root@172.24.253.2 (因为没有设置私钥密码, 所以不需要密码,登录成功)
-
 </pre>
 
 <pre class="text-style">
@@ -143,7 +142,6 @@ B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
 <pre class="code-style">
     nand scrub 0;
     reset;
-
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -267,6 +265,65 @@ python -m SimpleHTTPServer
 <pre class="text-style">
 一句话实现一个 HTTP 服务，把当前目录设为 HTTP 服务目录，可以通过
 http://localhost:8000访问这也许是这个星球上最简单的 HTTP 服务器的实现了。
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Ubuntu相关"> Ubuntu相关 </a></h1>
+
+<li>
+常用软件安装
+</li>
+
+<pre class="text-style">
+音乐软件
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;sudo apt-add-repository ppa:timxx/xmradio
+&nbsp;&nbsp;&nbsp;&nbsp;sudo apt-get update
+&nbsp;&nbsp;&nbsp;&nbsp;sudo apt-get install xmradio
+</pre>
+
+<pre class="text-style">
+stardict是词典，gparted是分区软件，enca是编码转换工具，bar是拷贝工具，
+imagemagick是图形转换工具
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;sudo apt-get install vim git tree stardict tasksel minicom gparted \
+&nbsp;&nbsp;&nbsp;&nbsp;enca bar imagemagick
+</pre>
+
+<pre class="text-style">
+有时图形界面无法启动了
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;sudo apt-get install ubuntu-desktop
+</pre>
+
+<li>
+编码转换
+</li>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;enca -L zh_CN -x utf-8 *
+</pre>
+
+<li>
+图片变换
+</li>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;covert -resize 50% old.jpg new.bmp
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;covert input.jpg -extent 800X480 output.jpg
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;convert -quality 80 old.bmp new.jpg
 </pre>
 
     </body>
