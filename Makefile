@@ -20,14 +20,11 @@ default :
 
 push:
 	tar -cjvf file_backup.tar.bz2 file/
-	@echo "sleep 3s..."
-	@sleep 1
-	@echo "sleep 2s..."
-	@sleep 1
 	@echo "sleep 1s..."
 	@sleep 1
 	rm file -rf
 	git config --global core.editor vi
+	git config --global gui.encoding utf-8
 	git config --global user.email "hacker.do@163.com"
 	git config --global user.name "mark.huang"
 	git add .
