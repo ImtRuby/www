@@ -27,6 +27,7 @@ def deal_file(path, filename):
         eachline = eachline.replace('<', '&lt;')
         eachline = eachline.replace('>', '&gt;')
         eachline = eachline.replace('"', '&quot;')
+        eachline = eachline.replace('	', '&nbsp;&nbsp;&nbsp;&nbsp;')
 
         if eachline.find('@author') != -1:
             print '%s' % (mark)
@@ -51,12 +52,12 @@ def deal_file(path, filename):
         elif eachline.find('@picture') != -1:
             print '%s' % (mark)
             print '<img src="'
-            mark = '" />'
+            mark = '@picture'
 
         elif eachline.find('@link') != -1:
             print '%s' % (mark)
-            print '<a>'
-            mark = ''
+            print '<a href="'
+            mark = '@link'
 
         elif eachline.find('@item') != -1:
             print '%s' % (mark)
@@ -73,13 +74,19 @@ def deal_file(path, filename):
                 print '<pre class="text-style">'
                 mark = '</pre>\n'
 
+            if mark == '@link':
+                print '%s">' % (eachline)
+
             # logic -- if no label for this line then print the content
             print eachline,
 
-            if mark == '" />':
-                print '%s' % (mark)
-                print '<pre class="text-style">'
-                mark = '</pre>\n'
+            if mark == '@picture':
+                print '"/>'
+                mark = ''
+	
+            if mark == '@link':
+                print '</a>'
+                mark = ''
 
     print '%s' % (mark)
 

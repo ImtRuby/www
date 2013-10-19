@@ -14,11 +14,49 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#git"> 0 : git </a></div>
-<div class="title"><a href="#你可能不知道的Shell"> 1 : 你可能不知道的Shell </a></div>
+<div class="title"><a href="#ssh公密匙"> 0 : ssh公密匙 </a></div>
+<div class="title"><a href="#git"> 1 : git </a></div>
 <div class="title"><a href="#MID常用命令"> 2 : MID常用命令 </a></div>
-<div class="title"><a href="#ssh公密匙"> 3 : ssh公密匙 </a></div>
+<div class="title"><a href="#你可能不知道的Shell"> 3 : 你可能不知道的Shell </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h1>
+
+<pre class="text-style">
+A为本地主机(即用于控制其他主机的机器);
+B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
+
+    在A上的命令:
+</pre>
+
+<pre class="code-style">
+    # ssh-keygen -t rsa (连续三次回车,即在本地生成了公钥和私钥)
+    # scp ~/.ssh/id_rsa.pub root@172.24.253.2:.ssh/id_rsa.pub
+</pre>
+
+<pre class="text-style">
+    然后在B上的命令:
+</pre>
+
+<pre class="code-style">
+    # touch /root/.ssh/authorized_keys (如果已经存在这个文件, 跳过这条)
+    # cat /root/.ssh/id_rsa.pub   &gt;&gt; /root/.ssh/authorized_keys (将id_rsa.pub的内容追加到 authorized_keys 中)
+
+</pre>
+
+<pre class="code-style">
+    # ssh root@172.24.253.2 (因为没有设置私钥密码, 所以不需要密码,登录成功)
+
+</pre>
+
+<pre class="text-style">
+    从表面上简单的理解一下登录的过程,首先 ssh-keygen -t rsa 命令生成了一个密钥和一个公钥,
+    而且密钥可以设置自己的密码可以把密钥理解成一把钥匙, 公钥理解成这把钥匙对应的锁头,
+    把锁头(公钥)放到想要控制的server上, 锁住server,只有拥有钥匙(密钥)的人, 才能打开
+    锁头, 进入server并控制  而对于拥有这把钥匙的人, 必需得知道钥匙本身的密码,才能使
+    用这把钥匙 (除非这把钥匙没设置密码),这样就可以防止钥匙被了配了(私钥被人复制)         
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="git"> git </a></h1>
 
@@ -32,7 +70,6 @@
     cd; mkdir .ssh
 </pre>
 
-<a>
 <pre class="text-style">
     添加开发者公匙到服务器
 </pre>
@@ -81,6 +118,35 @@
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="MID常用命令"> MID常用命令 </a></h1>
+
+<h2>
+    烧录固件等
+</h2>
+
+<li>
+    uboot
+</li>
+
+<li>
+    kernel
+</li>
+
+<pre class="code-style">
+    mmcinfo; fatload mmc 0 82000000 boot.img; bootm
+</pre>
+
+<li>
+    android
+</li>
+
+<pre class="code-style">
+    nand scrub 0;
+    reset;
+
+</pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="你可能不知道的Shell"> 你可能不知道的Shell </a></h1>
 
 <li>
@@ -92,9 +158,9 @@
 </pre>
 
 <pre class="code-style">
-$mkdir mydir
-$mv mydir yourdir
-$cd yourdir
+&nbsp;&nbsp;&nbsp;&nbsp;$mkdir mydir
+&nbsp;&nbsp;&nbsp;&nbsp;$mv mydir yourdir
+&nbsp;&nbsp;&nbsp;&nbsp;$cd yourdir
 </pre>
 
 <pre class="text-style">
@@ -102,10 +168,9 @@ $cd yourdir
 </pre>
 
 <pre class="code-style">
-$mkdir mydir
-$mv !$ yourdir
-$cd !$
-
+&nbsp;&nbsp;&nbsp;&nbsp;$mkdir mydir
+&nbsp;&nbsp;&nbsp;&nbsp;$mv !$ yourdir
+&nbsp;&nbsp;&nbsp;&nbsp;$cd !$
 </pre>
 
 <li>
@@ -202,73 +267,6 @@ python -m SimpleHTTPServer
 <pre class="text-style">
 一句话实现一个 HTTP 服务，把当前目录设为 HTTP 服务目录，可以通过
 http://localhost:8000访问这也许是这个星球上最简单的 HTTP 服务器的实现了。
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="MID常用命令"> MID常用命令 </a></h1>
-
-<h2>
-    烧录固件等
-</h2>
-
-<li>
-    uboot
-</li>
-
-<li>
-    kernel
-</li>
-
-<pre class="code-style">
-    mmcinfo; fatload mmc 0 82000000 boot.img; bootm
-</pre>
-
-<li>
-    android
-</li>
-
-<pre class="code-style">
-    nand scrub 0;
-    reset;
-
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h1>
-
-<pre class="text-style">
-A为本地主机(即用于控制其他主机的机器);
-B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
-
-    在A上的命令:
-</pre>
-
-<pre class="code-style">
-    # ssh-keygen -t rsa (连续三次回车,即在本地生成了公钥和私钥)
-    # scp ~/.ssh/id_rsa.pub root@172.24.253.2:.ssh/id_rsa.pub
-</pre>
-
-<pre class="text-style">
-    然后在B上的命令:
-</pre>
-
-<pre class="code-style">
-    # touch /root/.ssh/authorized_keys (如果已经存在这个文件, 跳过这条)
-    # cat /root/.ssh/id_rsa.pub   &gt;&gt; /root/.ssh/authorized_keys (将id_rsa.pub的内容追加到 authorized_keys 中)
-
-</pre>
-
-<pre class="code-style">
-    # ssh root@172.24.253.2 (因为没有设置私钥密码, 所以不需要密码,登录成功)
-
-</pre>
-
-<pre class="text-style">
-    从表面上简单的理解一下登录的过程,首先 ssh-keygen -t rsa 命令生成了一个密钥和一个公钥,
-    而且密钥可以设置自己的密码可以把密钥理解成一把钥匙, 公钥理解成这把钥匙对应的锁头,
-    把锁头(公钥)放到想要控制的server上, 锁住server,只有拥有钥匙(密钥)的人, 才能打开
-    锁头, 进入server并控制  而对于拥有这把钥匙的人, 必需得知道钥匙本身的密码,才能使
-    用这把钥匙 (除非这把钥匙没设置密码),这样就可以防止钥匙被了配了(私钥被人复制)         
 </pre>
 
     </body>
