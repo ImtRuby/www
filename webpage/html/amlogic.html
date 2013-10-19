@@ -15,20 +15,21 @@
 <body>
 </br></br></br></br>
 <div class="title"><a href="#Camera-SP0838"> 0 : Camera-SP0838 </a></div>
-<div class="title"><a href="#SD卡挂载目录"> 1 : SD卡挂载目录 </a></div>
-<div class="title"><a href="#DDR"> 2 : DDR </a></div>
-<div class="title"><a href="#Codec"> 3 : Codec </a></div>
-<div class="title"><a href="#WIFI-8188eu"> 4 : WIFI-8188eu </a></div>
-<div class="title"><a href="#Logo墙纸"> 5 : Logo墙纸 </a></div>
-<div class="title"><a href="#Gsensor"> 6 : Gsensor </a></div>
-<div class="title"><a href="#Battery"> 7 : Battery </a></div>
-<div class="title"><a href="#buglist"> 8 : buglist </a></div>
-<div class="title"><a href="#TP-icn838x"> 9 : TP-icn838x </a></div>
-<div class="title"><a href="#LCD-H-B070D"> 10 : LCD-H-B070D </a></div>
-<div class="title"><a href="#AmlMiracast"> 11 : AmlMiracast </a></div>
-<div class="title"><a href="#VDD_EE电压修改"> 12 : VDD_EE电压修改 </a></div>
-<div class="title"><a href="#USB升级包制作"> 13 : USB升级包制作 </a></div>
-<div class="title"><a href="#Camera-SP0A19"> 14 : Camera-SP0A19 </a></div>
+<div class="title"><a href="#m6_编译说明"> 1 : m6_编译说明 </a></div>
+<div class="title"><a href="#SD卡挂载目录"> 2 : SD卡挂载目录 </a></div>
+<div class="title"><a href="#DDR"> 3 : DDR </a></div>
+<div class="title"><a href="#Codec"> 4 : Codec </a></div>
+<div class="title"><a href="#WIFI-8188eu"> 5 : WIFI-8188eu </a></div>
+<div class="title"><a href="#Logo墙纸"> 6 : Logo墙纸 </a></div>
+<div class="title"><a href="#Gsensor"> 7 : Gsensor </a></div>
+<div class="title"><a href="#Battery"> 8 : Battery </a></div>
+<div class="title"><a href="#buglist"> 9 : buglist </a></div>
+<div class="title"><a href="#TP-icn838x"> 10 : TP-icn838x </a></div>
+<div class="title"><a href="#LCD-H-B070D"> 11 : LCD-H-B070D </a></div>
+<div class="title"><a href="#AmlMiracast"> 12 : AmlMiracast </a></div>
+<div class="title"><a href="#VDD_EE电压修改"> 13 : VDD_EE电压修改 </a></div>
+<div class="title"><a href="#USB升级包制作"> 14 : USB升级包制作 </a></div>
+<div class="title"><a href="#Camera-SP0A19"> 15 : Camera-SP0A19 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h1>
@@ -85,6 +86,104 @@ CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838=y
 	上电时序错误, 芯片没工作
 3) 红绿屏
 	YUV设置反了
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h1>
+
+<pre class="text-style">
+    环境搭建：
+    gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2
+</pre>
+
+<pre class="code-style">
+    sudo tar -jxvf gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2 -C /opt/
+</pre>
+
+<pre class="text-style">
+    arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
+    arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+</pre>
+
+<pre class="code-style">
+    sudo tar -jxvf arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
+    sudo tar -jxvf arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
+</pre>
+
+<pre class="text-style">
+    arc_gnutools.sh
+</pre>
+
+<pre class="code-style">
+    sudo cp arc_gnutools.sh /etc/profile.d/
+</pre>
+
+<h2>
+    1 uboot编译
+</h2>
+
+<pre class="code-style">
+    cd uboot
+    make m6_gXX_config   
+    make
+    cp build/u-boot.bin ../device/gXX/
+</pre>
+
+<h2>
+    2 kernel编译
+</h2>
+
+<pre class="code-style">
+    source build/envsetup.sh
+    lunch xx
+    make bootimage -j4
+</pre>
+
+<h2>
+    3 android文件系统编译
+</h2>
+
+<pre class="code-style">
+    source build/envsetup.sh
+    lunch xx
+    make otapackage -j4
+</pre>
+
+<pre class="text-style">
+    编译是需要java环境的！
+    安装jdk-6u23-linux-i586.bin，特别要注意的是java se版本应该在java 1.6 u26以下！
+</pre>
+
+<pre class="code-style">
+    update-alternatives --install /usr/bin/jar jar /opt/jdk1.6.0_23/bin/jar 655
+    update-alternatives --install /usr/bin/java java /opt/jdk1.6.0_23/bin/java 655
+    update-alternatives --install /usr/bin/javac javac /opt/jdk1.6.0_23/bin/javac 655
+</pre>
+
+<pre class="text-style">
+    选择需要的java
+</pre>
+
+<pre class="code-style">
+    update-alternatives --config jar
+    update-alternatives --config java
+    update-alternatives --config javac
+</pre>
+
+<pre class="text-style">
+    编译工程！
+</pre>
+
+<pre class="code-style">
+    source build/envsetup.sh
+</pre>
+
+<pre class="code-style">
+    echo 公版mid &amp;&amp; lunch g33refNew-eng
+</pre>
+
+<pre class="code-style">
+    make -j4
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -286,8 +385,8 @@ config RTL8188EU
 
 <pre class="code-style">
 CONFIG_AM_WIFI=y
-CONFIG_AM_WIFI_SD_MMC=y
-# CONFIG_AM_WIFI_USB=y
+#CONFIG_AM_WIFI_SD_MMC=y
+CONFIG_AM_WIFI_USB=y    #视模组选sdio还是usb
 #CONFIG_SDIO_DHD_CDC_WIFI_40181_MODULE=m
 #CONFIG_BCM40181_WIFI=y
 CONFIG_RTL8188EU=m
@@ -834,7 +933,7 @@ Tips:注意config_progress.xml中最后一个common应为shutdown，若是reset�
 	&lt;command sn=&quot;12&quot; cmd=&quot;setenv recovery_command --usb_burning&quot; address=&quot;0x82000000&quot;&gt;load addr&lt;/command&gt;
 	&lt;command sn=&quot;13&quot;&gt;cmd_in_mem 0x82000000&lt;/command&gt;
 	&lt;command sn=&quot;14&quot;&gt;save&lt;/command&gt;
-	&lt;command sn=&quot;15&quot; path=&quot;uImage_usb_burning&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
+	&lt;command sn=&quot;15&quot; path=&quot;recovery.img&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
 	&lt;command sn=&quot;16&quot; &gt;crc 0x82000000 size value&lt;/command&gt;
 	&lt;command sn=&quot;17&quot; count=&quot;100&quot;&gt;bootm 0x82000000&lt;/command&gt;
 	&lt;command sn=&quot;18&quot;&gt;wipe_data&lt;/command&gt;

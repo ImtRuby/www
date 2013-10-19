@@ -14,105 +14,11 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#m6_编译说明"> 0 : m6_编译说明 </a></div>
-<div class="title"><a href="#git"> 1 : git </a></div>
-<div class="title"><a href="#你可能不知道的Shell"> 2 : 你可能不知道的Shell </a></div>
+<div class="title"><a href="#git"> 0 : git </a></div>
+<div class="title"><a href="#你可能不知道的Shell"> 1 : 你可能不知道的Shell </a></div>
+<div class="title"><a href="#MID常用命令"> 2 : MID常用命令 </a></div>
 <div class="title"><a href="#ssh公密匙"> 3 : ssh公密匙 </a></div>
 </br></br></br></br></br></br></br></br>
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h1>
-
-<pre class="text-style">
-    环境搭建：
-    gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2
-</pre>
-
-<pre class="code-style">
-    sudo tar -jxvf gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2 -C /opt/
-</pre>
-
-<pre class="text-style">
-    arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
-    arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
-</pre>
-
-<pre class="code-style">
-    sudo tar -jxvf arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
-    sudo tar -jxvf arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
-</pre>
-
-<pre class="text-style">
-    arc_gnutools.sh
-</pre>
-
-<pre class="code-style">
-    sudo cp arc_gnutools.sh /etc/profile.d/
-</pre>
-
-<h2>
-    1 uboot编译
-</h2>
-
-<pre class="code-style">
-    cd uboot
-    make m6_gXX_config   
-    make
-    cp build/u-boot.bin ../device/gXX/
-</pre>
-
-<h2>
-    2 kernel编译
-</h2>
-
-<pre class="code-style">
-    make bootimage -j4
-</pre>
-
-<h2>
-    3 android文件系统编译
-</h2>
-
-<pre class="code-style">
-    make otapackage -j4
-</pre>
-
-<pre class="text-style">
-    编译是需要java环境的！
-    安装jdk-6u23-linux-i586.bin，特别要注意的是java se版本应该在java 1.6 u26以下！
-</pre>
-
-<pre class="code-style">
-    update-alternatives --install /usr/bin/jar jar /opt/jdk1.6.0_23/bin/jar 655
-    update-alternatives --install /usr/bin/java java /opt/jdk1.6.0_23/bin/java 655
-    update-alternatives --install /usr/bin/javac javac /opt/jdk1.6.0_23/bin/javac 655
-</pre>
-
-<pre class="text-style">
-    选择需要的java
-</pre>
-
-<pre class="code-style">
-    update-alternatives --config jar
-    update-alternatives --config java
-    update-alternatives --config javac
-</pre>
-
-<pre class="text-style">
-    编译工程！
-</pre>
-
-<pre class="code-style">
-    source build/envsetup.sh
-</pre>
-
-<pre class="code-style">
-    echo 公版mid &amp;&amp; lunch g33refNew-eng
-</pre>
-
-<pre class="code-style">
-    make -j4
-</pre>
-
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="git"> git </a></h1>
 
@@ -296,6 +202,35 @@ python -m SimpleHTTPServer
 <pre class="text-style">
 一句话实现一个 HTTP 服务，把当前目录设为 HTTP 服务目录，可以通过
 http://localhost:8000访问这也许是这个星球上最简单的 HTTP 服务器的实现了。
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="MID常用命令"> MID常用命令 </a></h1>
+
+<h2>
+    烧录固件等
+</h2>
+
+<li>
+    uboot
+</li>
+
+<li>
+    kernel
+</li>
+
+<pre class="code-style">
+    mmcinfo; fatload mmc 0 82000000 boot.img; bootm
+</pre>
+
+<li>
+    android
+</li>
+
+<pre class="code-style">
+    nand scrub 0;
+    reset;
+
 </pre>
 
 </br></br></br></br></br></br></br></br>
