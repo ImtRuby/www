@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- saved from url=(0049)file:///home/mark/project/www/www/html/index.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- use charset utf-8 -->
+
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <!-- set stylesheet -->
+        <link rel="stylesheet" type="text/css" href="../css/base.css">
+
+        <!-- title name -->
+        <title>Mark's home!</title>
+    </head>
+
+<body>
+</br></br></br></br>
+<div class="title"><a href="#活动日程表Demo"> 0 : 活动日程表Demo </a></div>
+<div class="title"><a href="#chrome_console"> 1 : chrome_console </a></div>
+<div class="title"><a href="#phpadmin"> 2 : phpadmin </a></div>
+</br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="活动日程表Demo"> 活动日程表Demo </a></h1>
+
+<h2>
+1 定义数据库类型
+</h2>
+
+<pre class="text-style">
+ # event_id:活动的唯一标识
+ # event_title:活动的标题
+ # event_desc:活动详情
+ # event_start:活动开始日期
+ # event_end:活动结束日期
+</pre>
+
+<h2>
+2 创建类映射
+</h2>
+
+<li>
+构造函数
+</li>
+
+<pre class="text-style">
+ # 保证数据库链接，若链接就创建一个连接
+ # 设定以下基本属性: 数据库对象
+ # 当前显示日期，当前显示日期的月份
+ # 当前显示日期，当前显示日期的年
+ # 这个月有多少天，这个月起始日是星期几
+</pre>
+
+<li>
+生成活动表单HTML
+</li>
+
+<pre class="text-style">
+ # 检查是否正在修改或创建活动
+ # 如果是修改活动，把活动数据载入表单
+</pre>
+
+<li>
+对用户输入进行安全处理后，将新活动保存到数据库
+</li>
+
+<li>
+从数据库删除活动并请求用户确认
+</li>
+
+<li>
+载入活动数据
+</li>
+
+<pre class="text-style">
+ # 从数据库载入活动数据
+ # 将指定月份的每个活动按日期保存到一个数组中
+</pre>
+
+<li>
+输出日历信息HTML。循环活动数据数组，并附加相应的标题及时间
+</li>
+
+<li>
+用HTML显示活动数据并允许通过活动ID载入活动描述和详情
+</li>
+
+<h2>
+3 规划项目目录
+</h2>
+
+<pre class="code-style">
+.
+├── index.php -&gt; public/index.php
+├── public
+│   ├── admin.php
+│   ├── assets
+│   │   ├── comm
+│   │   ├── css
+│   │   ├── inc
+│   │   └── js
+│   ├── confirmdelete.php
+│   ├── index.php
+│   └── view.php
+└── sys
+    ├── class
+    ├── config
+    └── core
+
+10 directories, 5 files
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="chrome_console"> chrome_console </a></h1>
+
+<li>
+Selecting elements
+</li>
+
+<pre class="code-style">
+$('p');
+</pre>
+
+<li>
+Styling console output with CSS
+</li>
+
+<pre class="code-style">
+console.log(&quot;%cThis will be formatted with large, blue text&quot;, &quot;color: blue; font-size: x-large&quot;);
+</pre>
+
+<li>
+Evaluating expressions
+</li>
+
+<pre class="code-style">
+var add = function(val1, val2) { return val1 + val2; }
+add(2, 3);
+</pre>
+
+<li>
+help
+</li>
+
+<a href="
+https://developers.google.com/chrome-developer-tools/docs/commandline-api?hl=zh-CN
+">
+https://developers.google.com/chrome-developer-tools/docs/commandline-api?hl=zh-CN
+</a>
+
+<a href="
+http://api.jquery.com/
+">
+http://api.jquery.com/
+</a>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="phpadmin"> phpadmin </a></h1>
+
+<li>
+设置账户, 修复选项
+</li>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi /etc/phpmyadmin/config.inc.php
+</pre>
+
+<pre class="code-style">
+    $cfg['Servers'][$i]['controluser'] = 'root';
+&nbsp;&nbsp;&nbsp;&nbsp;$cfg['Servers'][$i]['controlpass'] = '34121113';
+
+    $cfg['Servers'][$i]['pma_recent'] = 'pma_recent';
+    $cfg['Servers'][$i]['pma_table_uiprefs'] = 'pma_table_uiprefs';
+</pre>
+
+<li>
+登陆
+</li>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;http://localhost/phpmyadmin/index.php
+</pre>
+
+<li>
+创建数据库
+</li>
+
+<pre class="text-style">
+&nbsp;&nbsp;&nbsp;&nbsp;选中SQL标签，执行下面的code
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE DATABASE IF NOT EXISTS `php-jquery_examlple`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT CHARACTER SET utf8
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLATE utf8_unicode_ci;
+
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE TABLE IF NOT EXISTS `php-jquery_examlple`.`event` (
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`event_id` INT(11) NOT NULL AUTO_INCREMENT,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`event_title` VARCHAR(80) DEFAULT NULL,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`event_desc` TEXT,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`event_start` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`event_end` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRIMARY KEY (`event_id`),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INDEX (`event_start`)
+&nbsp;&nbsp;&nbsp;&nbsp;) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+&nbsp;&nbsp;&nbsp;&nbsp;INSERT INTO `php-jquery_examlple`.`event`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(`event_title`, `event_desc`, `event_start`, `event_end`) VALUES
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('New Tear&amp;#039;s Day', 'Happy New Year!',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'2010-01-01 00:00:00', '2010-01-01 23:59:59'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('Last Day of January', 'Last day of the month! Yay!',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'2010-01-31 00:00:00', '2010-01-31 23:59:59');
+</pre>
+
+    </body>
+</html>
