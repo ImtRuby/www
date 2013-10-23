@@ -66,8 +66,8 @@ def deal_file(path, filename):
 
         elif eachline.find('@emphasize') != -1:
             print '%s' % (mark)
-            print '<li>'
-            mark = '</li>\n'
+            print '<strong>'
+            mark = '</strong>\n'
 
         else:
             if mark == '':

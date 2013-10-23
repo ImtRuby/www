@@ -14,10 +14,58 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#重挂载文件系统"> 0 : 重挂载文件系统 </a></div>
-<div class="title"><a href="#导入已有apk"> 1 : 导入已有apk </a></div>
-<div class="title"><a href="#adb无法连接"> 2 : adb无法连接 </a></div>
+<div class="title"><a href="#adb无法连接"> 0 : adb无法连接 </a></div>
+<div class="title"><a href="#重挂载文件系统"> 1 : 重挂载文件系统 </a></div>
+<div class="title"><a href="#导入已有apk"> 2 : 导入已有apk </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="adb无法连接"> adb无法连接 </a></h1>
+
+<pre class="text-style">
+
+ 请先看下设备管理器（lsusb）是否识别了设备
+A：可用的ADB 工具以及之前使用ADB调试过其他项目（此处略去ADB的下载和安装）
+B：新的连接失败时出现如下错误“influential permission”
+C：当前项目所用USB的VID/PID数据；
+D: 修改系统USB ID vendor，以支持新的设备：
+
+在您登录的用户名中新的 .android 文件夹中创建一个名为 adb_usb.ini 的文件，例如： 
+</pre>
+
+<pre class="code-style">
+ vi ~/.android/adb_usb.ini 
+</pre>
+
+<pre class="text-style">
+打开此文件并添加 0x0956，然后按回车键，从而用您为其安装驱动程序的设备的 VID一
+起显示的值代替当前值。保存文件。 您现在应该看到设备列在 adb 设备下。
+
+  
+ 1，Ubuntu 10.04以上版本；
+ 一般情况下/etc/udev/rules.d/会有“51-android.rules” 或“50-android.rules” &quot;90-android.rules&quot;
+</pre>
+
+<pre class="code-style">
+ $ cat /etc/udev/rules.d/51-android.rules
+ SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
+ $ sudo chmod 777 /etc/udev/rules.d/*android*
+</pre>
+
+<pre class="text-style">
+ 将其属性改为可写后，将新的USB的idVendor加入：如下
+</pre>
+
+<pre class="code-style">
+ $ vi /etc/udev/rules.d/51-android.rules
+ SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
+ SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;0956&quot;,MODE=&quot;0666&quot;
+</pre>
+
+<pre class="text-style">
+ 2，Window XP/ WIN7 系统：
+ &nbsp;&nbsp;&nbsp;&nbsp;下载91手机助手安装驱动连接手机后,退出91手机助手用adb shell连接！
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h1>
 
@@ -134,54 +182,6 @@ include $(call all-makefiles-under,$(LOCAL_PATH))
 
 <pre class="code-style">
 make
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="adb无法连接"> adb无法连接 </a></h1>
-
-<pre class="text-style">
-
- 请先看下设备管理器（lsusb）是否识别了设备
-A：可用的ADB 工具以及之前使用ADB调试过其他项目（此处略去ADB的下载和安装）
-B：新的连接失败时出现如下错误“influential permission”
-C：当前项目所用USB的VID/PID数据；
-D: 修改系统USB ID vendor，以支持新的设备：
-
-在您登录的用户名中新的 .android 文件夹中创建一个名为 adb_usb.ini 的文件，例如： 
-</pre>
-
-<pre class="code-style">
- vi ~/.android/adb_usb.ini 
-</pre>
-
-<pre class="text-style">
-打开此文件并添加 0x0956，然后按回车键，从而用您为其安装驱动程序的设备的 VID一
-起显示的值代替当前值。保存文件。 您现在应该看到设备列在 adb 设备下。
-
-  
- 1，Ubuntu 10.04以上版本；
- 一般情况下/etc/udev/rules.d/会有“51-android.rules” 或“50-android.rules” &quot;90-android.rules&quot;
-</pre>
-
-<pre class="code-style">
- $ cat /etc/udev/rules.d/51-android.rules
- SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
- $ sudo chmod 777 /etc/udev/rules.d/*android*
-</pre>
-
-<pre class="text-style">
- 将其属性改为可写后，将新的USB的idVendor加入：如下
-</pre>
-
-<pre class="code-style">
- $ vi /etc/udev/rules.d/51-android.rules
- SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;18d1&quot;,MODE=&quot;0666&quot;
- SUBSYSTEM==&quot;usb&quot;,SYSFS{idVendor}==&quot;0956&quot;,MODE=&quot;0666&quot;
-</pre>
-
-<pre class="text-style">
- 2，Window XP/ WIN7 系统：
- &nbsp;&nbsp;&nbsp;&nbsp;下载91手机助手安装驱动连接手机后,退出91手机助手用adb shell连接！
 </pre>
 
     </body>
