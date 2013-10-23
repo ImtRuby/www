@@ -17,6 +17,7 @@
 <div class="title"><a href="#adb无法连接"> 0 : adb无法连接 </a></div>
 <div class="title"><a href="#重挂载文件系统"> 1 : 重挂载文件系统 </a></div>
 <div class="title"><a href="#导入已有apk"> 2 : 导入已有apk </a></div>
+<div class="title"><a href="#android-gdb调试指南"> 3 : android-gdb调试指南 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="adb无法连接"> adb无法连接 </a></h1>
@@ -182,6 +183,62 @@ include $(call all-makefiles-under,$(LOCAL_PATH))
 
 <pre class="code-style">
 make
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="android-gdb调试指南"> android-gdb调试指南 </a></h1>
+
+<pre class="text-style">
+    参考
+</pre>
+
+<a href="
+    http://blog.chinaunix.net/uid-12567959-id-3214283.html
+">
+    http://blog.chinaunix.net/uid-12567959-id-3214283.html
+</a>
+
+<li>
+adb-宿主机使用,放到 /usr/bin/
+</li>
+
+<pre class="code-style">
+    out/host/linux-x86/bin/adb
+</pre>
+
+<li>
+gdb-目标机使用,放到 /system/bin/
+</li>
+
+<pre class="code-style">
+    prebuilts/misc/android-arm/gdbserver/gdbserver
+</pre>
+
+<li>
+目标机监听端口(可能提示找不到库 sudo ln -s libpython2.7.so.1 libpython2.6.so.1)
+</li>
+
+<pre class="code-style">
+    gdbserver :1234 /system/bin/top &amp;
+</pre>
+
+<li>
+宿主机执行(与目标机执行文件对应)
+</li>
+
+<pre class="code-style">
+./prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-gdb out/target/product/g33refNew/system/bin/top
+</pre>
+
+<li>
+gdb设置符号表等
+</li>
+
+<pre class="code-style">
+set solib-absolute-prefix /home/mark/mx_mid_4.2_130630/out/target/product/g33refNew/symbols/
+set solib-search-path /home/mark/mx_mid_4.2_130630/out/target/product/g33refNew/system/lib/
+shell adb forward tcp:1234 tcp:1234
+target remote localhost:1234
 </pre>
 
     </body>

@@ -18,8 +18,9 @@
 <div class="title"><a href="#gslx680调试"> 1 : gslx680调试 </a></div>
 <div class="title"><a href="#wm8960调试"> 2 : wm8960调试 </a></div>
 <div class="title"><a href="#红外遥控器修改"> 3 : 红外遥控器修改 </a></div>
-<div class="title"><a href="#mt9p111调试"> 4 : mt9p111调试 </a></div>
-<div class="title"><a href="#wm8960移植"> 5 : wm8960移植 </a></div>
+<div class="title"><a href="#内核调试之道"> 4 : 内核调试之道 </a></div>
+<div class="title"><a href="#mt9p111调试"> 5 : mt9p111调试 </a></div>
+<div class="title"><a href="#wm8960移植"> 6 : wm8960移植 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="LCD屏参"> LCD屏参 </a></h1>
@@ -297,6 +298,46 @@ KEY_BACK    158
 KEY_MENU    139
 KEY_HOME    102
 KEY_SEARCH  217
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="内核调试之道"> 内核调试之道 </a></h1>
+
+<li>
+内核转储
+</li>
+
+<pre class="code-style">
+    ulimit -c 1073741824
+</pre>
+
+<pre class="text-style">
+    设置转储文件保存路径
+</pre>
+
+<pre class="code-style">
+    vi /etc/sysctl.conf
+</pre>
+
+<pre class="code-style">
+kernel.core_pattern=/var/core/%t-%e-%p-%c.core
+kernel.core_uses_pid=0
+</pre>
+
+<pre class="code-style">
+    sysctl -p
+</pre>
+
+<pre class="text-style">
+    使用转储文件调试
+</pre>
+
+<pre class="code-style">
+    sudo apt-get install libc-dbg
+</pre>
+
+<pre class="code-style">
+    gdb -c core.XXXX ./a.out
 </pre>
 
 </br></br></br></br></br></br></br></br>
