@@ -14,24 +14,63 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#Camera-SP0838"> 0 : Camera-SP0838 </a></div>
-<div class="title"><a href="#m6_编译说明"> 1 : m6_编译说明 </a></div>
-<div class="title"><a href="#android编译环境搭建"> 2 : android编译环境搭建 </a></div>
-<div class="title"><a href="#SD卡挂载目录"> 3 : SD卡挂载目录 </a></div>
-<div class="title"><a href="#DDR"> 4 : DDR </a></div>
-<div class="title"><a href="#Codec"> 5 : Codec </a></div>
-<div class="title"><a href="#WIFI-8188eu"> 6 : WIFI-8188eu </a></div>
-<div class="title"><a href="#Logo墙纸"> 7 : Logo墙纸 </a></div>
-<div class="title"><a href="#Gsensor"> 8 : Gsensor </a></div>
-<div class="title"><a href="#Battery"> 9 : Battery </a></div>
-<div class="title"><a href="#buglist"> 10 : buglist </a></div>
-<div class="title"><a href="#TP-icn838x"> 11 : TP-icn838x </a></div>
-<div class="title"><a href="#LCD-H-B070D"> 12 : LCD-H-B070D </a></div>
-<div class="title"><a href="#AmlMiracast"> 13 : AmlMiracast </a></div>
-<div class="title"><a href="#VDD_EE电压修改"> 14 : VDD_EE电压修改 </a></div>
-<div class="title"><a href="#USB升级包制作"> 15 : USB升级包制作 </a></div>
-<div class="title"><a href="#Camera-SP0A19"> 16 : Camera-SP0A19 </a></div>
+<div class="title"><a href="#Codec硬件"> 0 : Codec硬件 </a></div>
+<div class="title"><a href="#Camera-SP0838"> 1 : Camera-SP0838 </a></div>
+<div class="title"><a href="#m6_编译说明"> 2 : m6_编译说明 </a></div>
+<div class="title"><a href="#android编译环境搭建"> 3 : android编译环境搭建 </a></div>
+<div class="title"><a href="#SD卡挂载目录"> 4 : SD卡挂载目录 </a></div>
+<div class="title"><a href="#修改背光"> 5 : 修改背光 </a></div>
+<div class="title"><a href="#DDR"> 6 : DDR </a></div>
+<div class="title"><a href="#Codec"> 7 : Codec </a></div>
+<div class="title"><a href="#编译烧录指令和bug"> 8 : 编译烧录指令和bug </a></div>
+<div class="title"><a href="#WIFI-8188eu"> 9 : WIFI-8188eu </a></div>
+<div class="title"><a href="#遥控器修改"> 10 : 遥控器修改 </a></div>
+<div class="title"><a href="#Logo墙纸"> 11 : Logo墙纸 </a></div>
+<div class="title"><a href="#Gsensor"> 12 : Gsensor </a></div>
+<div class="title"><a href="#Battery"> 13 : Battery </a></div>
+<div class="title"><a href="#TP-icn838x"> 14 : TP-icn838x </a></div>
+<div class="title"><a href="#上层UI-buglist"> 15 : 上层UI-buglist </a></div>
+<div class="title"><a href="#常用源码位置项目文件"> 16 : 常用源码位置项目文件 </a></div>
+<div class="title"><a href="#wm8960移植"> 17 : wm8960移植 </a></div>
+<div class="title"><a href="#LCD-H-B070D"> 18 : LCD-H-B070D </a></div>
+<div class="title"><a href="#AmlMiracast"> 19 : AmlMiracast </a></div>
+<div class="title"><a href="#CVBS"> 20 : CVBS </a></div>
+<div class="title"><a href="#VDD_EE电压修改"> 21 : VDD_EE电压修改 </a></div>
+<div class="title"><a href="#USB升级包制作"> 22 : USB升级包制作 </a></div>
+<div class="title"><a href="#Camera-SP0A19"> 23 : Camera-SP0A19 </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Codec硬件"> Codec硬件 </a></h1>
+<pre class="text-style">
+The WM8960 operates at analogue supply voltages down to
+2.7V, although the digital supplies can operate at voltages down
+to 1.71V to save power. The speaker supply can operate at up
+to 5.5V, providing 1W per channel into 8 loads. Unused
+functions can be disabled using software control to save power.
+模拟部分输入电压最低 2.7V， 数字部分最低1.71V， 输出最大功率为1w
+
+1、 MICBIAS是提供MIC的偏置电压
+2、 驱动对应kernel/sound/soc/decodec/wm8960.c
+3、 电压与功率增益关系 
+    XdB = 20log(Vo/Vi)
+    XdB = 10log(Po/Pi)
+故
+    Xdb = 20log(2*Vo/Vi) = 20*(log2 + log(Vo/Vi)) = 6 + 20log(Vo/Vi),
+即电压翻倍，功率增加6dB. 
+4、 I2S
+I2S总线规范
+　　在飞利浦公司的I2S标准中，既规定了硬件接口规范，也规定了数字音频数据的格式。
+I2S有3个主要信号
+　　1.串行时钟SCLK，也叫位时钟（BCLK），即对应数字音频的每一位数据，SCLK都有1个脉冲。SCLK的频率=2×采样频率×采样位数。
+　　2.帧时钟LRCK，(也称WS)，用于切换左右声道的数据。LRCK为“1”表示正在传输的是右声道的数据，为“0”则表示正在传输的是左声道的数据。LRCK的频率等于采样频率。
+　　3.串行数据SDATA，就是用二进制补码表示的音频数据。
+　　有时为了使系统间能够更好地同步，还需要另外传输一个信号MCLK，称为主时钟，也叫系统时钟（Sys Clock），是采样频率的256倍或384倍。
+
+tips:
+    DAI:    Digital Audio Interface (DAI) API.
+    DAPM:   ALSA SoC Dynamic Audio Power Management.
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h1>
 
@@ -284,6 +323,12 @@ dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/c
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="修改背光"> 修改背光 </a></h1>
+<pre class="text-style">
+﻿//通过修改/sys/devices/platform/的DEVICE_ATTR驱动提供的sysfs接口调整亮度
+echo 250 &gt; /sys/devices/platform/aml-bl/backlight/aml-bl/brightness </pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="DDR"> DDR </a></h1>
 
 <pre class="text-style">
@@ -369,6 +414,283 @@ dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/c
         snd_soc_update_bits(codec,24, 0x040, 0x040);// HPDETECT LOW = Speaker 
     }   
 #endif
+
+1 mount -t debugfs none /sys/kernel/debug
+2 chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
+3 ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
+
+//show
+cat reg
+//store
+echo reg value &gt; reg （如： echo 02 4747 &gt; reg）
+
+1 MIC（LRINPUT1） -- PHONE Bypass
+</pre>
+
+<pre class="code-style">
+echo f 0 &gt; reg;
+
+
+echo 0 127 &gt; reg;
+echo 1 127 &gt; reg;
+echo 7 2 &gt; reg;
+echo 9 40 &gt; reg;
+echo 15 1c3 &gt; reg;
+echo 16 1c3 &gt; reg; 
+echo 17 1c4 &gt; reg;
+echo 19 fe &gt; reg;
+
+
+
+echo 20 178 &gt; reg;              //这里设置通路
+echo 21 178 &gt; reg;              //这里设置通路
+
+
+echo 1a 60 &gt; reg;
+echo 2f 3c &gt; reg;
+echo 0 155 &gt; reg;
+echo 1 155 &gt; reg;
+echo 2d 80 &gt; reg;
+echo 2e 80 &gt; reg;
+
+
+echo 2 179 &gt; reg;
+echo 3 179 &gt; reg;
+
+
+
+</pre>
+
+<pre class="text-style">
+2 耳机播放音频文件
+</pre>
+
+<pre class="code-style">
+echo f 0 &gt; reg;
+echo 19 fa &gt; reg;
+echo 1a 1e0 &gt; reg;
+echo 2f 3e &gt; reg;
+echo 22 150 &gt; reg;
+echo 27 80 &gt; reg;
+echo 2 17f &gt;reg;
+echo 3 17f &gt; reg;
+echo 5 0 &gt; reg;
+
+
+
+3 同时播放和录音（到文件）
+
+
+</pre>
+
+<li>
+Set PATH
+</li>
+
+<pre class="text-style">
+echo 0 &gt; /proc/sys/kernel/printk
+mount -t debugfs none /sys/kernel/debug
+chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
+ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
+echo
+
+//从LINPUT输入
+echo f 0 &gt; reg
+
+/* DACLRC pin is used as a frame clock for ADCs and DACs */
+/* playback &amp; record set VREF on &amp; ADCL on &amp; left PGA on */
+/* enable LMIC */
+/* set the PATH */
+/* set data format */
+echo 9 40 &gt; reg
+echo 2f 20 &gt; reg
+echo 19 ea &gt; reg
+echo 20 148 &gt; reg
+echo 7 101 &gt; reg
+
+/* set volume */
+echo 15 1bc &gt; reg
+echo 0 12f &gt; reg
+
+
+//从RINPUT输入
+echo f 0 &gt; reg
+
+/* DACLRC pin is used as a frame clock for ADCs and DACs */
+/* playback &amp; record set VREF on &amp; ADCR on &amp; right PGA on */
+/* enable RMIC */
+/* set the PATH */
+/* set data format */
+echo 9 40 &gt; reg
+echo 19 d6 &gt; reg
+echo 2f 10 &gt; reg
+echo 21 148 &gt; reg
+echo 7 101 &gt; reg
+
+/* set volume */
+echo 16 1bc &gt; reg
+echo 1 12f &gt; reg
+
+
+//未确认
+//从SPK输出
+echo f 0 &gt; reg
+
+echo 19 c0 &gt; reg
+echo 20 198 &gt; reg
+echo 2f c &gt; reg
+echo 31 f7 &gt; reg
+echo 33 11b &gt; reg
+echo 22 100 &gt; reg
+echo 25 100 &gt; reg
+echo 28 179 &gt; reg
+echo 29 179 &gt; reg
+echo 5 0 &gt; reg
+
+
+//从HP输出
+echo f 0 &gt; reg
+
+/* DACLRC pin is used as a frame clock for ADCs and DACs */
+/* playback &amp; record set VREF on */
+/* R&amp;L DAC/OUT on */
+/* ROMIX &amp; LOMIX on */
+/* Left DAC to Right Output Mixer */
+/* Right DAC to Right Output Mixer */
+echo 9 40 &gt; reg
+echo 19 c0 &gt; reg
+echo 1a 1e0 &gt; reg
+echo 2f c &gt; reg
+echo 22 100 &gt; reg
+echo 25 100 &gt; reg
+
+/* LHP vol volume */
+/* RHP vol volume */
+/* Oop! DACMU as Mute after reset */
+echo 2 179 &gt; reg
+echo 3 179 &gt; reg
+echo 5 0 &gt; reg
+
+</pre>
+
+<li>
+修改为master模式
+</li>
+
+<pre class="text-style">
+修改common/sound/soc/aml/aml_m6_wm8960.c
+
+    /* set codec DAI configuration */
+    ret = snd_soc_dai_set_fmt(codec_dai, SND_SOC_DAIFMT_I2S |
+        SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS);
+为
+        /* set codec DAI configuration */
+    ret = snd_soc_dai_set_fmt(codec_dai, SND_SOC_DAIFMT_I2S |
+        SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFM);
+
+    /* set cpu DAI configuration */
+    ret = snd_soc_dai_set_fmt(cpu_dai, SND_SOC_DAIFMT_I2S |
+        SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBM_CFM);
+为
+    /* set cpu DAI configuration */
+    ret = snd_soc_dai_set_fmt(cpu_dai, SND_SOC_DAIFMT_I2S |
+        SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBM_CFS);
+
+
+bug list:
+1\ 啪啪声，可能是喇叭接触不良
+vi kernel/sound/soc/aml/aml_m3.c
+
+#define SND_SOC_DAPM_MIC(wname, wevent) \
+{   .id = snd_soc_dapm_mic, .name = wname, .kcontrols = NULL, \
+    .num_kcontrols = 0, .event = wevent, \
+    .event_flags = SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD}
+&nbsp;&nbsp;&nbsp;&nbsp;
+将
+    SND_SOC_DAPM_MIC(&quot;MIC IN&quot;, NULL),
+改为
+&nbsp;&nbsp;&nbsp;&nbsp;SND_SOC_DAPM_MIC(&quot;MIC IN&quot;, mic_event),
+并实现mic_event. </pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="编译烧录指令和bug"> 编译烧录指令和bug </a></h1>
+
+<h2>
+    烧录固件等
+</h2>
+
+<li>
+    uboot
+</li>
+
+<li>
+    kernel
+</li>
+
+<pre class="code-style">
+1 vi kernel/arch/arm/mach-meson3/board-m3-reff16.c
+
+2 搜索boot字段观察boot分区的的.offset和.size
+
+3 在bootloader中写uImage到对应nandflash，如
+    nand write 82000000 3200000 1600000
+               from   to(.offset)  size
+</pre>
+
+<pre class="code-style">
+    mmcinfo; fatload mmc 0 82000000 boot.img; bootm
+</pre>
+
+<li>
+    recovery.img
+</li>
+
+<pre class="text-style">
+跟踪代码流程:
+sd_mmc_init
+--&gt;sdxc_mmc_init
+     --&gt;sd_identify_process
+        --&gt;sd_mmc_check_wp
+           --&gt;sd_mmc_info-&gt;write_protected_flag = 1;
+
+解决之:
+
+    注释 kernel/drivers/amlogic/cardreader/sd/sd_protocol.c 的约5k行的 sd_mmc_info-&gt;write_protected_flag = 1;
+</pre>
+
+<li>
+    android
+</li>
+
+<pre class="code-style">
+    nand scrub 0;
+    reset;
+</pre>
+
+<li>
+杂项
+</li>
+
+<pre class="code-style">
+    echo 0 &gt; /proc/sys/kernel/printk
+
+</pre>
+
+<li>
+U盘烧写
+</li>
+
+<pre class="code-style">
+usb start
+fatload usb 0:1 82000000 xxx.bin
+sf probe 2
+sf erase 0 400000
+sf write 82000000 0 400000
+//kernel
+reset
+usb start
+fatload usb 0:1 82000000 xxx_recovery
+bootm
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -472,6 +794,24 @@ CONFIG_RTL8188EU=m
 
 <pre class="code-style">
 #cp $KERNEL_OUT/drivers/amlogic/wifi/broadcm_40181/dhd.ko $PRODUCT_OUT/system/lib/
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="遥控器修改"> 遥控器修改 </a></h1>
+<pre class="text-style">
+1\ 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
+填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
+tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
+
+2\ 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
+
+                ^0x55 97  //sam                                 
+                ^0x51 65
+常用的功能码:
+KEY_BACK    158
+KEY_MENU    139
+KEY_HOME    102
+KEY_SEARCH  217
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -662,40 +1002,6 @@ struct battery_curve config_battery_curve[] = {
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="buglist"> buglist </a></h1>
-
-<pre class="text-style">
-1 UI显示完整
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/system.prop
-</pre>
-
-<pre class="code-style">
-ro.sf.lcd_density=120
-
-</pre>
-
-<pre class="text-style">
-2 UI的分栏
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi frameworks/base/core/res/res/values/bools.xml
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;bool name=&quot;preferences_prefer_dual_pane&quot;&gt;true&lt;/bool&gt;
-
-</pre>
-
-<pre class="text-style">
-3 HDMI连不上
-&nbsp;&nbsp;&nbsp;&nbsp;对照MXS公板原理图，板子漏焊一个0欧姆电阻
-</pre>
-
-</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="TP-icn838x"> TP-icn838x </a></h1>
 
 <pre class="text-style">
@@ -777,6 +1083,161 @@ PRODUCT_COPY_FILES += $(LOCAL_PATH)/icn838x_para.bin:system/vendor/icn838x_para.
 #if SUPPORT_AMLOGIC
 static char para[128] = {&quot;/system/vendor/icn838x_para.bin&quot;};
 #endif
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="上层UI-buglist"> 上层UI-buglist </a></h1>
+
+<pre class="text-style">
+1 UI显示完整
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/system.prop
+</pre>
+
+<pre class="code-style">
+ro.sf.lcd_density=120
+
+</pre>
+
+<pre class="text-style">
+2 UI的分栏
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi frameworks/base/core/res/res/values/bools.xml
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;bool name=&quot;preferences_prefer_dual_pane&quot;&gt;true&lt;/bool&gt;
+
+</pre>
+
+<pre class="text-style">
+3 HDMI连不上
+&nbsp;&nbsp;&nbsp;&nbsp;对照MXS公板原理图，板子漏焊一个0欧姆电阻
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="常用源码位置项目文件"> 常用源码位置项目文件 </a></h1>
+<pre class="text-style">
+1 LCD驱动(M3)
+&nbsp;&nbsp;&nbsp;&nbsp;一般需要在.config中设置osd， 即 Amlogic osd module 设置为对应datasheet buffer大小
+&nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/drivrers/amlogic/display/vout/lcd_lvds/
+
+2 项目文件（M3)
+&nbsp;&nbsp;&nbsp;&nbsp;SDK/device/amlogic/XXX/boardconfig.mk
+
+3 BSP(M3)
+&nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/arch/arm/mach-meson3/board-m3-XXX.c </pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
+<pre class="text-style">
+1 修改common/customer/configs/meson6_g18_jbmr1_defconfig
+#CONFIG_SND_AML_M6_RT5631=y
+CONFIG_SND_AML_M6_WM8960=y
+
+2 修改common/customer/boards/board-m6g18.c, 加入CONFIG_SND_SOC_WM8960宏包含部分
+</pre>
+
+<pre class="text-style">
+103,105d102
+&lt; #ifdef CONFIG_SND_SOC_WM8960
+&lt; #include &lt;sound/wm8960.h&gt;
+&lt; #endif
+496,512d492
+&lt; #ifdef CONFIG_SND_SOC_WM8960
+&lt; static struct wm8960_data wm8960_codec_data = {
+&lt;     .capless        = 1,
+&lt; };
+&lt; 
+&lt; extern char* get_vout_mode_internal(void);
+&lt; 
+&lt; /* Check current mode, 0: panel; 1: !panel*/
+&lt; int get_display_mode(void) {
+&lt;   int ret = 0;
+&lt;   if(strncmp(&quot;panel&quot;, get_vout_mode_internal(), 5)){
+&lt;       ret = 1;
+&lt;   }
+&lt; 
+&lt;   return ret;
+&lt; }
+&lt; #endif
+515,520c495
+&lt; #ifdef CONFIG_SND_SOC_WM8960
+&lt;     {
+&lt;         I2C_BOARD_INFO(&quot;wm8960&quot;, 0x1A),
+&lt;         .platform_data = &amp;wm8960_codec_data,
+&lt;     },
+&lt; #endif
+---
+&gt; 
+1817,1897d1791
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt; 
+&lt; static pinmux_item_t wm8960_pinmux[] = {
+&lt;     /* I2S_MCLK I2S_BCLK I2S_LRCLK I2S_DIN I2S_DOUT */
+&lt;     {
+&lt;         .reg = PINMUX_REG(9),
+&lt;         .setmask = (1 &lt;&lt; 7) | (1 &lt;&lt; 5) | (1 &lt;&lt; 9) | (1 &lt;&lt; 11) | (1 &lt;&lt; 4),
+&lt;         .clrmask = (7 &lt;&lt; 19) | (7 &lt;&lt; 1) | (1 &lt;&lt; 10) | (1 &lt;&lt; 6),
+&lt;     },
+&lt;     {
+&lt;         .reg = PINMUX_REG(8),
+&lt;         .clrmask = (0x7f &lt;&lt; 24),
+&lt;     },
+&lt;     PINMUX_END_ITEM
+&lt; };
+&lt; 
+&lt; static pinmux_set_t wm8960_pinmux_set = {
+&lt;     .chip_select = NULL,
+&lt;     .pinmux = &amp;wm8960_pinmux[0],
+&lt; };
+&lt; 
+&lt; static void wm8960_device_init(void)
+&lt; {
+&lt;     /* audio pinmux */
+&lt;     pinmux_set(&amp;wm8960_pinmux_set);
+&lt; 
+&lt;     /* GPIOA_19 PULL_UP_REG0 bit19 */
+&lt;     aml_set_reg32_bits(P_PAD_PULL_UP_REG0, 1, 19, 1);
+&lt; }
+&lt; 
+&lt; static void wm8960_device_deinit(void)
+&lt; {
+&lt;     pinmux_clr(&amp;wm8960_pinmux_set);
+&lt; }
+&lt; 
+&lt; static int wm8960_hp_detect(void)
+&lt; {
+&lt; #define HP_PLUG     1
+&lt; #define HP_UNPLUG   0
+&lt; 
+&lt;     int val = HP_UNPLUG;
+&lt;     uint32_t level = 0;
+&lt; 
+&lt;     //printk(&quot;&lt;0&gt;&quot;&quot;val is 1111111111111111111111111&quot;);
+&lt; #if 0
+&lt;     if(get_display_mode() != 0) {   //if !panel, return HP_PLUG
+&lt;         return HP_PLUG;
+&lt;     }
+&lt; #endif
+&lt; 
+&lt;     /* GPIOA_19 */
+&lt;     aml_set_reg32_bits(P_PREG_PAD_GPIO0_EN_N, 1, 19, 1);    // mode
+&lt;     level = aml_get_reg32_bits(P_PREG_PAD_GPIO0_I, 19, 1);  // value
+&lt;     if (level == 0) {
+&lt;         val = HP_PLUG;
+&lt;     }
+&lt;     //printk(&quot;&lt;0&gt;&quot;&quot;val is %d %d %s %s\n&quot;, level, __LINE__, __FILE__, __FUNCTION__);
+&lt; 
+
+
+3 加入驱动文件common/sound/soc/codecs/wm8960.* common/sound/soc/aml/aml_m6_wm8960.c
+
+4 修改文件device/amlogic/g18ref/g18ref.mk内容BOARD_AUDIO_CODEC := wm8960 
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -912,6 +1373,76 @@ CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
 
 <pre class="code-style">
 &lt;bool name=&quot;def_wifi_display_on&quot;&gt;true&lt;/bool&gt;
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="CVBS"> CVBS </a></h1>
+<pre class="text-style">
+﻿uboot:
+
+uboot/board/amlogic/m3_mbox/m3_mbox.c
+
+int logo_display(void)
+
+
+
++
+
+#include &lt;asm/arch/gpio.h&gt;
+
+ 
+
+    int isHDMI = 0; 
+
+    /* fixme for open LVDO */
+
+    clrbits_le32(P_AO_GPIO_O_EN_N,(1&lt;&lt;22) );
+
+    printf(&quot;logo_display: \n&quot;);
+
+
+
+    /* ending in logo_display function */
+
+    set_gpio_mode(GPIOC_bank_bit0_15(10), GPIOC_bit_bit0_15(10), GPIO_INPUT_MODE);
+
+    isHDMI = get_gpio_val(GPIOC_bank_bit0_15(10), GPIOC_bit_bit0_15(10));
+
+    printf(&quot;---------%s read reg is : %d -----------------\n&quot;, __FUNCTION__, isHDMI);
+
+
+
+    if (! isHDMI) {
+
+        if (strcmp(getenv(&quot;outputmode&quot;), &quot;576i&quot;)) {
+
+            setenv(&quot;outputmode&quot;, &quot;576i&quot;);
+
+            setenv(&quot;cvbsmode&quot;, &quot;&quot;); 
+
+            run_command (&quot;save&quot;, 0);
+
+            run_command (&quot;reset&quot;, 0);
+
+        }    
+
+    }  
+
+ 
+
+当电视设为CVBS时：
+
+插上HDMI线时读到reg为0
+
+拔出HDMI线时读到reg为0
+
+ 
+
+当电视设为HDMI时：
+
+插上HDMI线时读到reg为1
+
+拔出HDMI线时读到reg为0
 </pre>
 
 </br></br></br></br></br></br></br></br>

@@ -16,11 +16,15 @@
 </br></br></br></br>
 <div class="title"><a href="#LCD屏参"> 0 : LCD屏参 </a></div>
 <div class="title"><a href="#gslx680调试"> 1 : gslx680调试 </a></div>
-<div class="title"><a href="#wm8960调试"> 2 : wm8960调试 </a></div>
-<div class="title"><a href="#红外遥控器修改"> 3 : 红外遥控器修改 </a></div>
-<div class="title"><a href="#内核调试之道"> 4 : 内核调试之道 </a></div>
-<div class="title"><a href="#mt9p111调试"> 5 : mt9p111调试 </a></div>
-<div class="title"><a href="#wm8960移植"> 6 : wm8960移植 </a></div>
+<div class="title"><a href="#i2c调试"> 2 : i2c调试 </a></div>
+<div class="title"><a href="#alsa调试"> 3 : alsa调试 </a></div>
+<div class="title"><a href="#wm8960调试"> 4 : wm8960调试 </a></div>
+<div class="title"><a href="#红外遥控器修改"> 5 : 红外遥控器修改 </a></div>
+<div class="title"><a href="#内核调试之道"> 6 : 内核调试之道 </a></div>
+<div class="title"><a href="#sendevent"> 7 : sendevent </a></div>
+<div class="title"><a href="#mt9p111调试"> 8 : mt9p111调试 </a></div>
+<div class="title"><a href="#调试技巧"> 9 : 调试技巧 </a></div>
+<div class="title"><a href="#wm8960移植"> 10 : wm8960移植 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="LCD屏参"> LCD屏参 </a></h1>
@@ -189,6 +193,76 @@ common/drivers/amlogic/input/touchscreen/gsl1680.c
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="i2c调试"> i2c调试 </a></h1>
+<pre class="text-style">
+//查看总的bus
+tree /sys/bus/i2c/devices
+或
+ls -l /sys/bus/i2c/devices
+//查看驱动对应的i2c地址
+tree /sys/bus/i2c/drivers/xxx
+或
+ls -l /sys/bus/i2c/drivers/xxx
+
+//打开i2c总线的debug信息
+echo 1 &gt; /sys/class/i2cX/debug
+
+//i2c_tool使用
+^1 查看总线1挂载的设备（UU为设备）
+//查看 i2c-1 上挂载设备的地址
+# i2cdetect -y -r 1
+^2 查看 0x1e 设备上所有寄存器的值
+# i2cdump -f -y 1 0x1e
+^3 设置 0x1e 设备的 0x23 寄存器的值为 5
+# i2cset -f -y 1 0x1e 0x23 5
+^4 读取 0x1e 设备上 寄存器0x20 上的值
+# i2cget -f -y 1 0x1e 0x20
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="alsa调试"> alsa调试 </a></h1>
+<pre class="text-style">
+1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
+//snd_card的定义位于头文件：include/sound/core.h
+// 入口 3885: module_init(snd_soc_init);
+3883     return platform_driver_register(&amp;soc_driver); 
+2106     .probe      = soc_probe, 
+2022     ret = snd_soc_register_card(card);
+3397     snd_soc_instantiate_cards();
+// 下面两行是重头戏?
+^1842         soc_bind_dai_link(card, i);
+^1874     ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+sound/soc/soc-core.c:1874:  
+    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+// snd_card的driver字段保存着芯片的ID字符串，
+// user空间的alsa-lib会使用到该字符串
+$ cat -l /proc/asound/cards
+0 [AMLWM8960      ]: SOC-Audio - AML-WM8960
+                       AML-WM8960
+$ cat /proc/asound/card0/pcm0c/info
+
+2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
+// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device
+// alsa-driver的已经提供了一些常用的部件的创建函数
+PCM     --    snd_pcm_new() 
+RAWMIDI --    snd_rawmidi_new() 
+CONTROL --    snd_ctl_create() 
+TIMER   --    snd_timer_new() 
+INFO    --    snd_card_proc_new() 
+JACK    --    snd_jack_new()
+$ ls -l /dev/snd
+// 用于声卡的控制，例如通道选择，混音，麦克风的控制等
+crw-rw---- system   audio    116,   0 1970-01-04 22:38 controlC0
+// 用于录音的pcm设备,capture
+crw-rw---- system   audio    116,  24 1970-01-04 22:38 pcmC0D0c
+// 用于播放的pcm设备,play
+crw-rw---- system   audio    116,  16 1970-01-04 22:38 pcmC0D0p
+// 定时器
+crw-rw---- system   audio    116,  33 1970-01-04 22:38 timer
+</pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="wm8960调试"> wm8960调试 </a></h1>
 
 <pre class="text-style">
@@ -341,6 +415,36 @@ kernel.core_uses_pid=0
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="sendevent"> sendevent </a></h1>
+<pre class="text-style">
+1 getevent查看dev节点
+# getevent                                                       
+add device 1: /dev/input/event2                                                 
+  name:     &quot;axp20-supplyer&quot;
+2 sendevent /dev/input/eventX XXX XXX XXX
+// 注意下面是getevent得到的事件，但是发送必须以10进制发送
+</pre>
+
+<pre class="code-style">
+root@android:/ # getevent /dev/input/event1
+0001 0074 00000001
+0000 0000 00000000
+0001 0074 00000000
+0000 0000 00000000
+</pre>
+
+<pre class="text-style">
+即
+</pre>
+
+<pre class="code-style">
+sendevent /dev/input/event1 1 116 1
+sendevent /dev/input/event1 0 0 0
+sendevent /dev/input/event1 1 116 0
+sendevent /dev/input/event1 0 0 0
+</pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="mt9p111调试"> mt9p111调试 </a></h1>
 
 <address>
@@ -465,6 +569,21 @@ static struct video_device mt9p111_handler = {
 ddata-&gt;vdev = video_device_alloc();
 memcpy(ddata-&gt;vdev, &amp;mt9p111_handler, sizeof(*ddata-&gt;vdev));
 video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="调试技巧"> 调试技巧 </a></h1>
+
+<pre class="code-style">
+    mount -o rw,remount yaffs2 /system
+</pre>
+
+<pre class="text-style">
+或
+</pre>
+
+<pre class="code-style">
+    mount -o remount rw /system
 </pre>
 
 </br></br></br></br></br></br></br></br>
