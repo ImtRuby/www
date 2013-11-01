@@ -642,7 +642,25 @@ static struct platform_device  *platform_devs[] = {
 common/sound/soc/aml/aml_m6_wm8960.c
 common/sound/soc/codecs/wm8960.*
 
+</pre>
 
+<strong>
+Tips：
+    common/sound/soc/aml/aml_m6_wm8960.c 中 
+</strong>
+
+<pre class="code-style">
+static struct snd_soc_dai_link wm8960_dai_link[] = {
+    ...
+    .codec_name = &quot;wm8960-codec.0-001a&quot;,
+    ...
+</pre>
+
+<strong>
+    命名规则 .0-001a 对应i2c总线和地址。
+</strong>
+
+<pre class="text-style">
 驱动修改指南:
 1.初始化
 </pre>

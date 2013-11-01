@@ -31,7 +31,7 @@
 <div class="title"><a href="#TP-icn838x"> 14 : TP-icn838x </a></div>
 <div class="title"><a href="#上层UI-buglist"> 15 : 上层UI-buglist </a></div>
 <div class="title"><a href="#常用源码位置项目文件"> 16 : 常用源码位置项目文件 </a></div>
-<div class="title"><a href="#wm8960移植"> 17 : wm8960移植 </a></div>
+<div class="title"><a href="#SPI支持"> 17 : SPI支持 </a></div>
 <div class="title"><a href="#LCD-H-B070D"> 18 : LCD-H-B070D </a></div>
 <div class="title"><a href="#AmlMiracast"> 19 : AmlMiracast </a></div>
 <div class="title"><a href="#CVBS"> 20 : CVBS </a></div>
@@ -1133,111 +1133,21 @@ ro.sf.lcd_density=120
 &nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/arch/arm/mach-meson3/board-m3-XXX.c </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
-<pre class="text-style">
-1 修改common/customer/configs/meson6_g18_jbmr1_defconfig
-#CONFIG_SND_AML_M6_RT5631=y
-CONFIG_SND_AML_M6_WM8960=y
+<h1 align="center"><a name="SPI支持"> SPI支持 </a></h1>
 
-2 修改common/customer/boards/board-m6g18.c, 加入CONFIG_SND_SOC_WM8960宏包含部分
+<pre class="text-style">
+    添加对应型号SPI
 </pre>
 
-<pre class="text-style">
-103,105d102
-&lt; #ifdef CONFIG_SND_SOC_WM8960
-&lt; #include &lt;sound/wm8960.h&gt;
-&lt; #endif
-496,512d492
-&lt; #ifdef CONFIG_SND_SOC_WM8960
-&lt; static struct wm8960_data wm8960_codec_data = {
-&lt;     .capless        = 1,
-&lt; };
-&lt; 
-&lt; extern char* get_vout_mode_internal(void);
-&lt; 
-&lt; /* Check current mode, 0: panel; 1: !panel*/
-&lt; int get_display_mode(void) {
-&lt;   int ret = 0;
-&lt;   if(strncmp(&quot;panel&quot;, get_vout_mode_internal(), 5)){
-&lt;       ret = 1;
-&lt;   }
-&lt; 
-&lt;   return ret;
-&lt; }
-&lt; #endif
-515,520c495
-&lt; #ifdef CONFIG_SND_SOC_WM8960
-&lt;     {
-&lt;         I2C_BOARD_INFO(&quot;wm8960&quot;, 0x1A),
-&lt;         .platform_data = &amp;wm8960_codec_data,
-&lt;     },
-&lt; #endif
----
-&gt; 
-1817,1897d1791
-&lt; #if defined(CONFIG_SND_SOC_WM8960)
-&lt; 
-&lt; static pinmux_item_t wm8960_pinmux[] = {
-&lt;     /* I2S_MCLK I2S_BCLK I2S_LRCLK I2S_DIN I2S_DOUT */
-&lt;     {
-&lt;         .reg = PINMUX_REG(9),
-&lt;         .setmask = (1 &lt;&lt; 7) | (1 &lt;&lt; 5) | (1 &lt;&lt; 9) | (1 &lt;&lt; 11) | (1 &lt;&lt; 4),
-&lt;         .clrmask = (7 &lt;&lt; 19) | (7 &lt;&lt; 1) | (1 &lt;&lt; 10) | (1 &lt;&lt; 6),
-&lt;     },
-&lt;     {
-&lt;         .reg = PINMUX_REG(8),
-&lt;         .clrmask = (0x7f &lt;&lt; 24),
-&lt;     },
-&lt;     PINMUX_END_ITEM
-&lt; };
-&lt; 
-&lt; static pinmux_set_t wm8960_pinmux_set = {
-&lt;     .chip_select = NULL,
-&lt;     .pinmux = &amp;wm8960_pinmux[0],
-&lt; };
-&lt; 
-&lt; static void wm8960_device_init(void)
-&lt; {
-&lt;     /* audio pinmux */
-&lt;     pinmux_set(&amp;wm8960_pinmux_set);
-&lt; 
-&lt;     /* GPIOA_19 PULL_UP_REG0 bit19 */
-&lt;     aml_set_reg32_bits(P_PAD_PULL_UP_REG0, 1, 19, 1);
-&lt; }
-&lt; 
-&lt; static void wm8960_device_deinit(void)
-&lt; {
-&lt;     pinmux_clr(&amp;wm8960_pinmux_set);
-&lt; }
-&lt; 
-&lt; static int wm8960_hp_detect(void)
-&lt; {
-&lt; #define HP_PLUG     1
-&lt; #define HP_UNPLUG   0
-&lt; 
-&lt;     int val = HP_UNPLUG;
-&lt;     uint32_t level = 0;
-&lt; 
-&lt;     //printk(&quot;&lt;0&gt;&quot;&quot;val is 1111111111111111111111111&quot;);
-&lt; #if 0
-&lt;     if(get_display_mode() != 0) {   //if !panel, return HP_PLUG
-&lt;         return HP_PLUG;
-&lt;     }
-&lt; #endif
-&lt; 
-&lt;     /* GPIOA_19 */
-&lt;     aml_set_reg32_bits(P_PREG_PAD_GPIO0_EN_N, 1, 19, 1);    // mode
-&lt;     level = aml_get_reg32_bits(P_PREG_PAD_GPIO0_I, 19, 1);  // value
-&lt;     if (level == 0) {
-&lt;         val = HP_PLUG;
-&lt;     }
-&lt;     //printk(&quot;&lt;0&gt;&quot;&quot;val is %d %d %s %s\n&quot;, level, __LINE__, __FILE__, __FUNCTION__);
-&lt; 
-
-
-3 加入驱动文件common/sound/soc/codecs/wm8960.* common/sound/soc/aml/aml_m6_wm8960.c
-
-4 修改文件device/amlogic/g18ref/g18ref.mk内容BOARD_AUDIO_CODEC := wm8960 
+<pre class="code-style">
+/* NOTE: double check command sets and memory organization when you add 
+ * more flash chips.  This current list focusses on newer chips, which
+ * have been converging on command sets which including JEDEC ID. 
+ */
+static struct flash_info spi_nor_data [] = { 
+    /* Toshiba */
+    { &quot;GD25Q16&quot;, 0xc84015, 64 * 1024, 32, SECT_4K, },
+    { &quot;GD25Q32&quot;, 0xc84016, 64 * 1024, 64, SECT_4K, },
 </pre>
 
 </br></br></br></br></br></br></br></br>
