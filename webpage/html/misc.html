@@ -14,70 +14,46 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#git"> 0 : git </a></div>
+<div class="title"><a href="#ssh公密匙"> 0 : ssh公密匙 </a></div>
 <div class="title"><a href="#你可能不知道的Shell"> 1 : 你可能不知道的Shell </a></div>
-<div class="title"><a href="#Ubuntu相关"> 2 : Ubuntu相关 </a></div>
-<div class="title"><a href="#ssh公密匙"> 3 : ssh公密匙 </a></div>
-<div class="title"><a href="#常用shell命令"> 4 : 常用shell命令 </a></div>
+<div class="title"><a href="#常用shell命令"> 2 : 常用shell命令 </a></div>
+<div class="title"><a href="#Ubuntu相关"> 3 : Ubuntu相关 </a></div>
+<div class="title"><a href="#git"> 4 : git </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="git"> git </a></h1>
+<h1 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h1>
 
 <pre class="text-style">
-    创建一个用于git的用户
+A为本地主机(即用于控制其他主机的机器);
+B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
+
+    在A上的命令:
 </pre>
 
 <pre class="code-style">
-    sudo adduser git
-    su git
-    cd; mkdir .ssh
+    # ssh-keygen -t rsa (连续三次回车,即在本地生成了公钥和私钥)
+    # scp ~/.ssh/id_rsa.pub root@172.24.253.2:.ssh/id_rsa.pub
 </pre>
 
 <pre class="text-style">
-    添加开发者公匙到服务器
+    然后在B上的命令:
 </pre>
 
-<h2>
-    1 服务器建立一个裸库
-</h2>
-
 <pre class="code-style">
-    cd; mkdir project.git
-    cd prject.git
-    git --bare init
+    # touch /root/.ssh/authorized_keys (如果已经存在这个文件, 跳过这条)
+    # cat /root/.ssh/id_rsa.pub   &gt;&gt; /root/.ssh/authorized_keys (将id_rsa.pub的内容追加到 authorized_keys 中)
 </pre>
 
-<h2>
-    2 开发者创建项目并推送
-</h2>
-
 <pre class="code-style">
-    cd myproject
-    git init
-    git add .
-    git commit -m 'initial commit'
-    git remote add origin git@10.86.133.33:~/project.git
-    git push origin master
+    # ssh root@172.24.253.2 (因为没有设置私钥密码, 所以不需要密码,登录成功)
 </pre>
 
-<h2>
-    3 其他开发者参与
-</h2>
-
-<pre class="code-style">
-    git clone git@10.86.133.33:~/project.git
-    cd prject
-    touch README
-    git commit -am 'fix for the README file'
-    git push origin master
-</pre>
-
-<h2>
-    Or
-</h2>
-
-<pre class="code-style">
-    git pull origin master
+<pre class="text-style">
+    从表面上简单的理解一下登录的过程,首先 ssh-keygen -t rsa 命令生成了一个密钥和一个公钥,
+    而且密钥可以设置自己的密码可以把密钥理解成一把钥匙, 公钥理解成这把钥匙对应的锁头,
+    把锁头(公钥)放到想要控制的server上, 锁住server,只有拥有钥匙(密钥)的人, 才能打开
+    锁头, 进入server并控制  而对于拥有这把钥匙的人, 必需得知道钥匙本身的密码,才能使
+    用这把钥匙 (除非这把钥匙没设置密码),这样就可以防止钥匙被了配了(私钥被人复制)         
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -204,6 +180,33 @@ http://localhost:8000访问这也许是这个星球上最简单的 HTTP 服务�
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="常用shell命令"> 常用shell命令 </a></h1>
+<pre class="text-style">
+﻿1 git在两个commit之间创建补丁
+# git reflog
+# git format-patch &lt;old&gt; &lt;new&gt;
+
+打补丁
+# patch -p0 &lt; xx.patch
+
+
+2 压缩时不压缩某文件或文件夹
+# mkdir mark
+# cd mark
+# touch {1,2,3}
+# cd ..
+//Tips : 如果--exclude是目录，千万不要在在最后加'/'
+# tar -cjvf mark.tar.bz2 mark --exclude=mark/1
+
+
+3 某文件夹内文件搜索某字段
+# grep -nr &quot;string&quot; mark/
+
+
+4 某文件夹寻找某文件
+# find mark/ -name &quot;file_name&quot; </pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="Ubuntu相关"> Ubuntu相关 </a></h1>
 
 <li>
@@ -317,67 +320,64 @@ shift+v进入可视化模式，可以选择行来复制。
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="ssh公密匙"> ssh公密匙 </a></h1>
+<h1 align="center"><a name="git"> git </a></h1>
 
 <pre class="text-style">
-A为本地主机(即用于控制其他主机的机器);
-B为远程主机(即被控制的机器Server), 假如ip为172.24.253.2;
-
-    在A上的命令:
+    创建一个用于git的用户
 </pre>
 
 <pre class="code-style">
-    # ssh-keygen -t rsa (连续三次回车,即在本地生成了公钥和私钥)
-    # scp ~/.ssh/id_rsa.pub root@172.24.253.2:.ssh/id_rsa.pub
+    sudo adduser git
+    su git
+    cd; mkdir .ssh
 </pre>
 
 <pre class="text-style">
-    然后在B上的命令:
+    添加开发者公匙到服务器
 </pre>
+
+<h2>
+    1 服务器建立一个裸库
+</h2>
 
 <pre class="code-style">
-    # touch /root/.ssh/authorized_keys (如果已经存在这个文件, 跳过这条)
-    # cat /root/.ssh/id_rsa.pub   &gt;&gt; /root/.ssh/authorized_keys (将id_rsa.pub的内容追加到 authorized_keys 中)
+    cd; mkdir project.git
+    cd prject.git
+    git --bare init
 </pre>
+
+<h2>
+    2 开发者创建项目并推送
+</h2>
 
 <pre class="code-style">
-    # ssh root@172.24.253.2 (因为没有设置私钥密码, 所以不需要密码,登录成功)
+    cd myproject
+    git init
+    git add .
+    git commit -m 'initial commit'
+    git remote add origin git@10.86.133.33:~/project.git
+    git push origin master
 </pre>
 
-<pre class="text-style">
-    从表面上简单的理解一下登录的过程,首先 ssh-keygen -t rsa 命令生成了一个密钥和一个公钥,
-    而且密钥可以设置自己的密码可以把密钥理解成一把钥匙, 公钥理解成这把钥匙对应的锁头,
-    把锁头(公钥)放到想要控制的server上, 锁住server,只有拥有钥匙(密钥)的人, 才能打开
-    锁头, 进入server并控制  而对于拥有这把钥匙的人, 必需得知道钥匙本身的密码,才能使
-    用这把钥匙 (除非这把钥匙没设置密码),这样就可以防止钥匙被了配了(私钥被人复制)         
+<h2>
+    3 其他开发者参与
+</h2>
+
+<pre class="code-style">
+    git clone git@10.86.133.33:~/project.git
+    cd prject
+    touch README
+    git commit -am 'fix for the README file'
+    git push origin master
 </pre>
 
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="常用shell命令"> 常用shell命令 </a></h1>
-<pre class="text-style">
-﻿1 git在两个commit之间创建补丁
-# git reflog
-# git format-patch &lt;old&gt; &lt;new&gt;
+<h2>
+    Or
+</h2>
 
-打补丁
-# patch -p0 &lt; xx.patch
-
-
-2 压缩时不压缩某文件或文件夹
-# mkdir mark
-# cd mark
-# touch {1,2,3}
-# cd ..
-//Tips : 如果--exclude是目录，千万不要在在最后加'/'
-# tar -cjvf mark.tar.bz2 mark --exclude=mark/1
-
-
-3 某文件夹内文件搜索某字段
-# grep -nr &quot;string&quot; mark/
-
-
-4 某文件夹寻找某文件
-# find mark/ -name &quot;file_name&quot; </pre>
+<pre class="code-style">
+    git pull origin master
+</pre>
 
     </body>
 </html>
