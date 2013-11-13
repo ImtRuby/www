@@ -14,19 +14,9 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#默认启动参数"> 0 : 默认启动参数 </a></div>
-<div class="title"><a href="#传参失败"> 1 : 传参失败 </a></div>
+<div class="title"><a href="#传参失败"> 0 : 传参失败 </a></div>
+<div class="title"><a href="#默认启动参数"> 1 : 默认启动参数 </a></div>
 </br></br></br></br></br></br></br></br>
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="默认启动参数"> 默认启动参数 </a></h1>
-<pre class="text-style">
-对应uboot/include/configs/amlogic/m3_mbox.h里面的
-如
-recoveryboot=&quot;echo Enter recovery mode...
-mmcinfo;fatload mmc 0 ${loadaddr} ${recovery_path}
-bootm ${loadaddr}\0&quot;
-</pre>
-
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="传参失败"> 传参失败 </a></h1>
 
@@ -43,6 +33,16 @@ bootm ${loadaddr}\0&quot;
 
 <pre class="text-style">
     分析为传参失败，原因是软件对应的是4M SPI，而硬件用的是2M SPI，访问了无法访问的地址空间，访问空指针panic！
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="默认启动参数"> 默认启动参数 </a></h1>
+<pre class="text-style">
+对应uboot/include/configs/amlogic/m3_mbox.h里面的
+如
+recoveryboot=&quot;echo Enter recovery mode...
+mmcinfo;fatload mmc 0 ${loadaddr} ${recovery_path}
+bootm ${loadaddr}\0&quot;
 </pre>
 
     </body>

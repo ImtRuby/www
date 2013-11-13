@@ -14,254 +14,19 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#wm8960调试"> 0 : wm8960调试 </a></div>
-<div class="title"><a href="#wm8960移植"> 1 : wm8960移植 </a></div>
-<div class="title"><a href="#内核调试之道"> 2 : 内核调试之道 </a></div>
-<div class="title"><a href="#LCD屏参"> 3 : LCD屏参 </a></div>
+<div class="title"><a href="#LCD屏参"> 0 : LCD屏参 </a></div>
+<div class="title"><a href="#gslx680调试"> 1 : gslx680调试 </a></div>
+<div class="title"><a href="#i2c调试"> 2 : i2c调试 </a></div>
+<div class="title"><a href="#wifi调试"> 3 : wifi调试 </a></div>
 <div class="title"><a href="#alsa调试"> 4 : alsa调试 </a></div>
-<div class="title"><a href="#wifi调试"> 5 : wifi调试 </a></div>
-<div class="title"><a href="#调试技巧"> 6 : 调试技巧 </a></div>
-<div class="title"><a href="#i2c调试"> 7 : i2c调试 </a></div>
-<div class="title"><a href="#红外遥控器修改"> 8 : 红外遥控器修改 </a></div>
-<div class="title"><a href="#sendevent"> 9 : sendevent </a></div>
-<div class="title"><a href="#mt9p111调试"> 10 : mt9p111调试 </a></div>
-<div class="title"><a href="#gslx680调试"> 11 : gslx680调试 </a></div>
+<div class="title"><a href="#wm8960调试"> 5 : wm8960调试 </a></div>
+<div class="title"><a href="#红外遥控器修改"> 6 : 红外遥控器修改 </a></div>
+<div class="title"><a href="#内核调试之道"> 7 : 内核调试之道 </a></div>
+<div class="title"><a href="#sendevent"> 8 : sendevent </a></div>
+<div class="title"><a href="#mt9p111调试"> 9 : mt9p111调试 </a></div>
+<div class="title"><a href="#调试技巧"> 10 : 调试技巧 </a></div>
+<div class="title"><a href="#wm8960移植"> 11 : wm8960移植 </a></div>
 </br></br></br></br></br></br></br></br>
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wm8960调试"> wm8960调试 </a></h1>
-
-<pre class="text-style">
-debugfs节点 - 串口修改寄存器值
-</pre>
-
-<pre class="code-style">
-mount -t debugfs none /sys/kernel/debug
-chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
-ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
-
-</pre>
-
-<pre class="text-style">
-1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
-
-
-//snd_card的定义位于头文件：include/sound/core.h 
-</pre>
-
-<pre class="code-style">
-    3885: module_init(snd_soc_init);
-
-    3883 return platform_driver_register(&amp;soc_driver);
-    2106 .probe = soc_probe,
-    2022 ret = snd_soc_register_card(card);
-    3397 snd_soc_instantiate_cards();
-
-    // 下面两行是重头戏?
-    1842 soc_bind_dai_link(card, i);
-    1874 ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-
-</pre>
-
-<pre class="text-style">
-sound/soc/soc-core.c:1874:
-</pre>
-
-<pre class="code-style">
-    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-
-    // snd_card的driver字段保存着芯片的ID字符串
-    // user空间的alsa-lib会使用到该字符串
-
-    $ cat -l /proc/asound/cards
-    0 [AMLWM8960 ]: SOC-Audio - AML-WM8960
-    AML-WM8960
-
-    $ cat /proc/asound/card0/pcm0c/info
-</pre>
-
-<pre class="text-style">
-    未完待续...
-
-    
-
-2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
-
-
-// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device // alsa-driver的已经提供了一些常用的部件的创建函数
-    PCM -- snd_pcm_new()
-    RAWMIDI -- snd_rawmidi_new()
-    CONTROL -- snd_ctl_create()
-    TIMER -- snd_timer_new()
-    INFO -- snd_card_proc_new()
-    JACK -- snd_jack_new()
-</pre>
-
-<pre class="code-style">
-    $ ls -l /dev/snd
-
-    // 用于声卡的控制，例如通道选择，混音，麦克风的控制等
-    crw-rw---- system audio 116, 0 1970-01-04 22:38 controlC0
-
-    // 用于录音的pcm设备,capture
-    crw-rw---- system audio 116, 24 1970-01-04 22:38 pcmC0D0c
-
-    // 用于播放的pcm设备,play
-    crw-rw---- system audio 116, 16 1970-01-04 22:38 pcmC0D0p
-
-    // 定时器
-    crw-rw---- system audio 116, 33 1970-01-04 22:38 timer
-
-    
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
-
-<pre class="text-style">
-
-涉及文件工程文件：
-
-1.device/amlogic/g18ref/g18ref.mk
-修改BOARD_AUDIO_CODEC := dummy为BOARD_AUDIO_CODEC := wm8960
-
-2.common/customer/configs/meson6_g18_jbmr1_defconfig
-#CONFIG_SND_AML_M6_RT5631=y
-CONFIG_SND_AML_M6_WM8960=y
-#CONFIG_SND_AML_M_DUMMY_CODEC=y
-
-3.hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
-此处视你自己的需求设置通路
-
-4.BSP文件common/customer/boards/board-m6g18.c
-</pre>
-
-<pre class="code-style">
-&lt; #if defined(CONFIG_SND_SOC_WM8960)
-&lt; ......   此处实现wm8960_padata  ......
-&lt; static struct wm8960_data wm8960_pdata = {
-&lt;     .hp_detect      = wm8960_hp_detect,
-&lt;     .device_init    = wm8960_device_init,
-&lt;     .device_uninit  = wm8960_device_deinit,
-&lt;     .capless        = 1,
-&lt;     .dres           = WM8960_DRES_600R,
-&lt;     
-&lt; };
-&lt; 
-&lt; static struct platform_device aml_wm8960_audio = {
-&lt;     .name           = &quot;aml_wm8960_audio&quot;,
-&lt;     .id             = 0,
-&lt;     .resource       = aml_m6_audio_resource,
-&lt;     .num_resources  = ARRAY_SIZE(aml_m6_audio_resource),
-&lt;     .dev = {
-&lt;         .platform_data = &amp;wm8960_pdata,
-&lt;     },
-&lt; };
-&lt; #endif
-
-static struct platform_device  *platform_devs[] = {
-&lt; #if defined(CONFIG_SND_SOC_WM8960)
-&lt;     &amp;aml_wm8960_audio,
-&lt; #endif
-
-</pre>
-
-<pre class="text-style">
-5.添加驱动文件
-common/sound/soc/aml/aml_m6_wm8960.c
-common/sound/soc/codecs/wm8960.*
-
-</pre>
-
-<strong>
-Tips：
-    common/sound/soc/aml/aml_m6_wm8960.c 中 
-</strong>
-
-<pre class="code-style">
-static struct snd_soc_dai_link wm8960_dai_link[] = {
-    ...
-    .codec_name = &quot;wm8960-codec.0-001a&quot;,
-    ...
-</pre>
-
-<strong>
-    命名规则 .0-001a 对应i2c总线和地址。
-否则出现如下错误：
-</strong>
-
-<pre class="code-style">
-root@android:/ # cat /proc/asound/cards
---- no soundcards ---
-</pre>
-
-<pre class="text-style">
-驱动修改指南:
-1.初始化
-</pre>
-
-<pre class="code-style">
-static int wm8960_probe(struct snd_soc_codec *codec)
-    ...
-    ret = wm8960_reset(codec);
-    ...
-    snd_soc_write(codec, WM8960_DACCTL1, 0x0);
-    
-</pre>
-
-<pre class="text-style">
-2.在录音播放时相关的寄存器设置
-1)软件设置
-hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
-
-2)硬件设置
-</pre>
-
-<pre class="code-style">
-static int wm8960_mute(struct snd_soc_dai *dai, int mute)
-    snd_soc_write(codec, WM8960_LINPATH, 0x148);
-
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="内核调试之道"> 内核调试之道 </a></h1>
-
-<li>
-内核转储
-</li>
-
-<pre class="code-style">
-    ulimit -c 1073741824
-</pre>
-
-<pre class="text-style">
-    设置转储文件保存路径
-</pre>
-
-<pre class="code-style">
-    vi /etc/sysctl.conf
-</pre>
-
-<pre class="code-style">
-kernel.core_pattern=/var/core/%t-%e-%p-%c.core
-kernel.core_uses_pid=0
-</pre>
-
-<pre class="code-style">
-    sysctl -p
-</pre>
-
-<pre class="text-style">
-    使用转储文件调试
-</pre>
-
-<pre class="code-style">
-    sudo apt-get install libc-dbg
-</pre>
-
-<pre class="code-style">
-    gdb -c core.XXXX ./a.out
-</pre>
-
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="LCD屏参"> LCD屏参 </a></h1>
 
@@ -340,46 +105,119 @@ Lcd_Config_t m6ref_lcd_config = {
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="alsa调试"> alsa调试 </a></h1>
+<h1 align="center"><a name="gslx680调试"> gslx680调试 </a></h1>
+
 <pre class="text-style">
-1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
-//snd_card的定义位于头文件：include/sound/core.h
-// 入口 3885: module_init(snd_soc_init);
-3883     return platform_driver_register(&amp;soc_driver); 
-2106     .probe      = soc_probe, 
-2022     ret = snd_soc_register_card(card);
-3397     snd_soc_instantiate_cards();
-// 下面两行是重头戏?
-^1842         soc_bind_dai_link(card, i);
-^1874     ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+1. 在bsp中加入i2c board info, 与driver中.id_table对应
 
-sound/soc/soc-core.c:1874:  
-    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-// snd_card的driver字段保存着芯片的ID字符串，
-// user空间的alsa-lib会使用到该字符串
-$ cat -l /proc/asound/cards
-0 [AMLWM8960      ]: SOC-Audio - AML-WM8960
-                       AML-WM8960
-$ cat /proc/asound/card0/pcm0c/info
+common/customer/boards/board-m6g33-new.c
+</pre>
 
-2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
-// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device
-// alsa-driver的已经提供了一些常用的部件的创建函数
-PCM     --    snd_pcm_new() 
-RAWMIDI --    snd_rawmidi_new() 
-CONTROL --    snd_ctl_create() 
-TIMER   --    snd_timer_new() 
-INFO    --    snd_card_proc_new() 
-JACK    --    snd_jack_new()
-$ ls -l /dev/snd
-// 用于声卡的控制，例如通道选择，混音，麦克风的控制等
-crw-rw---- system   audio    116,   0 1970-01-04 22:38 controlC0
-// 用于录音的pcm设备,capture
-crw-rw---- system   audio    116,  24 1970-01-04 22:38 pcmC0D0c
-// 用于播放的pcm设备,play
-crw-rw---- system   audio    116,  16 1970-01-04 22:38 pcmC0D0p
-// 定时器
-crw-rw---- system   audio    116,  33 1970-01-04 22:38 timer
+<pre class="code-style">
+{
+    I2C_BOARD_INFO(&quot;gsl1680&quot;, 0x40),
+},
+</pre>
+
+<pre class="text-style">
+此处最好实现gpio的初始化实现
+
+2. 在probe函数中注册一个input device
+
+common/drivers/amlogic/input/touchscreen/gsl1680.c
+</pre>
+
+<pre class="code-style">
+    ...
+    /* gpio口设置, 测试i2c读写 */
+    gsl1680_chip_init();
+    ...
+    ts = kzalloc(sizeof(*ts), GFP_KERNEL);
+    ...
+</pre>
+
+<pre class="code-style">
+    /* 这里是input device 的设置 */
+    input_device = input_allocate_device();
+    if (!input_device) {
+        rc = -ENOMEM;
+        goto error_alloc_dev;
+    }
+
+    ts-&gt;input = input_device;
+    input_device-&gt;name = ts-&gt;pdata-&gt;ts_name;
+    input_device-&gt;id.bustype = BUS_I2C;
+    input_device-&gt;dev.parent = &amp;client-&gt;dev;
+    input_set_drvdata(input_device, ts);
+
+    __set_bit(EV_ABS, input_device-&gt;evbit);
+    __set_bit(EV_KEY, input_device-&gt;evbit);
+    __set_bit(EV_REP, input_device-&gt;evbit);
+    __set_bit(INPUT_PROP_DIRECT, input_device-&gt;propbit);
+    set_bit(ABS_MT_POSITION_X, input_device-&gt;absbit);
+    set_bit(ABS_MT_POSITION_Y, input_device-&gt;absbit);
+    set_bit(ABS_MT_TOUCH_MAJOR, input_device-&gt;absbit);
+    set_bit(ABS_MT_WIDTH_MAJOR, input_device-&gt;absbit);
+
+    input_mt_init_slots(input_device, (MAX_CONTACTS+1));
+
+    input_set_abs_params(input_device,ABS_MT_POSITION_X, 0, SCREEN_MAX_X, 0, 0);
+    input_set_abs_params(input_device,ABS_MT_POSITION_Y, 0, SCREEN_MAX_Y, 0, 0);
+    input_set_abs_params(input_device,ABS_MT_TOUCH_MAJOR, 0, PRESS_MAX, 0, 0);
+    input_set_abs_params(input_device,ABS_MT_WIDTH_MAJOR, 0, 200, 0, 0);
+
+    /* 创建工作队列 */
+    ts-&gt;wq = create_singlethread_workqueue(&quot;kworkqueue_ts&quot;);
+    if (!ts-&gt;wq) {
+        dev_err(&amp;client-&gt;dev, &quot;Could not create workqueue\n&quot;);
+        goto error_wq_create;
+    }
+    flush_workqueue(ts-&gt;wq);
+
+    INIT_WORK(&amp;ts-&gt;work, gsl_ts_xy_worker);
+
+    rc = input_register_device(input_device);
+    if (rc)
+        goto error_unreg_device;
+
+
+</pre>
+
+<pre class="code-style">
+    /* 申请irq中断 */
+    rc = request_irq(client-&gt;irq, gsl_ts_irq, 
+            IRQF_DISABLED, client-&gt;name, ts);
+    /* 下载firewave */
+    gsl_load_fw(ts-&gt;client);
+    enable_irq(ts-&gt;irq);
+
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="i2c调试"> i2c调试 </a></h1>
+<pre class="text-style">
+//查看总的bus
+tree /sys/bus/i2c/devices
+或
+ls -l /sys/bus/i2c/devices
+//查看驱动对应的i2c地址
+tree /sys/bus/i2c/drivers/xxx
+或
+ls -l /sys/bus/i2c/drivers/xxx
+
+//打开i2c总线的debug信息
+echo 1 &gt; /sys/class/i2cX/debug
+
+//i2c_tool使用
+^1 查看总线1挂载的设备（UU为设备）
+//查看 i2c-1 上挂载设备的地址
+# i2cdetect -y -r 1
+^2 查看 0x1e 设备上所有寄存器的值
+# i2cdump -f -y 1 0x1e
+^3 设置 0x1e 设备的 0x23 寄存器的值为 5
+# i2cset -f -y 1 0x1e 0x23 5
+^4 读取 0x1e 设备上 寄存器0x20 上的值
+# i2cget -f -y 1 0x1e 0x20
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -515,45 +353,133 @@ ping下，就可以了
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="调试技巧"> 调试技巧 </a></h1>
-
-<pre class="code-style">
-    mount -o rw,remount yaffs2 /system
-</pre>
-
+<h1 align="center"><a name="alsa调试"> alsa调试 </a></h1>
 <pre class="text-style">
-或
-</pre>
+1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
+//snd_card的定义位于头文件：include/sound/core.h
+// 入口 3885: module_init(snd_soc_init);
+3883     return platform_driver_register(&amp;soc_driver); 
+2106     .probe      = soc_probe, 
+2022     ret = snd_soc_register_card(card);
+3397     snd_soc_instantiate_cards();
+// 下面两行是重头戏?
+^1842         soc_bind_dai_link(card, i);
+^1874     ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
 
-<pre class="code-style">
-    mount -o remount rw /system
+sound/soc/soc-core.c:1874:  
+    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+// snd_card的driver字段保存着芯片的ID字符串，
+// user空间的alsa-lib会使用到该字符串
+$ cat -l /proc/asound/cards
+0 [AMLWM8960      ]: SOC-Audio - AML-WM8960
+                       AML-WM8960
+$ cat /proc/asound/card0/pcm0c/info
+
+2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
+// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device
+// alsa-driver的已经提供了一些常用的部件的创建函数
+PCM     --    snd_pcm_new() 
+RAWMIDI --    snd_rawmidi_new() 
+CONTROL --    snd_ctl_create() 
+TIMER   --    snd_timer_new() 
+INFO    --    snd_card_proc_new() 
+JACK    --    snd_jack_new()
+$ ls -l /dev/snd
+// 用于声卡的控制，例如通道选择，混音，麦克风的控制等
+crw-rw---- system   audio    116,   0 1970-01-04 22:38 controlC0
+// 用于录音的pcm设备,capture
+crw-rw---- system   audio    116,  24 1970-01-04 22:38 pcmC0D0c
+// 用于播放的pcm设备,play
+crw-rw---- system   audio    116,  16 1970-01-04 22:38 pcmC0D0p
+// 定时器
+crw-rw---- system   audio    116,  33 1970-01-04 22:38 timer
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="i2c调试"> i2c调试 </a></h1>
+<h1 align="center"><a name="wm8960调试"> wm8960调试 </a></h1>
+
 <pre class="text-style">
-//查看总的bus
-tree /sys/bus/i2c/devices
-或
-ls -l /sys/bus/i2c/devices
-//查看驱动对应的i2c地址
-tree /sys/bus/i2c/drivers/xxx
-或
-ls -l /sys/bus/i2c/drivers/xxx
+debugfs节点 - 串口修改寄存器值
+</pre>
 
-//打开i2c总线的debug信息
-echo 1 &gt; /sys/class/i2cX/debug
+<pre class="code-style">
+mount -t debugfs none /sys/kernel/debug
+chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
+ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
 
-//i2c_tool使用
-^1 查看总线1挂载的设备（UU为设备）
-//查看 i2c-1 上挂载设备的地址
-# i2cdetect -y -r 1
-^2 查看 0x1e 设备上所有寄存器的值
-# i2cdump -f -y 1 0x1e
-^3 设置 0x1e 设备的 0x23 寄存器的值为 5
-# i2cset -f -y 1 0x1e 0x23 5
-^4 读取 0x1e 设备上 寄存器0x20 上的值
-# i2cget -f -y 1 0x1e 0x20
+</pre>
+
+<pre class="text-style">
+1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
+
+
+//snd_card的定义位于头文件：include/sound/core.h 
+</pre>
+
+<pre class="code-style">
+    3885: module_init(snd_soc_init);
+
+    3883 return platform_driver_register(&amp;soc_driver);
+    2106 .probe = soc_probe,
+    2022 ret = snd_soc_register_card(card);
+    3397 snd_soc_instantiate_cards();
+
+    // 下面两行是重头戏?
+    1842 soc_bind_dai_link(card, i);
+    1874 ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+</pre>
+
+<pre class="text-style">
+sound/soc/soc-core.c:1874:
+</pre>
+
+<pre class="code-style">
+    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+    // snd_card的driver字段保存着芯片的ID字符串
+    // user空间的alsa-lib会使用到该字符串
+
+    $ cat -l /proc/asound/cards
+    0 [AMLWM8960 ]: SOC-Audio - AML-WM8960
+    AML-WM8960
+
+    $ cat /proc/asound/card0/pcm0c/info
+</pre>
+
+<pre class="text-style">
+    未完待续...
+
+    
+
+2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
+
+
+// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device // alsa-driver的已经提供了一些常用的部件的创建函数
+    PCM -- snd_pcm_new()
+    RAWMIDI -- snd_rawmidi_new()
+    CONTROL -- snd_ctl_create()
+    TIMER -- snd_timer_new()
+    INFO -- snd_card_proc_new()
+    JACK -- snd_jack_new()
+</pre>
+
+<pre class="code-style">
+    $ ls -l /dev/snd
+
+    // 用于声卡的控制，例如通道选择，混音，麦克风的控制等
+    crw-rw---- system audio 116, 0 1970-01-04 22:38 controlC0
+
+    // 用于录音的pcm设备,capture
+    crw-rw---- system audio 116, 24 1970-01-04 22:38 pcmC0D0c
+
+    // 用于播放的pcm设备,play
+    crw-rw---- system audio 116, 16 1970-01-04 22:38 pcmC0D0p
+
+    // 定时器
+    crw-rw---- system audio 116, 33 1970-01-04 22:38 timer
+
+    
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -579,6 +505,46 @@ KEY_BACK    158
 KEY_MENU    139
 KEY_HOME    102
 KEY_SEARCH  217
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="内核调试之道"> 内核调试之道 </a></h1>
+
+<li>
+内核转储
+</li>
+
+<pre class="code-style">
+    ulimit -c 1073741824
+</pre>
+
+<pre class="text-style">
+    设置转储文件保存路径
+</pre>
+
+<pre class="code-style">
+    vi /etc/sysctl.conf
+</pre>
+
+<pre class="code-style">
+kernel.core_pattern=/var/core/%t-%e-%p-%c.core
+kernel.core_uses_pid=0
+</pre>
+
+<pre class="code-style">
+    sysctl -p
+</pre>
+
+<pre class="text-style">
+    使用转储文件调试
+</pre>
+
+<pre class="code-style">
+    sudo apt-get install libc-dbg
+</pre>
+
+<pre class="code-style">
+    gdb -c core.XXXX ./a.out
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -739,91 +705,125 @@ video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="gslx680调试"> gslx680调试 </a></h1>
-
-<pre class="text-style">
-1. 在bsp中加入i2c board info, 与driver中.id_table对应
-
-common/customer/boards/board-m6g33-new.c
-</pre>
+<h1 align="center"><a name="调试技巧"> 调试技巧 </a></h1>
 
 <pre class="code-style">
-{
-    I2C_BOARD_INFO(&quot;gsl1680&quot;, 0x40),
-},
+    mount -o rw,remount yaffs2 /system
 </pre>
 
 <pre class="text-style">
-此处最好实现gpio的初始化实现
-
-2. 在probe函数中注册一个input device
-
-common/drivers/amlogic/input/touchscreen/gsl1680.c
+或
 </pre>
 
 <pre class="code-style">
-    ...
-    /* gpio口设置, 测试i2c读写 */
-    gsl1680_chip_init();
-    ...
-    ts = kzalloc(sizeof(*ts), GFP_KERNEL);
-    ...
+    mount -o remount rw /system
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
+
+<pre class="text-style">
+
+涉及文件工程文件：
+
+1.device/amlogic/g18ref/g18ref.mk
+修改BOARD_AUDIO_CODEC := dummy为BOARD_AUDIO_CODEC := wm8960
+
+2.common/customer/configs/meson6_g18_jbmr1_defconfig
+#CONFIG_SND_AML_M6_RT5631=y
+CONFIG_SND_AML_M6_WM8960=y
+#CONFIG_SND_AML_M_DUMMY_CODEC=y
+
+3.hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
+此处视你自己的需求设置通路
+
+4.BSP文件common/customer/boards/board-m6g18.c
 </pre>
 
 <pre class="code-style">
-    /* 这里是input device 的设置 */
-    input_device = input_allocate_device();
-    if (!input_device) {
-        rc = -ENOMEM;
-        goto error_alloc_dev;
-    }
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt; ......   此处实现wm8960_padata  ......
+&lt; static struct wm8960_data wm8960_pdata = {
+&lt;     .hp_detect      = wm8960_hp_detect,
+&lt;     .device_init    = wm8960_device_init,
+&lt;     .device_uninit  = wm8960_device_deinit,
+&lt;     .capless        = 1,
+&lt;     .dres           = WM8960_DRES_600R,
+&lt;     
+&lt; };
+&lt; 
+&lt; static struct platform_device aml_wm8960_audio = {
+&lt;     .name           = &quot;aml_wm8960_audio&quot;,
+&lt;     .id             = 0,
+&lt;     .resource       = aml_m6_audio_resource,
+&lt;     .num_resources  = ARRAY_SIZE(aml_m6_audio_resource),
+&lt;     .dev = {
+&lt;         .platform_data = &amp;wm8960_pdata,
+&lt;     },
+&lt; };
+&lt; #endif
 
-    ts-&gt;input = input_device;
-    input_device-&gt;name = ts-&gt;pdata-&gt;ts_name;
-    input_device-&gt;id.bustype = BUS_I2C;
-    input_device-&gt;dev.parent = &amp;client-&gt;dev;
-    input_set_drvdata(input_device, ts);
-
-    __set_bit(EV_ABS, input_device-&gt;evbit);
-    __set_bit(EV_KEY, input_device-&gt;evbit);
-    __set_bit(EV_REP, input_device-&gt;evbit);
-    __set_bit(INPUT_PROP_DIRECT, input_device-&gt;propbit);
-    set_bit(ABS_MT_POSITION_X, input_device-&gt;absbit);
-    set_bit(ABS_MT_POSITION_Y, input_device-&gt;absbit);
-    set_bit(ABS_MT_TOUCH_MAJOR, input_device-&gt;absbit);
-    set_bit(ABS_MT_WIDTH_MAJOR, input_device-&gt;absbit);
-
-    input_mt_init_slots(input_device, (MAX_CONTACTS+1));
-
-    input_set_abs_params(input_device,ABS_MT_POSITION_X, 0, SCREEN_MAX_X, 0, 0);
-    input_set_abs_params(input_device,ABS_MT_POSITION_Y, 0, SCREEN_MAX_Y, 0, 0);
-    input_set_abs_params(input_device,ABS_MT_TOUCH_MAJOR, 0, PRESS_MAX, 0, 0);
-    input_set_abs_params(input_device,ABS_MT_WIDTH_MAJOR, 0, 200, 0, 0);
-
-    /* 创建工作队列 */
-    ts-&gt;wq = create_singlethread_workqueue(&quot;kworkqueue_ts&quot;);
-    if (!ts-&gt;wq) {
-        dev_err(&amp;client-&gt;dev, &quot;Could not create workqueue\n&quot;);
-        goto error_wq_create;
-    }
-    flush_workqueue(ts-&gt;wq);
-
-    INIT_WORK(&amp;ts-&gt;work, gsl_ts_xy_worker);
-
-    rc = input_register_device(input_device);
-    if (rc)
-        goto error_unreg_device;
-
+static struct platform_device  *platform_devs[] = {
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt;     &amp;aml_wm8960_audio,
+&lt; #endif
 
 </pre>
 
+<pre class="text-style">
+5.添加驱动文件
+common/sound/soc/aml/aml_m6_wm8960.c
+common/sound/soc/codecs/wm8960.*
+
+</pre>
+
+<strong>
+Tips：
+    common/sound/soc/aml/aml_m6_wm8960.c 中 
+</strong>
+
 <pre class="code-style">
-    /* 申请irq中断 */
-    rc = request_irq(client-&gt;irq, gsl_ts_irq, 
-            IRQF_DISABLED, client-&gt;name, ts);
-    /* 下载firewave */
-    gsl_load_fw(ts-&gt;client);
-    enable_irq(ts-&gt;irq);
+static struct snd_soc_dai_link wm8960_dai_link[] = {
+    ...
+    .codec_name = &quot;wm8960-codec.0-001a&quot;,
+    ...
+</pre>
+
+<strong>
+    命名规则 .0-001a 对应i2c总线和地址。
+否则出现如下错误：
+</strong>
+
+<pre class="code-style">
+root@android:/ # cat /proc/asound/cards
+--- no soundcards ---
+</pre>
+
+<pre class="text-style">
+驱动修改指南:
+1.初始化
+</pre>
+
+<pre class="code-style">
+static int wm8960_probe(struct snd_soc_codec *codec)
+    ...
+    ret = wm8960_reset(codec);
+    ...
+    snd_soc_write(codec, WM8960_DACCTL1, 0x0);
+    
+</pre>
+
+<pre class="text-style">
+2.在录音播放时相关的寄存器设置
+1)软件设置
+hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
+
+2)硬件设置
+</pre>
+
+<pre class="code-style">
+static int wm8960_mute(struct snd_soc_dai *dai, int mute)
+    snd_soc_write(codec, WM8960_LINPATH, 0x148);
 
 </pre>
 

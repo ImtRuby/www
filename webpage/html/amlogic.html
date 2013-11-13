@@ -14,31 +14,363 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#Codec"> 0 : Codec </a></div>
+<div class="title"><a href="#Codec硬件"> 0 : Codec硬件 </a></div>
 <div class="title"><a href="#Camera-SP0838"> 1 : Camera-SP0838 </a></div>
-<div class="title"><a href="#WIFI-8188eu"> 2 : WIFI-8188eu </a></div>
-<div class="title"><a href="#SPI支持"> 3 : SPI支持 </a></div>
-<div class="title"><a href="#Gsensor"> 4 : Gsensor </a></div>
-<div class="title"><a href="#编译烧录指令和bug"> 5 : 编译烧录指令和bug </a></div>
-<div class="title"><a href="#LCD-H-B070D"> 6 : LCD-H-B070D </a></div>
-<div class="title"><a href="#Codec硬件"> 7 : Codec硬件 </a></div>
-<div class="title"><a href="#Logo墙纸"> 8 : Logo墙纸 </a></div>
-<div class="title"><a href="#DDR"> 9 : DDR </a></div>
-<div class="title"><a href="#USB升级包制作"> 10 : USB升级包制作 </a></div>
-<div class="title"><a href="#修改背光"> 11 : 修改背光 </a></div>
-<div class="title"><a href="#常用源码位置项目文件"> 12 : 常用源码位置项目文件 </a></div>
-<div class="title"><a href="#android编译环境搭建"> 13 : android编译环境搭建 </a></div>
-<div class="title"><a href="#上层UI-buglist"> 14 : 上层UI-buglist </a></div>
-<div class="title"><a href="#SD卡挂载目录"> 15 : SD卡挂载目录 </a></div>
-<div class="title"><a href="#遥控器修改"> 16 : 遥控器修改 </a></div>
-<div class="title"><a href="#Camera-SP0A19"> 17 : Camera-SP0A19 </a></div>
-<div class="title"><a href="#VDD_EE电压修改"> 18 : VDD_EE电压修改 </a></div>
-<div class="title"><a href="#m6_编译说明"> 19 : m6_编译说明 </a></div>
+<div class="title"><a href="#m6_编译说明"> 2 : m6_编译说明 </a></div>
+<div class="title"><a href="#android编译环境搭建"> 3 : android编译环境搭建 </a></div>
+<div class="title"><a href="#SD卡挂载目录"> 4 : SD卡挂载目录 </a></div>
+<div class="title"><a href="#修改背光"> 5 : 修改背光 </a></div>
+<div class="title"><a href="#DDR"> 6 : DDR </a></div>
+<div class="title"><a href="#Codec"> 7 : Codec </a></div>
+<div class="title"><a href="#编译烧录指令和bug"> 8 : 编译烧录指令和bug </a></div>
+<div class="title"><a href="#WIFI-8188eu"> 9 : WIFI-8188eu </a></div>
+<div class="title"><a href="#遥控器修改"> 10 : 遥控器修改 </a></div>
+<div class="title"><a href="#Logo墙纸"> 11 : Logo墙纸 </a></div>
+<div class="title"><a href="#Gsensor"> 12 : Gsensor </a></div>
+<div class="title"><a href="#Battery"> 13 : Battery </a></div>
+<div class="title"><a href="#TP-icn838x"> 14 : TP-icn838x </a></div>
+<div class="title"><a href="#上层UI-buglist"> 15 : 上层UI-buglist </a></div>
+<div class="title"><a href="#常用源码位置项目文件"> 16 : 常用源码位置项目文件 </a></div>
+<div class="title"><a href="#SPI支持"> 17 : SPI支持 </a></div>
+<div class="title"><a href="#LCD-H-B070D"> 18 : LCD-H-B070D </a></div>
+<div class="title"><a href="#AmlMiracast"> 19 : AmlMiracast </a></div>
 <div class="title"><a href="#CVBS"> 20 : CVBS </a></div>
-<div class="title"><a href="#Battery"> 21 : Battery </a></div>
-<div class="title"><a href="#TP-icn838x"> 22 : TP-icn838x </a></div>
-<div class="title"><a href="#AmlMiracast"> 23 : AmlMiracast </a></div>
+<div class="title"><a href="#VDD_EE电压修改"> 21 : VDD_EE电压修改 </a></div>
+<div class="title"><a href="#USB升级包制作"> 22 : USB升级包制作 </a></div>
+<div class="title"><a href="#Camera-SP0A19"> 23 : Camera-SP0A19 </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Codec硬件"> Codec硬件 </a></h1>
+<pre class="text-style">
+The WM8960 operates at analogue supply voltages down to
+2.7V, although the digital supplies can operate at voltages down
+to 1.71V to save power. The speaker supply can operate at up
+to 5.5V, providing 1W per channel into 8 loads. Unused
+functions can be disabled using software control to save power.
+模拟部分输入电压最低 2.7V， 数字部分最低1.71V， 输出最大功率为1w
+
+1、 MICBIAS是提供MIC的偏置电压
+2、 驱动对应kernel/sound/soc/decodec/wm8960.c
+3、 电压与功率增益关系 
+    XdB = 20log(Vo/Vi)
+    XdB = 10log(Po/Pi)
+故
+    Xdb = 20log(2*Vo/Vi) = 20*(log2 + log(Vo/Vi)) = 6 + 20log(Vo/Vi),
+即电压翻倍，功率增加6dB. 
+4、 I2S
+I2S总线规范
+　　在飞利浦公司的I2S标准中，既规定了硬件接口规范，也规定了数字音频数据的格式。
+I2S有3个主要信号
+　　1.串行时钟SCLK，也叫位时钟（BCLK），即对应数字音频的每一位数据，SCLK都有1个脉冲。SCLK的频率=2×采样频率×采样位数。
+　　2.帧时钟LRCK，(也称WS)，用于切换左右声道的数据。LRCK为“1”表示正在传输的是右声道的数据，为“0”则表示正在传输的是左声道的数据。LRCK的频率等于采样频率。
+　　3.串行数据SDATA，就是用二进制补码表示的音频数据。
+　　有时为了使系统间能够更好地同步，还需要另外传输一个信号MCLK，称为主时钟，也叫系统时钟（Sys Clock），是采样频率的256倍或384倍。
+
+tips:
+    DAI:    Digital Audio Interface (DAI) API.
+    DAPM:   ALSA SoC Dynamic Audio Power Management.
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h1>
+
+<pre class="text-style">
+1 打开编译开关
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_VIDEO_AMLOGIC_CAPTURE=y
+CONFIG_V4L_AMLOGIC_VIDEO=y
+CONFIG_AMLOGIC_CAPTURE_FRAME_ROTATE=y
+CONFIG_AMLOGIC_VM_DISABLE_VIDEOLAYER=y
+# CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308=y
+CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838=y
+
+</pre>
+
+<pre class="text-style">
+2 修改BSP的I2C_BOARD_INFO, 其中注意aml_plat_cam_data_t中.video_nr=0,//1,为前置摄像头
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308
+    {
+        /*gc0308 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;gc0308_i2c&quot;,  0x42 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_gc0308_data,
+    }, 
+#endif 
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838
+    {  
+        /*sp0838 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;sp0838_i2c&quot;,  0x30 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_sp0838_data,
+    }, 
+#endif
+
+</pre>
+
+<pre class="text-style">
+3 问题总结
+1) can't connected
+&nbsp;&nbsp;&nbsp;&nbsp;aml_plat_cam_data_t中.video_nr不对
+2) 绿屏(I2C报错)
+&nbsp;&nbsp;&nbsp;&nbsp;上电时序错误, 芯片没工作
+3) 红绿屏
+&nbsp;&nbsp;&nbsp;&nbsp;YUV设置反了
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h1>
+
+<pre class="text-style">
+    环境搭建：
+    gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2
+</pre>
+
+<pre class="code-style">
+    sudo tar -jxvf gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2 -C /opt/
+</pre>
+
+<pre class="text-style">
+    arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
+    arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+</pre>
+
+<pre class="code-style">
+    sudo tar -jxvf arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
+    sudo tar -jxvf arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
+</pre>
+
+<pre class="text-style">
+    arc_gnutools.sh
+</pre>
+
+<pre class="code-style">
+    sudo cp arc_gnutools.sh /etc/profile.d/
+</pre>
+
+<h2>
+    1 uboot编译
+</h2>
+
+<pre class="code-style">
+    cd uboot
+    make m6_gXX_config   
+    make
+    cp build/u-boot.bin ../device/gXX/
+</pre>
+
+<h2>
+    2 kernel编译
+</h2>
+
+<pre class="code-style">
+    source build/envsetup.sh
+    lunch xx
+    make bootimage -j4
+</pre>
+
+<h2>
+    3 android文件系统编译
+</h2>
+
+<pre class="code-style">
+    source build/envsetup.sh
+    lunch xx
+    make otapackage -j4
+</pre>
+
+<pre class="text-style">
+    编译是需要java环境的！
+    安装jdk-6u23-linux-i586.bin，特别要注意的是java se版本应该在java 1.6 u26以下！
+</pre>
+
+<pre class="code-style">
+    update-alternatives --install /usr/bin/jar jar /opt/jdk1.6.0_23/bin/jar 655
+    update-alternatives --install /usr/bin/java java /opt/jdk1.6.0_23/bin/java 655
+    update-alternatives --install /usr/bin/javac javac /opt/jdk1.6.0_23/bin/javac 655
+</pre>
+
+<pre class="text-style">
+    选择需要的java
+</pre>
+
+<pre class="code-style">
+    update-alternatives --config jar
+    update-alternatives --config java
+    update-alternatives --config javac
+</pre>
+
+<pre class="text-style">
+    编译工程！
+</pre>
+
+<pre class="code-style">
+    source build/envsetup.sh
+</pre>
+
+<pre class="code-style">
+    echo 公版mid &amp;&amp; lunch g33refNew-eng
+</pre>
+
+<pre class="code-style">
+    make -j4
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="android编译环境搭建"> android编译环境搭建 </a></h1>
+
+<li>
+安装依赖库
+</li>
+
+<pre class="text-style">
+    参考下面的网页安装赖库
+</pre>
+
+<a href="
+    http://source.android.com/source/initializing.html
+">
+    http://source.android.com/source/initializing.html
+</a>
+
+<pre class="text-style">
+    通过下面判断Ubuntu版本\位数
+</pre>
+
+<pre class="code-style">
+    cat /etc/lsb-release
+    uname -m
+</pre>
+
+<pre class="text-style">
+    Ubuntu 12.04 LTS
+</pre>
+
+<pre class="code-style">
+    sudo apt-get install git gnupg flex bison gperf build-essential \
+    zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev \
+    libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
+    libgl1-mesa-dev g++-multilib mingw32 tofrodos \
+    python-markdown libxml2-utils xsltproc zlib1g-dev:i386
+</pre>
+
+<pre class="code-style">
+    sudo ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
+</pre>
+
+<pre class="text-style">
+    可能需要 libgl1-mesa-glx-lts-quantal:i386 替代 libgl1-mesa-glx:i386
+</pre>
+
+<li>
+安装JDK
+</li>
+
+<a href="
+    https://github.com/fantasy-mark/www/archive/master.zip    
+">
+    https://github.com/fantasy-mark/www/archive/master.zip    
+</a>
+
+<pre class="code-style">
+    vi /etc/bash.bashrc
+</pre>
+
+<pre class="code-style">
+    export PATH=/opt/jdk1.6.0_25/bin:$PATH
+</pre>
+
+<strong>
+    以上环境搭建完可编译kernel和sdk,而uboot编译需要安装交叉编译工具链
+</strong>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="SD卡挂载目录"> SD卡挂载目录 </a></h1>
+
+<pre class="text-style">
+1 编译修改
+</pre>
+
+<pre class="code-style">
+    vi device/amlogic/g33refNew/vold.fstab
+</pre>
+
+<pre class="code-style">
+dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
+
+</pre>
+
+<pre class="text-style">
+2 在线修改
+</pre>
+
+<pre class="code-style">
+   vi /etc/vold.fstab
+</pre>
+
+<pre class="code-style">
+dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="修改背光"> 修改背光 </a></h1>
+<pre class="text-style">
+﻿//通过修改/sys/devices/platform/的DEVICE_ATTR驱动提供的sysfs接口调整亮度
+echo 250 &gt; /sys/devices/platform/aml-bl/backlight/aml-bl/brightness </pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="DDR"> DDR </a></h1>
+
+<pre class="text-style">
+1 修改DDR 时钟
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/m6_g33new_1GB/firmware/timming.c
+</pre>
+
+<pre class="code-style">
+                #ifdef DDR3_7_7_7
+                    .cl             =   7,  
+                    .t_faw          =  30,&nbsp;&nbsp;&nbsp;&nbsp;/* Mark fixme 20-&gt;30 */&nbsp;&nbsp;&nbsp;&nbsp;//27:page size 2KB; 20:page size 1KB 
+                    .t_ras          =  20, 
+                    .t_rc           =  27, 
+                    .t_rcd          =   7,  
+                    .t_rfc          =  160,&nbsp;&nbsp;&nbsp;&nbsp;/* Mark fixme 86-&gt;160 */&nbsp;&nbsp;&nbsp;&nbsp;//4Gb:139~160; 2Gb:86; 1Gb:59
+                    .t_rp           =   7,  
+                    .t_rrd          =   6,&nbsp;&nbsp;&nbsp;&nbsp;/* Mark fixme 4-&gt;6 */&nbsp;&nbsp;&nbsp;&nbsp;//6 or 5:page size 2KB; 4:page size 1KB 
+                    .t_rtp          =   4,  
+                    .t_wr           =   8,  
+                    .t_wtr          =   4,  
+                    .t_cwl          =   6,
+                    .t_mod          =   8,
+                #endif
+
+</pre>
+
+<pre class="text-style">
+2 修改DDR 频率
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+#define M6_DDR_CLK (468)
+
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="Codec"> Codec </a></h1>
 
@@ -281,60 +613,84 @@ vi kernel/sound/soc/aml/aml_m3.c
 并实现mic_event. </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="Camera-SP0838"> Camera-SP0838 </a></h1>
+<h1 align="center"><a name="编译烧录指令和bug"> 编译烧录指令和bug </a></h1>
+
+<h2>
+    烧录固件等
+</h2>
+
+<li>
+    uboot
+</li>
+
+<li>
+    kernel
+</li>
+
+<pre class="code-style">
+1 vi kernel/arch/arm/mach-meson3/board-m3-reff16.c
+
+2 搜索boot字段观察boot分区的的.offset和.size
+
+3 在bootloader中写uImage到对应nandflash，如
+    nand write 82000000 3200000 1600000
+               from   to(.offset)  size
+</pre>
+
+<pre class="code-style">
+    mmcinfo; fatload mmc 0 82000000 boot.img; bootm
+</pre>
+
+<li>
+    recovery.img
+</li>
 
 <pre class="text-style">
-1 打开编译开关
+跟踪代码流程:
+sd_mmc_init
+--&gt;sdxc_mmc_init
+     --&gt;sd_identify_process
+        --&gt;sd_mmc_check_wp
+           --&gt;sd_mmc_info-&gt;write_protected_flag = 1;
+
+解决之:
+
+    注释 kernel/drivers/amlogic/cardreader/sd/sd_protocol.c 的约5k行的 sd_mmc_info-&gt;write_protected_flag = 1;
 </pre>
+
+<li>
+    android
+</li>
 
 <pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/configs/meson6_g33_new_jb_defconfig
+    nand scrub 0;
+    reset;
 </pre>
+
+<li>
+杂项
+</li>
 
 <pre class="code-style">
-CONFIG_VIDEO_AMLOGIC_CAPTURE=y
-CONFIG_V4L_AMLOGIC_VIDEO=y
-CONFIG_AMLOGIC_CAPTURE_FRAME_ROTATE=y
-CONFIG_AMLOGIC_VM_DISABLE_VIDEOLAYER=y
-# CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308=y
-CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838=y
+    echo 0 &gt; /proc/sys/kernel/printk
 
 </pre>
 
-<pre class="text-style">
-2 修改BSP的I2C_BOARD_INFO, 其中注意aml_plat_cam_data_t中.video_nr=0,//1,为前置摄像头
-</pre>
+<li>
+U盘烧写
+</li>
 
 <pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-new.c
-</pre>
-
-<pre class="code-style">
-#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308
-    {
-        /*gc0308 i2c address is 0x42/0x43*/
-        I2C_BOARD_INFO(&quot;gc0308_i2c&quot;,  0x42 &gt;&gt; 1),
-        .platform_data = (void *)&amp;video_gc0308_data,
-    }, 
-#endif 
-#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0838
-    {  
-        /*sp0838 i2c address is 0x42/0x43*/
-        I2C_BOARD_INFO(&quot;sp0838_i2c&quot;,  0x30 &gt;&gt; 1),
-        .platform_data = (void *)&amp;video_sp0838_data,
-    }, 
-#endif
-
-</pre>
-
-<pre class="text-style">
-3 问题总结
-1) can't connected
-&nbsp;&nbsp;&nbsp;&nbsp;aml_plat_cam_data_t中.video_nr不对
-2) 绿屏(I2C报错)
-&nbsp;&nbsp;&nbsp;&nbsp;上电时序错误, 芯片没工作
-3) 红绿屏
-&nbsp;&nbsp;&nbsp;&nbsp;YUV设置反了
+usb start
+fatload usb 0:1 82000000 xxx.bin
+sf probe 2
+sf erase 0 400000
+sf write 82000000 0 400000
+//kernel
+reset
+usb start
+fatload usb 0:1 82000000 xxx_recovery
+bootm
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -441,21 +797,54 @@ CONFIG_RTL8188EU=m
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="SPI支持"> SPI支持 </a></h1>
+<h1 align="center"><a name="遥控器修改"> 遥控器修改 </a></h1>
+<pre class="text-style">
+1\ 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
+填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
+tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
+
+2\ 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
+
+                ^0x55 97  //sam                                 
+                ^0x51 65
+常用的功能码:
+KEY_BACK    158
+KEY_MENU    139
+KEY_HOME    102
+KEY_SEARCH  217
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Logo墙纸"> Logo墙纸 </a></h1>
 
 <pre class="text-style">
-    添加对应型号SPI
+1 uboot logo
+1) 修改logo
 </pre>
 
 <pre class="code-style">
-/* NOTE: double check command sets and memory organization when you add 
- * more flash chips.  This current list focusses on newer chips, which
- * have been converging on command sets which including JEDEC ID. 
- */
-static struct flash_info spi_nor_data [] = { 
-    /* Toshiba */
-    { &quot;GD25Q16&quot;, 0xc84015, 64 * 1024, 32, SECT_4K, },
-    { &quot;GD25Q32&quot;, 0xc84016, 64 * 1024, 64, SECT_4K, },
+&nbsp;&nbsp;&nbsp;&nbsp;device/amlogic/g33refNew/res_pack/*
+</pre>
+
+<pre class="text-style">
+2) 删除out/target/product/g33refNew/res-package.img 重新编译
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;rm out/target/product/g33refNew/res-package.img
+&nbsp;&nbsp;&nbsp;&nbsp;make otapackage -j4
+
+</pre>
+
+<pre class="text-style">
+2 墙纸-android的静态壁纸, 默认是frameworks/base/core/res/res/drawable*/*
+(至于默认动态壁纸，这个要修改/framework/base/core/res/res/values/config.xml)
+</pre>
+
+<pre class="code-style">
+drawable-nodpi-1024×600
+drawable-nodpi-1280×800
+drawable-nodpi-800×480
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -531,807 +920,6 @@ CONFIG_SENSORS_LIS3DH =y
 
 <pre class="code-style">
 ro.sf.gsensorposition=0
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="编译烧录指令和bug"> 编译烧录指令和bug </a></h1>
-
-<h2>
-    烧录固件等
-</h2>
-
-<li>
-    uboot
-</li>
-
-<li>
-    kernel
-</li>
-
-<pre class="code-style">
-1 vi kernel/arch/arm/mach-meson3/board-m3-reff16.c
-
-2 搜索boot字段观察boot分区的的.offset和.size
-
-3 在bootloader中写uImage到对应nandflash，如
-    nand write 82000000 3200000 1600000
-               from   to(.offset)  size
-</pre>
-
-<pre class="code-style">
-    mmcinfo; fatload mmc 0 82000000 boot.img; bootm
-</pre>
-
-<li>
-    recovery.img
-</li>
-
-<pre class="text-style">
-跟踪代码流程:
-sd_mmc_init
---&gt;sdxc_mmc_init
-     --&gt;sd_identify_process
-        --&gt;sd_mmc_check_wp
-           --&gt;sd_mmc_info-&gt;write_protected_flag = 1;
-
-解决之:
-
-    注释 kernel/drivers/amlogic/cardreader/sd/sd_protocol.c 的约5k行的 sd_mmc_info-&gt;write_protected_flag = 1;
-</pre>
-
-<li>
-    android
-</li>
-
-<pre class="code-style">
-    nand scrub 0;
-    reset;
-</pre>
-
-<li>
-杂项
-</li>
-
-<pre class="code-style">
-    echo 0 &gt; /proc/sys/kernel/printk
-
-</pre>
-
-<li>
-U盘烧写
-</li>
-
-<pre class="code-style">
-usb start
-fatload usb 0:1 82000000 xxx.bin
-sf probe 2
-sf erase 0 400000
-sf write 82000000 0 400000
-//kernel
-reset
-usb start
-fatload usb 0:1 82000000 xxx_recovery
-bootm
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="LCD-H-B070D"> LCD-H-B070D </a></h1>
-
-<pre class="text-style">
-1 修改分辨率
-1) uboot中设置分辨率
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/configs/m6_g33new_1GB.h
-</pre>
-
-<pre class="code-style">
-    &quot;display_width=800\0&quot; \
-    &quot;display_height=480\0&quot; \
-
-</pre>
-
-<pre class="text-style">
-2) kernel中设置buffer OSD大小
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/configs/meson6_g33_new_jb_defconfig
-</pre>
-
-<pre class="code-style">
-CONFIG_FB_AM=y
-CONFIG_FB_OSD2_CURSOR=y
-CONFIG_FB_OSD2_DEFAULT_WIDTH=32
-CONFIG_FB_OSD2_DEFAULT_HEIGHT=32
-CONFIG_FB_OSD2_DEFAULT_WIDTH_VIRTUAL=32
-CONFIG_FB_OSD2_DEFAULT_HEIGHT_VIRTUAL=32
-CONFIG_FB_OSD1_DEFAULT_BITS_PER_PIXEL=32
-CONFIG_FB_OSD1_DEFAULT_WIDTH=800
-CONFIG_FB_OSD1_DEFAULT_HEIGHT=480
-CONFIG_FB_OSD1_DEFAULT_WIDTH_VIRTUAL=800
-CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
-
-</pre>
-
-<pre class="text-style">
-3) 修改开机设置显示脚本
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/set_display_mode.sh
-</pre>
-
-<pre class="code-style">
-    panel)
-        fbset -fb /dev/graphics/fb0 -g 800 480 800 960 32
-        echo 1 &gt; /sys/class/graphics/fb1/blank
-        fbset -fb /dev/graphics/fb1 -g 32 32 32 32 32
-        echo $1 &gt; /sys/class/display/mode
-        echo 0 0 800 480 0 0 32 32 &gt; /sys/class/display/axis
-    ;;  
-        
-    mode_set_before)
-        fbset -fb /dev/graphics/fb0 -g 800 480 800 960 32
-        fbset -fb /dev/graphics/fb1 -g 32 32 32 32 32
-        echo 0 0 800 480 0 0 32 32 &gt; /sys/class/display/axis
-    ;;  
-
-
-</pre>
-
-<pre class="text-style">
-2 修改屏参
-1) 修改屏参(uboot)
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/m6_g33new_1GB/lcd.c
-</pre>
-
-<pre class="code-style">
-#include &quot;../../include/panel/CLAPABCD.h&quot;
-
-</pre>
-
-<pre class="text-style">
-2) 放入自己的屏参配置文件
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;uboot/customer/include/panel/CLAPABCD.h
-
-</pre>
-
-<pre class="text-style">
-3) 修改屏参(kernel)
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-panel.c
-</pre>
-
-<pre class="code-style">
-#include &quot;../include/panel/CLAPABCD.h&quot;
-
-</pre>
-
-<pre class="text-style">
-4) 放入自己的屏参配置文件(与2)同一份)
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;common/customer/include/panel/CLAPABCD.h
-
-</pre>
-
-<pre class="text-style">
-5) 修改其余OSD的参数
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-new.h
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="Codec硬件"> Codec硬件 </a></h1>
-<pre class="text-style">
-The WM8960 operates at analogue supply voltages down to
-2.7V, although the digital supplies can operate at voltages down
-to 1.71V to save power. The speaker supply can operate at up
-to 5.5V, providing 1W per channel into 8 loads. Unused
-functions can be disabled using software control to save power.
-模拟部分输入电压最低 2.7V， 数字部分最低1.71V， 输出最大功率为1w
-
-1、 MICBIAS是提供MIC的偏置电压
-2、 驱动对应kernel/sound/soc/decodec/wm8960.c
-3、 电压与功率增益关系 
-    XdB = 20log(Vo/Vi)
-    XdB = 10log(Po/Pi)
-故
-    Xdb = 20log(2*Vo/Vi) = 20*(log2 + log(Vo/Vi)) = 6 + 20log(Vo/Vi),
-即电压翻倍，功率增加6dB. 
-4、 I2S
-I2S总线规范
-　　在飞利浦公司的I2S标准中，既规定了硬件接口规范，也规定了数字音频数据的格式。
-I2S有3个主要信号
-　　1.串行时钟SCLK，也叫位时钟（BCLK），即对应数字音频的每一位数据，SCLK都有1个脉冲。SCLK的频率=2×采样频率×采样位数。
-　　2.帧时钟LRCK，(也称WS)，用于切换左右声道的数据。LRCK为“1”表示正在传输的是右声道的数据，为“0”则表示正在传输的是左声道的数据。LRCK的频率等于采样频率。
-　　3.串行数据SDATA，就是用二进制补码表示的音频数据。
-　　有时为了使系统间能够更好地同步，还需要另外传输一个信号MCLK，称为主时钟，也叫系统时钟（Sys Clock），是采样频率的256倍或384倍。
-
-tips:
-    DAI:    Digital Audio Interface (DAI) API.
-    DAPM:   ALSA SoC Dynamic Audio Power Management.
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="Logo墙纸"> Logo墙纸 </a></h1>
-
-<pre class="text-style">
-1 uboot logo
-1) 修改logo
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;device/amlogic/g33refNew/res_pack/*
-</pre>
-
-<pre class="text-style">
-2) 删除out/target/product/g33refNew/res-package.img 重新编译
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;rm out/target/product/g33refNew/res-package.img
-&nbsp;&nbsp;&nbsp;&nbsp;make otapackage -j4
-
-</pre>
-
-<pre class="text-style">
-2 墙纸-android的静态壁纸, 默认是frameworks/base/core/res/res/drawable*/*
-(至于默认动态壁纸，这个要修改/framework/base/core/res/res/values/config.xml)
-</pre>
-
-<pre class="code-style">
-drawable-nodpi-1024×600
-drawable-nodpi-1280×800
-drawable-nodpi-800×480
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="DDR"> DDR </a></h1>
-
-<pre class="text-style">
-1 修改DDR 时钟
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/m6_g33new_1GB/firmware/timming.c
-</pre>
-
-<pre class="code-style">
-                #ifdef DDR3_7_7_7
-                    .cl             =   7,  
-                    .t_faw          =  30,&nbsp;&nbsp;&nbsp;&nbsp;/* Mark fixme 20-&gt;30 */&nbsp;&nbsp;&nbsp;&nbsp;//27:page size 2KB; 20:page size 1KB 
-                    .t_ras          =  20, 
-                    .t_rc           =  27, 
-                    .t_rcd          =   7,  
-                    .t_rfc          =  160,&nbsp;&nbsp;&nbsp;&nbsp;/* Mark fixme 86-&gt;160 */&nbsp;&nbsp;&nbsp;&nbsp;//4Gb:139~160; 2Gb:86; 1Gb:59
-                    .t_rp           =   7,  
-                    .t_rrd          =   6,&nbsp;&nbsp;&nbsp;&nbsp;/* Mark fixme 4-&gt;6 */&nbsp;&nbsp;&nbsp;&nbsp;//6 or 5:page size 2KB; 4:page size 1KB 
-                    .t_rtp          =   4,  
-                    .t_wr           =   8,  
-                    .t_wtr          =   4,  
-                    .t_cwl          =   6,
-                    .t_mod          =   8,
-                #endif
-
-</pre>
-
-<pre class="text-style">
-2 修改DDR 频率
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/configs/m6_g33new_1GB.h
-</pre>
-
-<pre class="code-style">
-#define M6_DDR_CLK (468)
-
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="USB升级包制作"> USB升级包制作 </a></h1>
-<pre class="text-style">
-步驟1、2已經不需要，只要生成recovery即可
-
-1 修改device/amlogic/g33refNew/quick_build_kernel.sh，对应common/customer/configs/meson6_g33_new_jb_defconfig
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/quick_build_kernel.sh
-</pre>
-
-<pre class="code-style">
-KERNEL_USBBURN_CONFIG=meson6_g33_new_jb_usb_burn_defconfig
-
-</pre>
-
-<pre class="text-style">
-2 对照meson6_g18_jbmr1_defconfig和meson6_g18_usb_burning_defconfig，
-把meson6_g33_new_jb_defconfig修改为meson6_g33_new_jb_usb_burn_defconfig
-
-</pre>
-
-<img src="
-../res/amlogic/picture1.jpg
-"/>
-<pre class="text-style">
-
-3 关机插掉nand打开usb烧录工具烧写resource.zip（也可以通过重启按组合键进入fastboot模式）
-&nbsp;&nbsp;&nbsp;&nbsp;resource.zip放置路径请不要带中文字符。
-
-
-Tips:注意config_progress.xml中最后一个common应为shutdown，若是reset会导致升级好的android系统缺recovery.img，
-会导致恢复出厂设置无法清除自安装apk
-
-</pre>
-
-<pre class="code-style">
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;progress_configs&gt;
- &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;0&quot; path=&quot;usb_spl.bin&quot; address=&quot;0xd9000000&quot; run=&quot;true&quot;&gt;load spl&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;1&quot; path=&quot;u-boot-orig.bin&quot; address=&quot;0x8f800000&quot; run=&quot;false&quot;&gt;load uboot&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;2&quot; &gt;crc 0x8f800000 size value&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;3&quot; count=&quot;10&quot;&gt;run 0x8f800000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;4&quot;&gt;set_chgcur 0&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;5&quot;&gt;video dev bl_off&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;6&quot;&gt;video dev disable&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;7&quot;&gt;nand rom_protect off&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;8&quot;&gt;nand erase 0&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;9&quot;&gt;nand info&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;10&quot;&gt;defenv&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;11&quot;&gt;setenv bootargs ${bootargs} a9_clk_max=600000000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;12&quot; cmd=&quot;setenv recovery_command --usb_burning&quot; address=&quot;0x82000000&quot;&gt;load addr&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;13&quot;&gt;cmd_in_mem 0x82000000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;14&quot;&gt;save&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;15&quot; path=&quot;recovery.img&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;16&quot; &gt;crc 0x82000000 size value&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;17&quot; count=&quot;100&quot;&gt;bootm 0x82000000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;18&quot;&gt;wipe_data&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;19&quot;&gt;wipe_cache&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;20&quot;&gt;copy_media&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;21&quot; count=&quot;400&quot;&gt;update:update.zip&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;22&quot;&gt;shutdown&lt;/command&gt;
-&lt;/progress_configs&gt;
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="修改背光"> 修改背光 </a></h1>
-<pre class="text-style">
-﻿//通过修改/sys/devices/platform/的DEVICE_ATTR驱动提供的sysfs接口调整亮度
-echo 250 &gt; /sys/devices/platform/aml-bl/backlight/aml-bl/brightness </pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="常用源码位置项目文件"> 常用源码位置项目文件 </a></h1>
-<pre class="text-style">
-1 LCD驱动(M3)
-&nbsp;&nbsp;&nbsp;&nbsp;一般需要在.config中设置osd， 即 Amlogic osd module 设置为对应datasheet buffer大小
-&nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/drivrers/amlogic/display/vout/lcd_lvds/
-
-2 项目文件（M3)
-&nbsp;&nbsp;&nbsp;&nbsp;SDK/device/amlogic/XXX/boardconfig.mk
-
-3 BSP(M3)
-&nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/arch/arm/mach-meson3/board-m3-XXX.c </pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="android编译环境搭建"> android编译环境搭建 </a></h1>
-
-<li>
-安装依赖库
-</li>
-
-<pre class="text-style">
-    参考下面的网页安装赖库
-</pre>
-
-<a href="
-    http://source.android.com/source/initializing.html
-">
-    http://source.android.com/source/initializing.html
-</a>
-
-<pre class="text-style">
-    通过下面判断Ubuntu版本\位数
-</pre>
-
-<pre class="code-style">
-    cat /etc/lsb-release
-    uname -m
-</pre>
-
-<pre class="text-style">
-    Ubuntu 12.04 LTS
-</pre>
-
-<pre class="code-style">
-    sudo apt-get install git gnupg flex bison gperf build-essential \
-    zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev \
-    libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
-    libgl1-mesa-dev g++-multilib mingw32 tofrodos \
-    python-markdown libxml2-utils xsltproc zlib1g-dev:i386
-</pre>
-
-<pre class="code-style">
-    sudo ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
-</pre>
-
-<pre class="text-style">
-    可能需要 libgl1-mesa-glx-lts-quantal:i386 替代 libgl1-mesa-glx:i386
-</pre>
-
-<li>
-安装JDK
-</li>
-
-<a href="
-    https://github.com/fantasy-mark/www/archive/master.zip    
-">
-    https://github.com/fantasy-mark/www/archive/master.zip    
-</a>
-
-<pre class="code-style">
-    vi /etc/bash.bashrc
-</pre>
-
-<pre class="code-style">
-    export PATH=/opt/jdk1.6.0_25/bin:$PATH
-</pre>
-
-<strong>
-    以上环境搭建完可编译kernel和sdk,而uboot编译需要安装交叉编译工具链
-</strong>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="上层UI-buglist"> 上层UI-buglist </a></h1>
-
-<pre class="text-style">
-1 UI显示完整
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/system.prop
-</pre>
-
-<pre class="code-style">
-ro.sf.lcd_density=120
-
-</pre>
-
-<pre class="text-style">
-2 UI的分栏
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi frameworks/base/core/res/res/values/bools.xml
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;bool name=&quot;preferences_prefer_dual_pane&quot;&gt;true&lt;/bool&gt;
-
-</pre>
-
-<pre class="text-style">
-3 HDMI连不上
-&nbsp;&nbsp;&nbsp;&nbsp;对照MXS公板原理图，板子漏焊一个0欧姆电阻
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="SD卡挂载目录"> SD卡挂载目录 </a></h1>
-
-<pre class="text-style">
-1 编译修改
-</pre>
-
-<pre class="code-style">
-    vi device/amlogic/g33refNew/vold.fstab
-</pre>
-
-<pre class="code-style">
-dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
-
-</pre>
-
-<pre class="text-style">
-2 在线修改
-</pre>
-
-<pre class="code-style">
-   vi /etc/vold.fstab
-</pre>
-
-<pre class="code-style">
-dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/card_host/memorycard0 /devices/platform/aml_sd_mmc.0
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="遥控器修改"> 遥控器修改 </a></h1>
-<pre class="text-style">
-1\ 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
-填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
-tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
-
-2\ 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
-
-                ^0x55 97  //sam                                 
-                ^0x51 65
-常用的功能码:
-KEY_BACK    158
-KEY_MENU    139
-KEY_HOME    102
-KEY_SEARCH  217
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="Camera-SP0A19"> Camera-SP0A19 </a></h1>
-
-<pre class="text-style">
-1 打开编译开关
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/configs/meson6_g33_new_jb_defconfig
-</pre>
-
-<pre class="code-style">
-CONFIG_VIDEO_AMLOGIC_CAPTURE=y
-CONFIG_V4L_AMLOGIC_VIDEO=y
-CONFIG_AMLOGIC_CAPTURE_FRAME_ROTATE=y
-CONFIG_AMLOGIC_VM_DISABLE_VIDEOLAYER=y
-# CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308=y
-CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0A19=y
-
-</pre>
-
-<pre class="text-style">
-2 修改BSP的I2C_BOARD_INFO, 其中注意aml_plat_cam_data_t中.video_nr=0,//1,为前置摄像头
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-new.c
-</pre>
-
-<pre class="code-style">
-#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308
-    {
-        /*gc0308 i2c address is 0x42/0x43*/
-        I2C_BOARD_INFO(&quot;gc0308_i2c&quot;,  0x42 &gt;&gt; 1),
-        .platform_data = (void *)&amp;video_gc0308_data,
-    }, 
-#endif 
-#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0A19
-    {  
-        /*sp0838 i2c address is 0x42/0x43*/
-        I2C_BOARD_INFO(&quot;sp0a19_i2c&quot;,  0x42 &gt;&gt; 1),
-        .platform_data = (void *)&amp;video_sp0A19_data,
-    }, 
-#endif
-
-</pre>
-
-<pre class="text-style">
-3 问题总结
-1) can't connected
-&nbsp;&nbsp;&nbsp;&nbsp;aml_plat_cam_data_t中.video_nr不对
-2) 绿屏(I2C报错)
-&nbsp;&nbsp;&nbsp;&nbsp;上电时序错误, 芯片没工作
-3) 红绿屏
-&nbsp;&nbsp;&nbsp;&nbsp;YUV设置反了
-4) 0A19 绿色屏,修改0x31 pclk 为 0x20, 使pclk匹配
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h1>
-
-<pre class="text-style">
-1 修改uboot/customer/board/configs/m6_g33new_1GB.h
-</pre>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/configs/m6_g33new_1GB.h
-</pre>
-
-<pre class="code-style">
-#define CONFIG_DCDC3_VOLTAGE    1200
-
-</pre>
-
-<pre class="text-style">
-2 修改uboot/arch/arm/cpu/aml_meson/m6/firmware/arc_power/config.h
-</pre>
-
-<pre class="code-style">
-#define CONFIG_DCDC3_VOLTAGE    1200
-
-</pre>
-
-<pre class="text-style">
-3 保证device/amlogic/g33refNew/init.amlogic.board.rc中注释了此行
-</pre>
-
-<pre class="code-style">
-#    write /sys/class/power_supply/battery/aml_pmu_vddao 1100
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="m6_编译说明"> m6_编译说明 </a></h1>
-
-<pre class="text-style">
-    环境搭建：
-    gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2
-</pre>
-
-<pre class="code-style">
-    sudo tar -jxvf gnutools-arc2.3-p0-ubuntu-9.04-2010-5-10.tar.bz2 -C /opt/
-</pre>
-
-<pre class="text-style">
-    arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
-    arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
-</pre>
-
-<pre class="code-style">
-    sudo tar -jxvf arm-2010q1-188-arm-none-eabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
-    sudo tar -jxvf arm-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2 -C /opt/
-</pre>
-
-<pre class="text-style">
-    arc_gnutools.sh
-</pre>
-
-<pre class="code-style">
-    sudo cp arc_gnutools.sh /etc/profile.d/
-</pre>
-
-<h2>
-    1 uboot编译
-</h2>
-
-<pre class="code-style">
-    cd uboot
-    make m6_gXX_config   
-    make
-    cp build/u-boot.bin ../device/gXX/
-</pre>
-
-<h2>
-    2 kernel编译
-</h2>
-
-<pre class="code-style">
-    source build/envsetup.sh
-    lunch xx
-    make bootimage -j4
-</pre>
-
-<h2>
-    3 android文件系统编译
-</h2>
-
-<pre class="code-style">
-    source build/envsetup.sh
-    lunch xx
-    make otapackage -j4
-</pre>
-
-<pre class="text-style">
-    编译是需要java环境的！
-    安装jdk-6u23-linux-i586.bin，特别要注意的是java se版本应该在java 1.6 u26以下！
-</pre>
-
-<pre class="code-style">
-    update-alternatives --install /usr/bin/jar jar /opt/jdk1.6.0_23/bin/jar 655
-    update-alternatives --install /usr/bin/java java /opt/jdk1.6.0_23/bin/java 655
-    update-alternatives --install /usr/bin/javac javac /opt/jdk1.6.0_23/bin/javac 655
-</pre>
-
-<pre class="text-style">
-    选择需要的java
-</pre>
-
-<pre class="code-style">
-    update-alternatives --config jar
-    update-alternatives --config java
-    update-alternatives --config javac
-</pre>
-
-<pre class="text-style">
-    编译工程！
-</pre>
-
-<pre class="code-style">
-    source build/envsetup.sh
-</pre>
-
-<pre class="code-style">
-    echo 公版mid &amp;&amp; lunch g33refNew-eng
-</pre>
-
-<pre class="code-style">
-    make -j4
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="CVBS"> CVBS </a></h1>
-<pre class="text-style">
-﻿uboot:
-
-uboot/board/amlogic/m3_mbox/m3_mbox.c
-
-int logo_display(void)
-
-
-
-+
-
-#include &lt;asm/arch/gpio.h&gt;
-
- 
-
-    int isHDMI = 0; 
-
-    /* fixme for open LVDO */
-
-    clrbits_le32(P_AO_GPIO_O_EN_N,(1&lt;&lt;22) );
-
-    printf(&quot;logo_display: \n&quot;);
-
-
-
-    /* ending in logo_display function */
-
-    set_gpio_mode(GPIOC_bank_bit0_15(10), GPIOC_bit_bit0_15(10), GPIO_INPUT_MODE);
-
-    isHDMI = get_gpio_val(GPIOC_bank_bit0_15(10), GPIOC_bit_bit0_15(10));
-
-    printf(&quot;---------%s read reg is : %d -----------------\n&quot;, __FUNCTION__, isHDMI);
-
-
-
-    if (! isHDMI) {
-
-        if (strcmp(getenv(&quot;outputmode&quot;), &quot;576i&quot;)) {
-
-            setenv(&quot;outputmode&quot;, &quot;576i&quot;);
-
-            setenv(&quot;cvbsmode&quot;, &quot;&quot;); 
-
-            run_command (&quot;save&quot;, 0);
-
-            run_command (&quot;reset&quot;, 0);
-
-        }    
-
-    }  
-
- 
-
-当电视设为CVBS时：
-
-插上HDMI线时读到reg为0
-
-拔出HDMI线时读到reg为0
-
- 
-
-当电视设为HDMI时：
-
-插上HDMI线时读到reg为1
-
-拔出HDMI线时读到reg为0
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -1498,6 +1086,191 @@ static char para[128] = {&quot;/system/vendor/icn838x_para.bin&quot;};
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="上层UI-buglist"> 上层UI-buglist </a></h1>
+
+<pre class="text-style">
+1 UI显示完整
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/system.prop
+</pre>
+
+<pre class="code-style">
+ro.sf.lcd_density=120
+
+</pre>
+
+<pre class="text-style">
+2 UI的分栏
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi frameworks/base/core/res/res/values/bools.xml
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;bool name=&quot;preferences_prefer_dual_pane&quot;&gt;true&lt;/bool&gt;
+
+</pre>
+
+<pre class="text-style">
+3 HDMI连不上
+&nbsp;&nbsp;&nbsp;&nbsp;对照MXS公板原理图，板子漏焊一个0欧姆电阻
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="常用源码位置项目文件"> 常用源码位置项目文件 </a></h1>
+<pre class="text-style">
+1 LCD驱动(M3)
+&nbsp;&nbsp;&nbsp;&nbsp;一般需要在.config中设置osd， 即 Amlogic osd module 设置为对应datasheet buffer大小
+&nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/drivrers/amlogic/display/vout/lcd_lvds/
+
+2 项目文件（M3)
+&nbsp;&nbsp;&nbsp;&nbsp;SDK/device/amlogic/XXX/boardconfig.mk
+
+3 BSP(M3)
+&nbsp;&nbsp;&nbsp;&nbsp;SDK/kernel/arch/arm/mach-meson3/board-m3-XXX.c </pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="SPI支持"> SPI支持 </a></h1>
+
+<pre class="text-style">
+    添加对应型号SPI
+</pre>
+
+<pre class="code-style">
+/* NOTE: double check command sets and memory organization when you add 
+ * more flash chips.  This current list focusses on newer chips, which
+ * have been converging on command sets which including JEDEC ID. 
+ */
+static struct flash_info spi_nor_data [] = { 
+    /* Toshiba */
+    { &quot;GD25Q16&quot;, 0xc84015, 64 * 1024, 32, SECT_4K, },
+    { &quot;GD25Q32&quot;, 0xc84016, 64 * 1024, 64, SECT_4K, },
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="LCD-H-B070D"> LCD-H-B070D </a></h1>
+
+<pre class="text-style">
+1 修改分辨率
+1) uboot中设置分辨率
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+    &quot;display_width=800\0&quot; \
+    &quot;display_height=480\0&quot; \
+
+</pre>
+
+<pre class="text-style">
+2) kernel中设置buffer OSD大小
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_FB_AM=y
+CONFIG_FB_OSD2_CURSOR=y
+CONFIG_FB_OSD2_DEFAULT_WIDTH=32
+CONFIG_FB_OSD2_DEFAULT_HEIGHT=32
+CONFIG_FB_OSD2_DEFAULT_WIDTH_VIRTUAL=32
+CONFIG_FB_OSD2_DEFAULT_HEIGHT_VIRTUAL=32
+CONFIG_FB_OSD1_DEFAULT_BITS_PER_PIXEL=32
+CONFIG_FB_OSD1_DEFAULT_WIDTH=800
+CONFIG_FB_OSD1_DEFAULT_HEIGHT=480
+CONFIG_FB_OSD1_DEFAULT_WIDTH_VIRTUAL=800
+CONFIG_FB_OSD1_DEFAULT_HEIGHT_VIRTUAL=960
+
+</pre>
+
+<pre class="text-style">
+3) 修改开机设置显示脚本
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/set_display_mode.sh
+</pre>
+
+<pre class="code-style">
+    panel)
+        fbset -fb /dev/graphics/fb0 -g 800 480 800 960 32
+        echo 1 &gt; /sys/class/graphics/fb1/blank
+        fbset -fb /dev/graphics/fb1 -g 32 32 32 32 32
+        echo $1 &gt; /sys/class/display/mode
+        echo 0 0 800 480 0 0 32 32 &gt; /sys/class/display/axis
+    ;;  
+        
+    mode_set_before)
+        fbset -fb /dev/graphics/fb0 -g 800 480 800 960 32
+        fbset -fb /dev/graphics/fb1 -g 32 32 32 32 32
+        echo 0 0 800 480 0 0 32 32 &gt; /sys/class/display/axis
+    ;;  
+
+
+</pre>
+
+<pre class="text-style">
+2 修改屏参
+1) 修改屏参(uboot)
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/m6_g33new_1GB/lcd.c
+</pre>
+
+<pre class="code-style">
+#include &quot;../../include/panel/CLAPABCD.h&quot;
+
+</pre>
+
+<pre class="text-style">
+2) 放入自己的屏参配置文件
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;uboot/customer/include/panel/CLAPABCD.h
+
+</pre>
+
+<pre class="text-style">
+3) 修改屏参(kernel)
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-panel.c
+</pre>
+
+<pre class="code-style">
+#include &quot;../include/panel/CLAPABCD.h&quot;
+
+</pre>
+
+<pre class="text-style">
+4) 放入自己的屏参配置文件(与2)同一份)
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;common/customer/include/panel/CLAPABCD.h
+
+</pre>
+
+<pre class="text-style">
+5) 修改其余OSD的参数
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-new.h
+</pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="AmlMiracast"> AmlMiracast </a></h1>
 
 <pre class="text-style">
@@ -1510,6 +1283,233 @@ static char para[128] = {&quot;/system/vendor/icn838x_para.bin&quot;};
 
 <pre class="code-style">
 &lt;bool name=&quot;def_wifi_display_on&quot;&gt;true&lt;/bool&gt;
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="CVBS"> CVBS </a></h1>
+<pre class="text-style">
+﻿uboot:
+
+uboot/board/amlogic/m3_mbox/m3_mbox.c
+
+int logo_display(void)
+
+
+
++
+
+#include &lt;asm/arch/gpio.h&gt;
+
+ 
+
+    int isHDMI = 0; 
+
+    /* fixme for open LVDO */
+
+    clrbits_le32(P_AO_GPIO_O_EN_N,(1&lt;&lt;22) );
+
+    printf(&quot;logo_display: \n&quot;);
+
+
+
+    /* ending in logo_display function */
+
+    set_gpio_mode(GPIOC_bank_bit0_15(10), GPIOC_bit_bit0_15(10), GPIO_INPUT_MODE);
+
+    isHDMI = get_gpio_val(GPIOC_bank_bit0_15(10), GPIOC_bit_bit0_15(10));
+
+    printf(&quot;---------%s read reg is : %d -----------------\n&quot;, __FUNCTION__, isHDMI);
+
+
+
+    if (! isHDMI) {
+
+        if (strcmp(getenv(&quot;outputmode&quot;), &quot;576i&quot;)) {
+
+            setenv(&quot;outputmode&quot;, &quot;576i&quot;);
+
+            setenv(&quot;cvbsmode&quot;, &quot;&quot;); 
+
+            run_command (&quot;save&quot;, 0);
+
+            run_command (&quot;reset&quot;, 0);
+
+        }    
+
+    }  
+
+ 
+
+当电视设为CVBS时：
+
+插上HDMI线时读到reg为0
+
+拔出HDMI线时读到reg为0
+
+ 
+
+当电视设为HDMI时：
+
+插上HDMI线时读到reg为1
+
+拔出HDMI线时读到reg为0
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h1>
+
+<pre class="text-style">
+1 修改uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi uboot/customer/board/configs/m6_g33new_1GB.h
+</pre>
+
+<pre class="code-style">
+#define CONFIG_DCDC3_VOLTAGE    1200
+
+</pre>
+
+<pre class="text-style">
+2 修改uboot/arch/arm/cpu/aml_meson/m6/firmware/arc_power/config.h
+</pre>
+
+<pre class="code-style">
+#define CONFIG_DCDC3_VOLTAGE    1200
+
+</pre>
+
+<pre class="text-style">
+3 保证device/amlogic/g33refNew/init.amlogic.board.rc中注释了此行
+</pre>
+
+<pre class="code-style">
+#    write /sys/class/power_supply/battery/aml_pmu_vddao 1100
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="USB升级包制作"> USB升级包制作 </a></h1>
+<pre class="text-style">
+步驟1、2已經不需要，只要生成recovery即可
+
+1 修改device/amlogic/g33refNew/quick_build_kernel.sh，对应common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi device/amlogic/g33refNew/quick_build_kernel.sh
+</pre>
+
+<pre class="code-style">
+KERNEL_USBBURN_CONFIG=meson6_g33_new_jb_usb_burn_defconfig
+
+</pre>
+
+<pre class="text-style">
+2 对照meson6_g18_jbmr1_defconfig和meson6_g18_usb_burning_defconfig，
+把meson6_g33_new_jb_defconfig修改为meson6_g33_new_jb_usb_burn_defconfig
+
+</pre>
+
+<img src="
+../res/amlogic/picture1.jpg
+"/>
+<pre class="text-style">
+
+3 关机插掉nand打开usb烧录工具烧写resource.zip（也可以通过重启按组合键进入fastboot模式）
+&nbsp;&nbsp;&nbsp;&nbsp;resource.zip放置路径请不要带中文字符。
+
+
+Tips:注意config_progress.xml中最后一个common应为shutdown，若是reset会导致升级好的android系统缺recovery.img，
+会导致恢复出厂设置无法清除自安装apk
+
+</pre>
+
+<pre class="code-style">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;progress_configs&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;0&quot; path=&quot;usb_spl.bin&quot; address=&quot;0xd9000000&quot; run=&quot;true&quot;&gt;load spl&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;1&quot; path=&quot;u-boot-orig.bin&quot; address=&quot;0x8f800000&quot; run=&quot;false&quot;&gt;load uboot&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;2&quot; &gt;crc 0x8f800000 size value&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;3&quot; count=&quot;10&quot;&gt;run 0x8f800000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;4&quot;&gt;set_chgcur 0&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;5&quot;&gt;video dev bl_off&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;6&quot;&gt;video dev disable&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;7&quot;&gt;nand rom_protect off&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;8&quot;&gt;nand erase 0&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;9&quot;&gt;nand info&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;10&quot;&gt;defenv&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;11&quot;&gt;setenv bootargs ${bootargs} a9_clk_max=600000000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;12&quot; cmd=&quot;setenv recovery_command --usb_burning&quot; address=&quot;0x82000000&quot;&gt;load addr&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;13&quot;&gt;cmd_in_mem 0x82000000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;14&quot;&gt;save&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;15&quot; path=&quot;recovery.img&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;16&quot; &gt;crc 0x82000000 size value&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;17&quot; count=&quot;100&quot;&gt;bootm 0x82000000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;18&quot;&gt;wipe_data&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;19&quot;&gt;wipe_cache&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;20&quot;&gt;copy_media&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;21&quot; count=&quot;400&quot;&gt;update:update.zip&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;22&quot;&gt;shutdown&lt;/command&gt;
+&lt;/progress_configs&gt;
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="Camera-SP0A19"> Camera-SP0A19 </a></h1>
+
+<pre class="text-style">
+1 打开编译开关
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/configs/meson6_g33_new_jb_defconfig
+</pre>
+
+<pre class="code-style">
+CONFIG_VIDEO_AMLOGIC_CAPTURE=y
+CONFIG_V4L_AMLOGIC_VIDEO=y
+CONFIG_AMLOGIC_CAPTURE_FRAME_ROTATE=y
+CONFIG_AMLOGIC_VM_DISABLE_VIDEOLAYER=y
+# CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308=y
+CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0A19=y
+
+</pre>
+
+<pre class="text-style">
+2 修改BSP的I2C_BOARD_INFO, 其中注意aml_plat_cam_data_t中.video_nr=0,//1,为前置摄像头
+</pre>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;vi common/customer/boards/board-m6g33-new.c
+</pre>
+
+<pre class="code-style">
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_GC0308
+    {
+        /*gc0308 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;gc0308_i2c&quot;,  0x42 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_gc0308_data,
+    }, 
+#endif 
+#ifdef CONFIG_VIDEO_AMLOGIC_CAPTURE_SP0A19
+    {  
+        /*sp0838 i2c address is 0x42/0x43*/
+        I2C_BOARD_INFO(&quot;sp0a19_i2c&quot;,  0x42 &gt;&gt; 1),
+        .platform_data = (void *)&amp;video_sp0A19_data,
+    }, 
+#endif
+
+</pre>
+
+<pre class="text-style">
+3 问题总结
+1) can't connected
+&nbsp;&nbsp;&nbsp;&nbsp;aml_plat_cam_data_t中.video_nr不对
+2) 绿屏(I2C报错)
+&nbsp;&nbsp;&nbsp;&nbsp;上电时序错误, 芯片没工作
+3) 红绿屏
+&nbsp;&nbsp;&nbsp;&nbsp;YUV设置反了
+4) 0A19 绿色屏,修改0x31 pclk 为 0x20, 使pclk匹配
 </pre>
 
     </body>

@@ -14,10 +14,100 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#phpadmin"> 0 : phpadmin </a></div>
-<div class="title"><a href="#chrome_console"> 1 : chrome_console </a></div>
-<div class="title"><a href="#活动日程表Demo"> 2 : 活动日程表Demo </a></div>
+<div class="title"><a href="#活动日程表Demo"> 0 : 活动日程表Demo </a></div>
+<div class="title"><a href="#phpadmin"> 1 : phpadmin </a></div>
+<div class="title"><a href="#chrome_console"> 2 : chrome_console </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="活动日程表Demo"> 活动日程表Demo </a></h1>
+
+<h2>
+1 定义数据库类型
+</h2>
+
+<pre class="text-style">
+ # event_id:活动的唯一标识
+ # event_title:活动的标题
+ # event_desc:活动详情
+ # event_start:活动开始日期
+ # event_end:活动结束日期
+</pre>
+
+<h2>
+2 创建类映射
+</h2>
+
+<li>
+构造函数
+</li>
+
+<pre class="text-style">
+ # 保证数据库链接，若链接就创建一个连接
+ # 设定以下基本属性: 数据库对象
+ # 当前显示日期，当前显示日期的月份
+ # 当前显示日期，当前显示日期的年
+ # 这个月有多少天，这个月起始日是星期几
+</pre>
+
+<li>
+生成活动表单HTML
+</li>
+
+<pre class="text-style">
+ # 检查是否正在修改或创建活动
+ # 如果是修改活动，把活动数据载入表单
+</pre>
+
+<li>
+对用户输入进行安全处理后，将新活动保存到数据库
+</li>
+
+<li>
+从数据库删除活动并请求用户确认
+</li>
+
+<li>
+载入活动数据
+</li>
+
+<pre class="text-style">
+ # 从数据库载入活动数据
+ # 将指定月份的每个活动按日期保存到一个数组中
+</pre>
+
+<li>
+输出日历信息HTML。循环活动数据数组，并附加相应的标题及时间
+</li>
+
+<li>
+用HTML显示活动数据并允许通过活动ID载入活动描述和详情
+</li>
+
+<h2>
+3 规划项目目录
+</h2>
+
+<pre class="code-style">
+.
+├── index.php -&gt; public/index.php
+├── public
+│   ├── admin.php
+│   ├── assets
+│   │   ├── comm
+│   │   ├── css
+│   │   ├── inc
+│   │   └── js
+│   ├── confirmdelete.php
+│   ├── index.php
+│   └── view.php
+└── sys
+    ├── class
+    ├── config
+    └── core
+
+10 directories, 5 files
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="phpadmin"> phpadmin </a></h1>
 
@@ -120,96 +210,6 @@ http://api.jquery.com/
 ">
 http://api.jquery.com/
 </a>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="活动日程表Demo"> 活动日程表Demo </a></h1>
-
-<h2>
-1 定义数据库类型
-</h2>
-
-<pre class="text-style">
- # event_id:活动的唯一标识
- # event_title:活动的标题
- # event_desc:活动详情
- # event_start:活动开始日期
- # event_end:活动结束日期
-</pre>
-
-<h2>
-2 创建类映射
-</h2>
-
-<li>
-构造函数
-</li>
-
-<pre class="text-style">
- # 保证数据库链接，若链接就创建一个连接
- # 设定以下基本属性: 数据库对象
- # 当前显示日期，当前显示日期的月份
- # 当前显示日期，当前显示日期的年
- # 这个月有多少天，这个月起始日是星期几
-</pre>
-
-<li>
-生成活动表单HTML
-</li>
-
-<pre class="text-style">
- # 检查是否正在修改或创建活动
- # 如果是修改活动，把活动数据载入表单
-</pre>
-
-<li>
-对用户输入进行安全处理后，将新活动保存到数据库
-</li>
-
-<li>
-从数据库删除活动并请求用户确认
-</li>
-
-<li>
-载入活动数据
-</li>
-
-<pre class="text-style">
- # 从数据库载入活动数据
- # 将指定月份的每个活动按日期保存到一个数组中
-</pre>
-
-<li>
-输出日历信息HTML。循环活动数据数组，并附加相应的标题及时间
-</li>
-
-<li>
-用HTML显示活动数据并允许通过活动ID载入活动描述和详情
-</li>
-
-<h2>
-3 规划项目目录
-</h2>
-
-<pre class="code-style">
-.
-├── index.php -&gt; public/index.php
-├── public
-│   ├── admin.php
-│   ├── assets
-│   │   ├── comm
-│   │   ├── css
-│   │   ├── inc
-│   │   └── js
-│   ├── confirmdelete.php
-│   ├── index.php
-│   └── view.php
-└── sys
-    ├── class
-    ├── config
-    └── core
-
-10 directories, 5 files
-</pre>
 
     </body>
 </html>
