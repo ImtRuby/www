@@ -10,6 +10,7 @@ default :
 	sleep 1
 	@sudo rm /var/www/* -rf
 	@sudo cp webpage/* /var/www/ -r
+	@sudo cp webpage ~/Image/ -r
 
 #clean : 
 #	@set -e; \

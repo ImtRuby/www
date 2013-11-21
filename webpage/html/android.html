@@ -14,11 +14,75 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#adb无法连接"> 0 : adb无法连接 </a></div>
+<div class="title"><a href="#android-gdb调试指南"> 0 : android-gdb调试指南 </a></div>
 <div class="title"><a href="#重挂载文件系统"> 1 : 重挂载文件系统 </a></div>
-<div class="title"><a href="#导入已有apk"> 2 : 导入已有apk </a></div>
-<div class="title"><a href="#android-gdb调试指南"> 3 : android-gdb调试指南 </a></div>
+<div class="title"><a href="#adb无法连接"> 2 : adb无法连接 </a></div>
+<div class="title"><a href="#导入已有apk"> 3 : 导入已有apk </a></div>
+<div class="title"><a href="#wifi_adb"> 4 : wifi_adb </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="android-gdb调试指南"> android-gdb调试指南 </a></h1>
+
+<pre class="text-style">
+    参考
+</pre>
+
+<a href="
+    http://blog.chinaunix.net/uid-12567959-id-3214283.html
+">
+    http://blog.chinaunix.net/uid-12567959-id-3214283.html
+</a>
+
+<li>
+adb-宿主机使用,放到 /usr/bin/
+</li>
+
+<pre class="code-style">
+    out/host/linux-x86/bin/adb
+</pre>
+
+<li>
+gdb-目标机使用,放到 /system/bin/
+</li>
+
+<pre class="code-style">
+    prebuilts/misc/android-arm/gdbserver/gdbserver
+</pre>
+
+<li>
+目标机监听端口(可能提示找不到库 sudo ln -s libpython2.7.so.1 libpython2.6.so.1)
+</li>
+
+<pre class="code-style">
+    gdbserver :1234 /system/bin/top &amp;
+</pre>
+
+<li>
+宿主机执行(与目标机执行文件对应)
+</li>
+
+<pre class="code-style">
+./prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-gdb out/target/product/g33refNew/system/bin/top
+</pre>
+
+<li>
+gdb设置符号表等
+</li>
+
+<pre class="code-style">
+set solib-absolute-prefix /home/mark/mx_mid_4.2_130630/out/target/product/g33refNew/symbols/
+set solib-search-path /home/mark/mx_mid_4.2_130630/out/target/product/g33refNew/system/lib/
+shell adb forward tcp:1234 tcp:1234
+target remote localhost:1234
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h1>
+
+<pre class="code-style">
+mount -o rw,remount yaffs2 /system
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="adb无法连接"> adb无法连接 </a></h1>
 
@@ -65,13 +129,6 @@ D: 修改系统USB ID vendor，以支持新的设备：
 <pre class="text-style">
  2，Window XP/ WIN7 系统：
  &nbsp;&nbsp;&nbsp;&nbsp;下载91手机助手安装驱动连接手机后,退出91手机助手用adb shell连接！
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h1>
-
-<pre class="code-style">
-mount -o rw,remount yaffs2 /system
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -186,59 +243,40 @@ make
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="android-gdb调试指南"> android-gdb调试指南 </a></h1>
+<h1 align="center"><a name="wifi_adb"> wifi_adb </a></h1>
+
+<li>
+android设备设置
+</li>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;# setprop service.adb.tcp.port 5555 &amp;&amp; stop adbd &amp;&amp; start adbd
+</pre>
 
 <pre class="text-style">
-    参考
+或
+&nbsp;&nbsp;&nbsp;&nbsp;在工程中修改 device/amlogic/g33refNew/system.prop 文件加入 
 </pre>
 
-<a href="
-    http://blog.chinaunix.net/uid-12567959-id-3214283.html
-">
-    http://blog.chinaunix.net/uid-12567959-id-3214283.html
-</a>
-
-<li>
-adb-宿主机使用,放到 /usr/bin/
-</li>
-
 <pre class="code-style">
-    out/host/linux-x86/bin/adb
+service.adb.tcp.port=5555
+</pre>
+
+<pre class="text-style">
+&nbsp;&nbsp;&nbsp;&nbsp;即可.
 </pre>
 
 <li>
-gdb-目标机使用,放到 /system/bin/
+pc端连接
 </li>
 
 <pre class="code-style">
-    prebuilts/misc/android-arm/gdbserver/gdbserver
+&nbsp;&nbsp;&nbsp;&nbsp;adb connect 10.86.138.2:5555
+&nbsp;&nbsp;&nbsp;&nbsp;adb shell
 </pre>
 
-<li>
-目标机监听端口(可能提示找不到库 sudo ln -s libpython2.7.so.1 libpython2.6.so.1)
-</li>
-
-<pre class="code-style">
-    gdbserver :1234 /system/bin/top &amp;
-</pre>
-
-<li>
-宿主机执行(与目标机执行文件对应)
-</li>
-
-<pre class="code-style">
-./prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-gdb out/target/product/g33refNew/system/bin/top
-</pre>
-
-<li>
-gdb设置符号表等
-</li>
-
-<pre class="code-style">
-set solib-absolute-prefix /home/mark/mx_mid_4.2_130630/out/target/product/g33refNew/symbols/
-set solib-search-path /home/mark/mx_mid_4.2_130630/out/target/product/g33refNew/system/lib/
-shell adb forward tcp:1234 tcp:1234
-target remote localhost:1234
+<pre class="text-style">
+&nbsp;&nbsp;&nbsp;&nbsp;上面的ip是android设备wifi网卡分配到的ip，需保证pc和android设备在同AP
 </pre>
 
     </body>

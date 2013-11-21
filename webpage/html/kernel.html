@@ -14,19 +14,441 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#LCD屏参"> 0 : LCD屏参 </a></div>
-<div class="title"><a href="#gslx680调试"> 1 : gslx680调试 </a></div>
-<div class="title"><a href="#i2c调试"> 2 : i2c调试 </a></div>
-<div class="title"><a href="#wifi调试"> 3 : wifi调试 </a></div>
-<div class="title"><a href="#alsa调试"> 4 : alsa调试 </a></div>
-<div class="title"><a href="#wm8960调试"> 5 : wm8960调试 </a></div>
-<div class="title"><a href="#红外遥控器修改"> 6 : 红外遥控器修改 </a></div>
-<div class="title"><a href="#内核调试之道"> 7 : 内核调试之道 </a></div>
-<div class="title"><a href="#sendevent"> 8 : sendevent </a></div>
-<div class="title"><a href="#mt9p111调试"> 9 : mt9p111调试 </a></div>
-<div class="title"><a href="#调试技巧"> 10 : 调试技巧 </a></div>
-<div class="title"><a href="#wm8960移植"> 11 : wm8960移植 </a></div>
+<div class="title"><a href="#wm8960移植"> 0 : wm8960移植 </a></div>
+<div class="title"><a href="#wm8960调试"> 1 : wm8960调试 </a></div>
+<div class="title"><a href="#内核调试之道"> 2 : 内核调试之道 </a></div>
+<div class="title"><a href="#红外遥控器修改"> 3 : 红外遥控器修改 </a></div>
+<div class="title"><a href="#wifi调试"> 4 : wifi调试 </a></div>
+<div class="title"><a href="#sendevent"> 5 : sendevent </a></div>
+<div class="title"><a href="#LCD屏参"> 6 : LCD屏参 </a></div>
+<div class="title"><a href="#gslx680调试"> 7 : gslx680调试 </a></div>
+<div class="title"><a href="#调试技巧"> 8 : 调试技巧 </a></div>
+<div class="title"><a href="#i2c调试"> 9 : i2c调试 </a></div>
+<div class="title"><a href="#mt9p111调试"> 10 : mt9p111调试 </a></div>
+<div class="title"><a href="#alsa调试"> 11 : alsa调试 </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
+
+<pre class="text-style">
+
+涉及文件工程文件：
+
+1.device/amlogic/g18ref/g18ref.mk
+修改BOARD_AUDIO_CODEC := dummy为BOARD_AUDIO_CODEC := wm8960
+
+2.common/customer/configs/meson6_g18_jbmr1_defconfig
+#CONFIG_SND_AML_M6_RT5631=y
+CONFIG_SND_AML_M6_WM8960=y
+#CONFIG_SND_AML_M_DUMMY_CODEC=y
+
+3.hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
+此处视你自己的需求设置通路
+
+4.BSP文件common/customer/boards/board-m6g18.c
+</pre>
+
+<pre class="code-style">
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt; ......   此处实现wm8960_padata  ......
+&lt; static struct wm8960_data wm8960_pdata = {
+&lt;     .hp_detect      = wm8960_hp_detect,
+&lt;     .device_init    = wm8960_device_init,
+&lt;     .device_uninit  = wm8960_device_deinit,
+&lt;     .capless        = 1,
+&lt;     .dres           = WM8960_DRES_600R,
+&lt;     
+&lt; };
+&lt; 
+&lt; static struct platform_device aml_wm8960_audio = {
+&lt;     .name           = &quot;aml_wm8960_audio&quot;,
+&lt;     .id             = 0,
+&lt;     .resource       = aml_m6_audio_resource,
+&lt;     .num_resources  = ARRAY_SIZE(aml_m6_audio_resource),
+&lt;     .dev = {
+&lt;         .platform_data = &amp;wm8960_pdata,
+&lt;     },
+&lt; };
+&lt; #endif
+
+static struct platform_device  *platform_devs[] = {
+&lt; #if defined(CONFIG_SND_SOC_WM8960)
+&lt;     &amp;aml_wm8960_audio,
+&lt; #endif
+
+</pre>
+
+<pre class="text-style">
+5.添加驱动文件
+common/sound/soc/aml/aml_m6_wm8960.c
+common/sound/soc/codecs/wm8960.*
+
+</pre>
+
+<strong>
+Tips：
+    common/sound/soc/aml/aml_m6_wm8960.c 中 
+</strong>
+
+<pre class="code-style">
+static struct snd_soc_dai_link wm8960_dai_link[] = {
+    ...
+    .codec_name = &quot;wm8960-codec.0-001a&quot;,
+    ...
+</pre>
+
+<strong>
+    命名规则 .0-001a 对应i2c总线和地址。
+否则出现如下错误：
+</strong>
+
+<pre class="code-style">
+root@android:/ # cat /proc/asound/cards
+--- no soundcards ---
+</pre>
+
+<pre class="text-style">
+驱动修改指南:
+1.初始化
+</pre>
+
+<pre class="code-style">
+static int wm8960_probe(struct snd_soc_codec *codec)
+    ...
+    ret = wm8960_reset(codec);
+    ...
+    snd_soc_write(codec, WM8960_DACCTL1, 0x0);
+    
+</pre>
+
+<pre class="text-style">
+2.在录音播放时相关的寄存器设置
+1)软件设置
+hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
+
+2)硬件设置
+</pre>
+
+<pre class="code-style">
+static int wm8960_mute(struct snd_soc_dai *dai, int mute)
+    snd_soc_write(codec, WM8960_LINPATH, 0x148);
+
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wm8960调试"> wm8960调试 </a></h1>
+
+<pre class="text-style">
+debugfs节点 - 串口修改寄存器值
+</pre>
+
+<pre class="code-style">
+mount -t debugfs none /sys/kernel/debug
+chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
+ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
+
+</pre>
+
+<pre class="text-style">
+1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
+
+
+//snd_card的定义位于头文件：include/sound/core.h 
+</pre>
+
+<pre class="code-style">
+    3885: module_init(snd_soc_init);
+
+    3883 return platform_driver_register(&amp;soc_driver);
+    2106 .probe = soc_probe,
+    2022 ret = snd_soc_register_card(card);
+    3397 snd_soc_instantiate_cards();
+
+    // 下面两行是重头戏?
+    1842 soc_bind_dai_link(card, i);
+    1874 ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+</pre>
+
+<pre class="text-style">
+sound/soc/soc-core.c:1874:
+</pre>
+
+<pre class="code-style">
+    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+
+    // snd_card的driver字段保存着芯片的ID字符串
+    // user空间的alsa-lib会使用到该字符串
+
+    $ cat -l /proc/asound/cards
+    0 [AMLWM8960 ]: SOC-Audio - AML-WM8960
+    AML-WM8960
+
+    $ cat /proc/asound/card0/pcm0c/info
+</pre>
+
+<pre class="text-style">
+    未完待续...
+
+    
+
+2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
+
+
+// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device // alsa-driver的已经提供了一些常用的部件的创建函数
+    PCM -- snd_pcm_new()
+    RAWMIDI -- snd_rawmidi_new()
+    CONTROL -- snd_ctl_create()
+    TIMER -- snd_timer_new()
+    INFO -- snd_card_proc_new()
+    JACK -- snd_jack_new()
+</pre>
+
+<pre class="code-style">
+    $ ls -l /dev/snd
+
+    // 用于声卡的控制，例如通道选择，混音，麦克风的控制等
+    crw-rw---- system audio 116, 0 1970-01-04 22:38 controlC0
+
+    // 用于录音的pcm设备,capture
+    crw-rw---- system audio 116, 24 1970-01-04 22:38 pcmC0D0c
+
+    // 用于播放的pcm设备,play
+    crw-rw---- system audio 116, 16 1970-01-04 22:38 pcmC0D0p
+
+    // 定时器
+    crw-rw---- system audio 116, 33 1970-01-04 22:38 timer
+
+    
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="内核调试之道"> 内核调试之道 </a></h1>
+
+<li>
+内核转储
+</li>
+
+<pre class="code-style">
+    ulimit -c 1073741824
+</pre>
+
+<pre class="text-style">
+    设置转储文件保存路径
+</pre>
+
+<pre class="code-style">
+    vi /etc/sysctl.conf
+</pre>
+
+<pre class="code-style">
+kernel.core_pattern=/var/core/%t-%e-%p-%c.core
+kernel.core_uses_pid=0
+</pre>
+
+<pre class="code-style">
+    sysctl -p
+</pre>
+
+<pre class="text-style">
+    使用转储文件调试
+</pre>
+
+<pre class="code-style">
+    sudo apt-get install libc-dbg
+</pre>
+
+<pre class="code-style">
+    gdb -c core.XXXX ./a.out
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="红外遥控器修改"> 红外遥控器修改 </a></h1>
+
+<pre class="text-style">
+1. 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
+填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
+tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
+
+
+2. 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
+</pre>
+
+<pre class="code-style">
+                ^0x55 97  //sam                                 
+                ^0x51 65
+</pre>
+
+<pre class="text-style">
+常用的功能码:
+KEY_BACK    158
+KEY_MENU    139
+KEY_HOME    102
+KEY_SEARCH  217
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="wifi调试"> wifi调试 </a></h1>
+
+<li>
+wireless-tools:
+</li>
+
+<pre class="text-style">
+1.打开无线网卡电源
+</pre>
+
+<pre class="code-style">
+iwconfig wlan0 txpower no
+</pre>
+
+<pre class="text-style">
+2.列出区域内的无线网络
+</pre>
+
+<pre class="code-style">
+iwconfig wlan0 scan
+</pre>
+
+<pre class="text-style">
+3.假设要连接到网络myhome（即essid为myhome的网络），那么输入命令
+</pre>
+
+<pre class="code-style">
+iwconfig wlan0 essid &quot;myhome&quot;
+</pre>
+
+<pre class="text-style">
+如果网络是加密的，密码是0123456789，那么就输入命令
+</pre>
+
+<pre class="code-style">
+iwconfig wlan0 essid &quot;myhome&quot; key 0123-4567-89
+</pre>
+
+<pre class="text-style">
+4 如果正常的话，输入
+</pre>
+
+<pre class="code-style">
+iwconfig wlan0
+</pre>
+
+<pre class="text-style">
+就可以看到连接正常的各项参数了。
+5.启动无线网卡
+</pre>
+
+<pre class="code-style">
+ifconfig wlan0 up (netcfg wlan0 up)
+</pre>
+
+<pre class="text-style">
+6.如果是用DHCP获取IP的，那么用dhclient或dhcpcd获取ip
+</pre>
+
+<pre class="code-style">
+dhclient wlan0 或dhcpcd wlan0
+</pre>
+
+<pre class="text-style">
+7.现在无线网卡应该可以正常使用了。
+</pre>
+
+<li>
+WPA Supplicant (WPA Supplicant工具包可以让您连接到那些使用WPA的AP)
+</li>
+
+<pre class="text-style">
+配置 wpa_supplicant.conf
+使用wireless tools已经可以连到为加密的ap。
+但我的ap采用的wpa-psk模式加密，用这个工具无法连上，
+所以还是要使用wpa_supplicant。
+
+开始用wpa_supplicant 用的是android socket，始终不行，后来
+改成unit standard socket。具体做法前面有。换成这个以后就可以用wpa_cli
+来配置。 我没搞明白怎么在用android socket的情况下使用wpa_cli。
+
+运行wpa_supplicant和wpa_cli
+</pre>
+
+<pre class="code-style">
+wpa_supplicant  -Dwext -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf -dd -B
+wpa_cli -i wlan0 -p /data/system/wpa_supplicant
+</pre>
+
+<pre class="text-style">
+然后scan
+</pre>
+
+<pre class="code-style">
+&gt;scan
+</pre>
+
+<pre class="text-style">
+OK
+</pre>
+
+<pre class="code-style">
+&gt;scan_results
+bssid / frequency / signal level / flags / ssid                                 
+00:00:00:64:49:e2       2427    219     [WPA-PSK-CCMP][WPA2-PSK-CCMP]   TP-1
+00:00:00:00:0f:90       2412    186     [WPA-PSK-TKIP]  TP-2                   
+00:00:00:3e:71:40       2462    185     [WPA-PSK-CCMP]  TP-3 
+
+</pre>
+
+<pre class="text-style">
+TP-1是我的ap
+</pre>
+
+<pre class="code-style">
+add_network
+set_network 0 ssid &quot;TP-1&quot;
+set_network 0 key_mgmt WPA-PSK
+set_network 0 psk '&quot;12345678&quot;'
+set_network 0 pairwise CCMP
+set_network 0 group CCMP
+set_network 0 proto WPA
+enable_network 0
+quit
+</pre>
+
+<pre class="text-style">
+然后配置下ip地址
+ping下，就可以了
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="sendevent"> sendevent </a></h1>
+<pre class="text-style">
+1 getevent查看dev节点
+# getevent                                                       
+add device 1: /dev/input/event2                                                 
+  name:     &quot;axp20-supplyer&quot;
+2 sendevent /dev/input/eventX XXX XXX XXX
+// 注意下面是getevent得到的事件，但是发送必须以10进制发送
+</pre>
+
+<pre class="code-style">
+root@android:/ # getevent /dev/input/event1
+0001 0074 00000001
+0000 0000 00000000
+0001 0074 00000000
+0000 0000 00000000
+</pre>
+
+<pre class="text-style">
+即
+</pre>
+
+<pre class="code-style">
+sendevent /dev/input/event1 1 116 1
+sendevent /dev/input/event1 0 0 0
+sendevent /dev/input/event1 1 116 0
+sendevent /dev/input/event1 0 0 0
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="LCD屏参"> LCD屏参 </a></h1>
 
@@ -194,6 +616,21 @@ common/drivers/amlogic/input/touchscreen/gsl1680.c
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="调试技巧"> 调试技巧 </a></h1>
+
+<pre class="code-style">
+    mount -o rw,remount yaffs2 /system
+</pre>
+
+<pre class="text-style">
+或
+</pre>
+
+<pre class="code-style">
+    mount -o remount rw /system
+</pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="i2c调试"> i2c调试 </a></h1>
 <pre class="text-style">
 //查看总的bus
@@ -218,363 +655,6 @@ echo 1 &gt; /sys/class/i2cX/debug
 # i2cset -f -y 1 0x1e 0x23 5
 ^4 读取 0x1e 设备上 寄存器0x20 上的值
 # i2cget -f -y 1 0x1e 0x20
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wifi调试"> wifi调试 </a></h1>
-
-<li>
-wireless-tools:
-</li>
-
-<pre class="text-style">
-1.打开无线网卡电源
-</pre>
-
-<pre class="code-style">
-iwconfig wlan0 txpower no
-</pre>
-
-<pre class="text-style">
-2.列出区域内的无线网络
-</pre>
-
-<pre class="code-style">
-iwconfig wlan0 scan
-</pre>
-
-<pre class="text-style">
-3.假设要连接到网络myhome（即essid为myhome的网络），那么输入命令
-</pre>
-
-<pre class="code-style">
-iwconfig wlan0 essid &quot;myhome&quot;
-</pre>
-
-<pre class="text-style">
-如果网络是加密的，密码是0123456789，那么就输入命令
-</pre>
-
-<pre class="code-style">
-iwconfig wlan0 essid &quot;myhome&quot; key 0123-4567-89
-</pre>
-
-<pre class="text-style">
-4 如果正常的话，输入
-</pre>
-
-<pre class="code-style">
-iwconfig wlan0
-</pre>
-
-<pre class="text-style">
-就可以看到连接正常的各项参数了。
-5.启动无线网卡
-</pre>
-
-<pre class="code-style">
-ifconfig wlan0 up (netcfg wlan0 up)
-</pre>
-
-<pre class="text-style">
-6.如果是用DHCP获取IP的，那么用dhclient或dhcpcd获取ip
-</pre>
-
-<pre class="code-style">
-dhclient wlan0 或dhcpcd wlan0
-</pre>
-
-<pre class="text-style">
-7.现在无线网卡应该可以正常使用了。
-</pre>
-
-<li>
-WPA Supplicant (WPA Supplicant工具包可以让您连接到那些使用WPA的AP)
-</li>
-
-<pre class="text-style">
-配置 wpa_supplicant.conf
-使用wireless tools已经可以连到为加密的ap。
-但我的ap采用的wpa-psk模式加密，用这个工具无法连上，
-所以还是要使用wpa_supplicant。
-
-开始用wpa_supplicant 用的是android socket，始终不行，后来
-改成unit standard socket。具体做法前面有。换成这个以后就可以用wpa_cli
-来配置。 我没搞明白怎么在用android socket的情况下使用wpa_cli。
-
-运行wpa_supplicant和wpa_cli
-</pre>
-
-<pre class="code-style">
-wpa_supplicant  -Dwext -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf -dd -B
-wpa_cli -i wlan0 -p /data/system/wpa_supplicant
-</pre>
-
-<pre class="text-style">
-然后scan
-</pre>
-
-<pre class="code-style">
-&gt;scan
-</pre>
-
-<pre class="text-style">
-OK
-</pre>
-
-<pre class="code-style">
-&gt;scan_results
-bssid / frequency / signal level / flags / ssid                                 
-00:00:00:64:49:e2       2427    219     [WPA-PSK-CCMP][WPA2-PSK-CCMP]   TP-1
-00:00:00:00:0f:90       2412    186     [WPA-PSK-TKIP]  TP-2                   
-00:00:00:3e:71:40       2462    185     [WPA-PSK-CCMP]  TP-3 
-
-</pre>
-
-<pre class="text-style">
-TP-1是我的ap
-</pre>
-
-<pre class="code-style">
-add_network
-set_network 0 ssid &quot;TP-1&quot;
-set_network 0 key_mgmt WPA-PSK
-set_network 0 psk '&quot;12345678&quot;'
-set_network 0 pairwise CCMP
-set_network 0 group CCMP
-set_network 0 proto WPA
-enable_network 0
-quit
-</pre>
-
-<pre class="text-style">
-然后配置下ip地址
-ping下，就可以了
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="alsa调试"> alsa调试 </a></h1>
-<pre class="text-style">
-1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
-//snd_card的定义位于头文件：include/sound/core.h
-// 入口 3885: module_init(snd_soc_init);
-3883     return platform_driver_register(&amp;soc_driver); 
-2106     .probe      = soc_probe, 
-2022     ret = snd_soc_register_card(card);
-3397     snd_soc_instantiate_cards();
-// 下面两行是重头戏?
-^1842         soc_bind_dai_link(card, i);
-^1874     ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-
-sound/soc/soc-core.c:1874:  
-    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-// snd_card的driver字段保存着芯片的ID字符串，
-// user空间的alsa-lib会使用到该字符串
-$ cat -l /proc/asound/cards
-0 [AMLWM8960      ]: SOC-Audio - AML-WM8960
-                       AML-WM8960
-$ cat /proc/asound/card0/pcm0c/info
-
-2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
-// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device
-// alsa-driver的已经提供了一些常用的部件的创建函数
-PCM     --    snd_pcm_new() 
-RAWMIDI --    snd_rawmidi_new() 
-CONTROL --    snd_ctl_create() 
-TIMER   --    snd_timer_new() 
-INFO    --    snd_card_proc_new() 
-JACK    --    snd_jack_new()
-$ ls -l /dev/snd
-// 用于声卡的控制，例如通道选择，混音，麦克风的控制等
-crw-rw---- system   audio    116,   0 1970-01-04 22:38 controlC0
-// 用于录音的pcm设备,capture
-crw-rw---- system   audio    116,  24 1970-01-04 22:38 pcmC0D0c
-// 用于播放的pcm设备,play
-crw-rw---- system   audio    116,  16 1970-01-04 22:38 pcmC0D0p
-// 定时器
-crw-rw---- system   audio    116,  33 1970-01-04 22:38 timer
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wm8960调试"> wm8960调试 </a></h1>
-
-<pre class="text-style">
-debugfs节点 - 串口修改寄存器值
-</pre>
-
-<pre class="code-style">
-mount -t debugfs none /sys/kernel/debug
-chmod 777 /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg
-ln -s /sys/kernel/debug/asoc/AML-WM8960/wm8960-codec.1-001a/codec_reg reg
-
-</pre>
-
-<pre class="text-style">
-1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
-
-
-//snd_card的定义位于头文件：include/sound/core.h 
-</pre>
-
-<pre class="code-style">
-    3885: module_init(snd_soc_init);
-
-    3883 return platform_driver_register(&amp;soc_driver);
-    2106 .probe = soc_probe,
-    2022 ret = snd_soc_register_card(card);
-    3397 snd_soc_instantiate_cards();
-
-    // 下面两行是重头戏?
-    1842 soc_bind_dai_link(card, i);
-    1874 ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-
-</pre>
-
-<pre class="text-style">
-sound/soc/soc-core.c:1874:
-</pre>
-
-<pre class="code-style">
-    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-
-    // snd_card的driver字段保存着芯片的ID字符串
-    // user空间的alsa-lib会使用到该字符串
-
-    $ cat -l /proc/asound/cards
-    0 [AMLWM8960 ]: SOC-Audio - AML-WM8960
-    AML-WM8960
-
-    $ cat /proc/asound/card0/pcm0c/info
-</pre>
-
-<pre class="text-style">
-    未完待续...
-
-    
-
-2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
-
-
-// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device // alsa-driver的已经提供了一些常用的部件的创建函数
-    PCM -- snd_pcm_new()
-    RAWMIDI -- snd_rawmidi_new()
-    CONTROL -- snd_ctl_create()
-    TIMER -- snd_timer_new()
-    INFO -- snd_card_proc_new()
-    JACK -- snd_jack_new()
-</pre>
-
-<pre class="code-style">
-    $ ls -l /dev/snd
-
-    // 用于声卡的控制，例如通道选择，混音，麦克风的控制等
-    crw-rw---- system audio 116, 0 1970-01-04 22:38 controlC0
-
-    // 用于录音的pcm设备,capture
-    crw-rw---- system audio 116, 24 1970-01-04 22:38 pcmC0D0c
-
-    // 用于播放的pcm设备,play
-    crw-rw---- system audio 116, 16 1970-01-04 22:38 pcmC0D0p
-
-    // 定时器
-    crw-rw---- system audio 116, 33 1970-01-04 22:38 timer
-
-    
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="红外遥控器修改"> 红外遥控器修改 </a></h1>
-
-<pre class="text-style">
-1. 使用遥控器看打印出来的 custom code ， 如custom code is 0x7986f708， 把后四位f708
-填入目标机的/etc/remote.conf的factory_code的前四位。好了，现在已经可以使用遥控器了。
-tips: 驱动对应 kernel/drivers/amlogic/input/irremote/remote_kbd.c
-
-
-2. 修改/etc/remote.conf对应的scancode， 如下图所示， 左边是机器码， 右边是功能码（对应kernel/include/linux/input.h的Keys and buttons）。
-</pre>
-
-<pre class="code-style">
-                ^0x55 97  //sam                                 
-                ^0x51 65
-</pre>
-
-<pre class="text-style">
-常用的功能码:
-KEY_BACK    158
-KEY_MENU    139
-KEY_HOME    102
-KEY_SEARCH  217
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="内核调试之道"> 内核调试之道 </a></h1>
-
-<li>
-内核转储
-</li>
-
-<pre class="code-style">
-    ulimit -c 1073741824
-</pre>
-
-<pre class="text-style">
-    设置转储文件保存路径
-</pre>
-
-<pre class="code-style">
-    vi /etc/sysctl.conf
-</pre>
-
-<pre class="code-style">
-kernel.core_pattern=/var/core/%t-%e-%p-%c.core
-kernel.core_uses_pid=0
-</pre>
-
-<pre class="code-style">
-    sysctl -p
-</pre>
-
-<pre class="text-style">
-    使用转储文件调试
-</pre>
-
-<pre class="code-style">
-    sudo apt-get install libc-dbg
-</pre>
-
-<pre class="code-style">
-    gdb -c core.XXXX ./a.out
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="sendevent"> sendevent </a></h1>
-<pre class="text-style">
-1 getevent查看dev节点
-# getevent                                                       
-add device 1: /dev/input/event2                                                 
-  name:     &quot;axp20-supplyer&quot;
-2 sendevent /dev/input/eventX XXX XXX XXX
-// 注意下面是getevent得到的事件，但是发送必须以10进制发送
-</pre>
-
-<pre class="code-style">
-root@android:/ # getevent /dev/input/event1
-0001 0074 00000001
-0000 0000 00000000
-0001 0074 00000000
-0000 0000 00000000
-</pre>
-
-<pre class="text-style">
-即
-</pre>
-
-<pre class="code-style">
-sendevent /dev/input/event1 1 116 1
-sendevent /dev/input/event1 0 0 0
-sendevent /dev/input/event1 1 116 0
-sendevent /dev/input/event1 0 0 0
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -705,126 +785,46 @@ video_register_device(ddata-&gt;vdev, VFL_TYPE_GRABBER, video_nr);
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="调试技巧"> 调试技巧 </a></h1>
-
-<pre class="code-style">
-    mount -o rw,remount yaffs2 /system
-</pre>
-
+<h1 align="center"><a name="alsa调试"> alsa调试 </a></h1>
 <pre class="text-style">
-或
-</pre>
+1 snd_card可以说是整个ALSA音频驱动最顶层的一个结构
+//snd_card的定义位于头文件：include/sound/core.h
+// 入口 3885: module_init(snd_soc_init);
+3883     return platform_driver_register(&amp;soc_driver); 
+2106     .probe      = soc_probe, 
+2022     ret = snd_soc_register_card(card);
+3397     snd_soc_instantiate_cards();
+// 下面两行是重头戏?
+^1842         soc_bind_dai_link(card, i);
+^1874     ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
 
-<pre class="code-style">
-    mount -o remount rw /system
-</pre>
+sound/soc/soc-core.c:1874:  
+    ret = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+// snd_card的driver字段保存着芯片的ID字符串，
+// user空间的alsa-lib会使用到该字符串
+$ cat -l /proc/asound/cards
+0 [AMLWM8960      ]: SOC-Audio - AML-WM8960
+                       AML-WM8960
+$ cat /proc/asound/card0/pcm0c/info
 
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wm8960移植"> wm8960移植 </a></h1>
-
-<pre class="text-style">
-
-涉及文件工程文件：
-
-1.device/amlogic/g18ref/g18ref.mk
-修改BOARD_AUDIO_CODEC := dummy为BOARD_AUDIO_CODEC := wm8960
-
-2.common/customer/configs/meson6_g18_jbmr1_defconfig
-#CONFIG_SND_AML_M6_RT5631=y
-CONFIG_SND_AML_M6_WM8960=y
-#CONFIG_SND_AML_M_DUMMY_CODEC=y
-
-3.hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
-此处视你自己的需求设置通路
-
-4.BSP文件common/customer/boards/board-m6g18.c
-</pre>
-
-<pre class="code-style">
-&lt; #if defined(CONFIG_SND_SOC_WM8960)
-&lt; ......   此处实现wm8960_padata  ......
-&lt; static struct wm8960_data wm8960_pdata = {
-&lt;     .hp_detect      = wm8960_hp_detect,
-&lt;     .device_init    = wm8960_device_init,
-&lt;     .device_uninit  = wm8960_device_deinit,
-&lt;     .capless        = 1,
-&lt;     .dres           = WM8960_DRES_600R,
-&lt;     
-&lt; };
-&lt; 
-&lt; static struct platform_device aml_wm8960_audio = {
-&lt;     .name           = &quot;aml_wm8960_audio&quot;,
-&lt;     .id             = 0,
-&lt;     .resource       = aml_m6_audio_resource,
-&lt;     .num_resources  = ARRAY_SIZE(aml_m6_audio_resource),
-&lt;     .dev = {
-&lt;         .platform_data = &amp;wm8960_pdata,
-&lt;     },
-&lt; };
-&lt; #endif
-
-static struct platform_device  *platform_devs[] = {
-&lt; #if defined(CONFIG_SND_SOC_WM8960)
-&lt;     &amp;aml_wm8960_audio,
-&lt; #endif
-
-</pre>
-
-<pre class="text-style">
-5.添加驱动文件
-common/sound/soc/aml/aml_m6_wm8960.c
-common/sound/soc/codecs/wm8960.*
-
-</pre>
-
-<strong>
-Tips：
-    common/sound/soc/aml/aml_m6_wm8960.c 中 
-</strong>
-
-<pre class="code-style">
-static struct snd_soc_dai_link wm8960_dai_link[] = {
-    ...
-    .codec_name = &quot;wm8960-codec.0-001a&quot;,
-    ...
-</pre>
-
-<strong>
-    命名规则 .0-001a 对应i2c总线和地址。
-否则出现如下错误：
-</strong>
-
-<pre class="code-style">
-root@android:/ # cat /proc/asound/cards
---- no soundcards ---
-</pre>
-
-<pre class="text-style">
-驱动修改指南:
-1.初始化
-</pre>
-
-<pre class="code-style">
-static int wm8960_probe(struct snd_soc_codec *codec)
-    ...
-    ret = wm8960_reset(codec);
-    ...
-    snd_soc_write(codec, WM8960_DACCTL1, 0x0);
-    
-</pre>
-
-<pre class="text-style">
-2.在录音播放时相关的寄存器设置
-1)软件设置
-hardware/amlogic/audio/wm8960_mixer_paths.xml:system/etc/mixer_paths.xml
-
-2)硬件设置
-</pre>
-
-<pre class="code-style">
-static int wm8960_mute(struct snd_soc_dai *dai, int mute)
-    snd_soc_write(codec, WM8960_LINPATH, 0x148);
-
+2 ASoC对应的设备节点, 创建声卡的功能部件（逻辑设备）
+// 每一种部件的创建最终会调用snd_device_new()来生成一个snd_device
+// alsa-driver的已经提供了一些常用的部件的创建函数
+PCM     --    snd_pcm_new() 
+RAWMIDI --    snd_rawmidi_new() 
+CONTROL --    snd_ctl_create() 
+TIMER   --    snd_timer_new() 
+INFO    --    snd_card_proc_new() 
+JACK    --    snd_jack_new()
+$ ls -l /dev/snd
+// 用于声卡的控制，例如通道选择，混音，麦克风的控制等
+crw-rw---- system   audio    116,   0 1970-01-04 22:38 controlC0
+// 用于录音的pcm设备,capture
+crw-rw---- system   audio    116,  24 1970-01-04 22:38 pcmC0D0c
+// 用于播放的pcm设备,play
+crw-rw---- system   audio    116,  16 1970-01-04 22:38 pcmC0D0p
+// 定时器
+crw-rw---- system   audio    116,  33 1970-01-04 22:38 timer
 </pre>
 
     </body>
