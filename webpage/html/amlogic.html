@@ -985,19 +985,18 @@ index 766aef3..c5af731 100755
 </li>
 
 <pre class="code-style">
+
 diff --git a/uboot/customer/board/configs/m6_mbx_v1.h b/uboot/customer/board/configs/m6_mbx_v1.h
-index 7408ab9..4521a28 100755
+index 7408ab9..ce56065 100755
 --- a/uboot/customer/board/configs/m6_mbx_v1.h
 +++ b/uboot/customer/board/configs/m6_mbx_v1.h
-@@ -186,8 +186,10 @@
+@@ -186,8 +186,8 @@
  &nbsp;&nbsp;&nbsp;&nbsp;&quot;preboot=run detect_storage;get_rebootmode; clear_rebootmode; echo reboot_mode=${reboot_mode}; if test ${reboot_mode} = usb_burning; then tiny_usbtool 20000; fi; run nand_key_burning; run upgrade_check; run updatekey_or_not; run irremote_update; run switch_bootmode\0&quot; \
  &nbsp;&nbsp;&nbsp;&nbsp;&quot;mbr_write=if test ${upgrade_step} != 2; then mmcinfo 1; mmc read 1 82000000 0 1; mw.l 820001fc 0 1; mmc write 1 82000000 0 1;fi;\0&quot; \
  &nbsp;&nbsp;&nbsp;&nbsp;&quot;upgrade_check=if itest ${upgrade_step} == 1; then defenv_without reboot_mode;setenv upgrade_step 2; save; fi\0&quot; \
 -&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;run recovery\0&quot; \
 -&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x50 ;then msleep 500;if saradc get_in_range 0x0 0x50; then run update; fi; fi\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;update_bak=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;run recovery\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; run recovery;fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; run recovery;fi;fi;tiny_usbtool 20000\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;run recovery;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;run recovery;fi;tiny_usbtool 20000\0&quot; \
++&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=echo 123;if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 234;run recovery;fi;tiny_usbtool 20000;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 345;run recovery;fi;\0&quot; \
 +&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x20 ;then msleep 500;if saradc get_in_range 0x0 0x20; then run update; fi; fi\0&quot; \
  &nbsp;&nbsp;&nbsp;&nbsp;&quot;irremote_update=if irkey 0x41beb14e 500000 ;then run update; fi\0&quot; \
  &nbsp;&nbsp;&nbsp;&nbsp;&quot;nand_key_burning=saradc open 4;if saradc get_in_range 0x164 0x1b4 ;then msleep 500;if saradc get_in_range 0x164 0x1b4; then tiny_usbtool 20000; fi; fi\0&quot; \
