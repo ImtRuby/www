@@ -8,9 +8,9 @@ default :
 	@set -e; \
 	cd $(FILES) && make special -r ROOT=$(ROOT) $@ ; \
 	sleep 1
-	@sudo rm /var/www/* -rf
-	@sudo cp webpage/* /var/www/ -r
-	@sudo cp webpage ~/Image/ -r
+	#@sudo rm /var/www/* -rf
+	#@sudo cp webpage/* /var/www/ -r
+	#@sudo cp webpage ~/Image/ -r
 
 #clean : 
 #	@set -e; \

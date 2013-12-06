@@ -14,12 +14,19 @@
 
 <body>
 </br></br></br></br>
-<div class="title"><a href="#android-gdb调试指南"> 0 : android-gdb调试指南 </a></div>
-<div class="title"><a href="#重挂载文件系统"> 1 : 重挂载文件系统 </a></div>
-<div class="title"><a href="#adb无法连接"> 2 : adb无法连接 </a></div>
-<div class="title"><a href="#导入已有apk"> 3 : 导入已有apk </a></div>
-<div class="title"><a href="#wifi_adb"> 4 : wifi_adb </a></div>
+<div class="title"><a href="#重挂载文件系统"> 0 : 重挂载文件系统 </a></div>
+<div class="title"><a href="#android-gdb调试指南"> 1 : android-gdb调试指南 </a></div>
+<div class="title"><a href="#wifi_adb"> 2 : wifi_adb </a></div>
+<div class="title"><a href="#adb无法连接"> 3 : adb无法连接 </a></div>
+<div class="title"><a href="#导入已有apk"> 4 : 导入已有apk </a></div>
 </br></br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h1>
+
+<pre class="code-style">
+mount -o rw,remount yaffs2 /system
+</pre>
+
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="android-gdb调试指南"> android-gdb调试指南 </a></h1>
 
@@ -77,10 +84,40 @@ target remote localhost:1234
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="重挂载文件系统"> 重挂载文件系统 </a></h1>
+<h1 align="center"><a name="wifi_adb"> wifi_adb </a></h1>
+
+<li>
+android设备设置
+</li>
 
 <pre class="code-style">
-mount -o rw,remount yaffs2 /system
+&nbsp;&nbsp;&nbsp;&nbsp;# setprop service.adb.tcp.port 5555 &amp;&amp; stop adbd &amp;&amp; start adbd
+</pre>
+
+<pre class="text-style">
+或
+&nbsp;&nbsp;&nbsp;&nbsp;在工程中修改 device/amlogic/g33refNew/system.prop 文件加入 
+</pre>
+
+<pre class="code-style">
+service.adb.tcp.port=5555
+</pre>
+
+<pre class="text-style">
+&nbsp;&nbsp;&nbsp;&nbsp;即可.
+</pre>
+
+<li>
+pc端连接
+</li>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;adb connect 10.86.138.2:5555
+&nbsp;&nbsp;&nbsp;&nbsp;adb shell
+</pre>
+
+<pre class="text-style">
+&nbsp;&nbsp;&nbsp;&nbsp;上面的ip是android设备wifi网卡分配到的ip，需保证pc和android设备在同AP
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -240,43 +277,6 @@ include $(call all-makefiles-under,$(LOCAL_PATH))
 
 <pre class="code-style">
 make
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="wifi_adb"> wifi_adb </a></h1>
-
-<li>
-android设备设置
-</li>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;# setprop service.adb.tcp.port 5555 &amp;&amp; stop adbd &amp;&amp; start adbd
-</pre>
-
-<pre class="text-style">
-或
-&nbsp;&nbsp;&nbsp;&nbsp;在工程中修改 device/amlogic/g33refNew/system.prop 文件加入 
-</pre>
-
-<pre class="code-style">
-service.adb.tcp.port=5555
-</pre>
-
-<pre class="text-style">
-&nbsp;&nbsp;&nbsp;&nbsp;即可.
-</pre>
-
-<li>
-pc端连接
-</li>
-
-<pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;adb connect 10.86.138.2:5555
-&nbsp;&nbsp;&nbsp;&nbsp;adb shell
-</pre>
-
-<pre class="text-style">
-&nbsp;&nbsp;&nbsp;&nbsp;上面的ip是android设备wifi网卡分配到的ip，需保证pc和android设备在同AP
 </pre>
 
     </body>
