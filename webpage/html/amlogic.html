@@ -37,8 +37,9 @@
 <div class="title"><a href="#WIFI-8188eu"> 20 : WIFI-8188eu </a></div>
 <div class="title"><a href="#TP-icn838x"> 21 : TP-icn838x </a></div>
 <div class="title"><a href="#编译烧录指令和bug"> 22 : 编译烧录指令和bug </a></div>
-<div class="title"><a href="#android编译环境搭建"> 23 : android编译环境搭建 </a></div>
-<div class="title"><a href="#m6_编译说明"> 24 : m6_编译说明 </a></div>
+<div class="title"><a href="#NFC"> 23 : NFC </a></div>
+<div class="title"><a href="#android编译环境搭建"> 24 : android编译环境搭建 </a></div>
+<div class="title"><a href="#m6_编译说明"> 25 : m6_编译说明 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h1>
@@ -1416,6 +1417,203 @@ reset
 usb start
 fatload usb 0:1 82000000 xxx_recovery
 bootm
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="NFC"> NFC </a></h1>
+
+<pre class="code-style">
+diff --git a/common/customer/boards/board-m6g18.c b/common/customer/boards/board-m6g18.c
+index b7d7203..93707f5 100755
+--- a/common/customer/boards/board-m6g18.c
++++ b/common/customer/boards/board-m6g18.c
+@@ -97,10 +97,6 @@
+ #if defined(CONFIG_SND_SOC_WM8960)//sharon add
+ #include &lt;sound/wm8960.h&gt;
+ #endif
+-#ifdef CONFIG_BCM2079X_I2C
+-#include &lt;linux/bcm2079x.h&gt;
+-#endif
+-
+ #ifdef CONFIG_AM_WIFI
+ #include &lt;plat/wifi_power.h&gt;
+ #endif
+@@ -565,36 +561,14 @@ static struct platform_device aml_sw_i2c_device_1 = {
+ };
+ #endif
+ //sharon add
+-#ifdef CONFIG_BCM2079X_I2C
+-static struct bcm2079x_platform_data bcm2079x_pdata = {&nbsp;&nbsp;&nbsp;&nbsp;
+-&nbsp;&nbsp;&nbsp;&nbsp;.irq_gpio = PAD_GPIOB_17,
+-&nbsp;&nbsp;&nbsp;&nbsp;.en_gpio = PAD_GPIOB_16,
+-&nbsp;&nbsp;&nbsp;&nbsp;.wake_gpio = -1,
+-};
+-static void bcm2079x_init(void)
+-{
+-&nbsp;&nbsp;&nbsp;&nbsp;aml_clr_reg32_mask(P_PAD_PULL_UP_REG4,1&lt;&lt;22| 1&lt;&lt;29|1&lt;&lt;21);
+-&nbsp;&nbsp;&nbsp;&nbsp;gpio_set_status(PAD_GPIOB_17,gpio_status_in);
+-&nbsp;&nbsp;&nbsp;&nbsp;gpio_set_status(PAD_GPIOB_16,gpio_status_out);
+-&nbsp;&nbsp;&nbsp;&nbsp;gpio_irq_set(PAD_GPIOB_17,GPIO_IRQ(6,GPIO_IRQ_RISING));
+-}
+-#endif
+-
+-static struct i2c_board_info __initdata aml_i2c_wm8960_nfc[] = {
+ #if defined (CONFIG_I2C_AML)
++static struct i2c_board_info __initdata aml_i2c_wm8960[] = {
+ &nbsp;&nbsp;&nbsp;&nbsp;{
+         I2C_BOARD_INFO(&quot;wm8960&quot;, 0x1A),
+         .platform_data = (void *)NULL,
+ &nbsp;&nbsp;&nbsp;&nbsp;},
+-#endif
+-#ifdef CONFIG_BCM2079X_I2C
+-    {
+-        I2C_BOARD_INFO(&quot;bcm2079x-i2c&quot;, 0x77),
+-        .irq = INT_GPIO_6,
+-        .platform_data = &amp;bcm2079x_pdata,
+-    },
+-#endif
+ };
++#endif
+ //sharon end
+ 
+ /***********************************************************************
+@@ -3173,10 +3147,8 @@ static __init void meson_init_machine(void)
+ /* End */        
+     platform_add_devices(platform_devs, ARRAY_SIZE(platform_devs));
+ &nbsp;&nbsp;&nbsp;&nbsp;//sharon add
+-&nbsp;&nbsp;&nbsp;&nbsp;bcm2079x_init();
+-&nbsp;&nbsp;&nbsp;&nbsp;i2c_register_board_info(0, aml_i2c_wm8960_nfc,
+-        ARRAY_SIZE(aml_i2c_wm8960_nfc));
+-
++&nbsp;&nbsp;&nbsp;&nbsp;i2c_register_board_info(0, aml_i2c_wm8960,
++        ARRAY_SIZE(aml_i2c_wm8960));
+ &nbsp;&nbsp;&nbsp;&nbsp;//sharon end
+ #ifdef CONFIG_AM_WIFI_USB
+     if(wifi_plat_data.usb_set_power)
+diff --git a/common/customer/configs/meson6_g18_jbmr1_defconfig b/common/customer/configs/meson6_g18_jbmr1_defconfig
+index c6e9349..fedf9de 100755
+--- a/common/customer/configs/meson6_g18_jbmr1_defconfig
++++ b/common/customer/configs/meson6_g18_jbmr1_defconfig
+@@ -318,7 +318,6 @@ CONFIG_SND_USB_AUDIO=y
+ # CONFIG_SND_AML_M_DUMMY_CODEC=y
+ CONFIG_SND_AML_M6_WM8960=y
+ CONFIG_SND_SOC_WM8960=y
+-CONFIG_BCM2079X_I2C=y
+ CONFIG_USB_HIDDEV=y
+ CONFIG_HID_LOGITECH=y
+ CONFIG_LOGITECH_FF=y
+diff --git a/common/drivers/amlogic/i2c/bcm2079x-i2c.c b/common/drivers/amlogic/i2c/bcm2079x-i2c.c
+index 91252dd..e686403 100755
+--- a/common/drivers/amlogic/i2c/bcm2079x-i2c.c
++++ b/common/drivers/amlogic/i2c/bcm2079x-i2c.c
+@@ -61,7 +61,7 @@ struct bcm2079x_dev {
+ &nbsp;&nbsp;&nbsp;&nbsp;struct mutex read_mutex;
+ &nbsp;&nbsp;&nbsp;&nbsp;struct i2c_client *client;
+ &nbsp;&nbsp;&nbsp;&nbsp;struct miscdevice bcm2079x_device;
+-&nbsp;&nbsp;&nbsp;&nbsp;int wake_gpio;
++&nbsp;&nbsp;&nbsp;&nbsp;unsigned int wake_gpio;
+ &nbsp;&nbsp;&nbsp;&nbsp;unsigned int en_gpio;
+ &nbsp;&nbsp;&nbsp;&nbsp;unsigned int irq_gpio;
+ &nbsp;&nbsp;&nbsp;&nbsp;bool irq_enabled;
+@@ -349,8 +349,7 @@ static long bcm2079x_dev_unlocked_ioctl(struct file *filp,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dev_info(&amp;bcm2079x_dev-&gt;client-&gt;dev,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;%s, BCMNFC_WAKE_CTL (%x, %lx):\n&quot;, __func__, cmd,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg);
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (bcm2079x_dev-&gt;wake_gpio != -1)
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpio_out(bcm2079x_dev-&gt;wake_gpio, arg);
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpio_out(bcm2079x_dev-&gt;wake_gpio, arg);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+ &nbsp;&nbsp;&nbsp;&nbsp;default:
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dev_err(&amp;bcm2079x_dev-&gt;client-&gt;dev,
+@@ -397,15 +396,12 @@ static int bcm2079x_probe(struct i2c_client *client,
+ &nbsp;&nbsp;&nbsp;&nbsp;ret = gpio_request(platform_data-&gt;en_gpio, &quot;nfc_ven&quot;);
+ &nbsp;&nbsp;&nbsp;&nbsp;if (ret)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto err_en;
+-&nbsp;&nbsp;&nbsp;&nbsp;if (platform_data-&gt;wake_gpio != -1)
+-&nbsp;&nbsp;&nbsp;&nbsp;{
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ret = gpio_request(platform_data-&gt;wake_gpio, &quot;nfc_firm&quot;);
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (ret)
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto err_firm;
+-&nbsp;&nbsp;&nbsp;&nbsp;}
++&nbsp;&nbsp;&nbsp;&nbsp;ret = gpio_request(platform_data-&gt;wake_gpio, &quot;nfc_firm&quot;);
++&nbsp;&nbsp;&nbsp;&nbsp;if (ret)
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goto err_firm;
++
+ &nbsp;&nbsp;&nbsp;&nbsp;gpio_out(platform_data-&gt;en_gpio, 0);
+-&nbsp;&nbsp;&nbsp;&nbsp;if (platform_data-&gt;wake_gpio != -1)
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpio_out(platform_data-&gt;wake_gpio, 0);
++&nbsp;&nbsp;&nbsp;&nbsp;gpio_out(platform_data-&gt;wake_gpio, 0);
+ 
+ &nbsp;&nbsp;&nbsp;&nbsp;bcm2079x_dev = kzalloc(sizeof(*bcm2079x_dev), GFP_KERNEL);
+ &nbsp;&nbsp;&nbsp;&nbsp;if (bcm2079x_dev == NULL) {
+@@ -461,8 +457,7 @@ err_misc_register:
+ &nbsp;&nbsp;&nbsp;&nbsp;mutex_destroy(&amp;bcm2079x_dev-&gt;read_mutex);
+ &nbsp;&nbsp;&nbsp;&nbsp;kfree(bcm2079x_dev);
+ err_exit:
+-&nbsp;&nbsp;&nbsp;&nbsp;if (platform_data-&gt;wake_gpio != -1)
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpio_free(platform_data-&gt;wake_gpio);
++&nbsp;&nbsp;&nbsp;&nbsp;gpio_free(platform_data-&gt;wake_gpio);
+ err_firm:
+ &nbsp;&nbsp;&nbsp;&nbsp;gpio_free(platform_data-&gt;en_gpio);
+ err_en:
+@@ -481,8 +476,7 @@ static int bcm2079x_remove(struct i2c_client *client)
+ 
+ &nbsp;&nbsp;&nbsp;&nbsp;gpio_free(bcm2079x_dev-&gt;irq_gpio);
+ &nbsp;&nbsp;&nbsp;&nbsp;gpio_free(bcm2079x_dev-&gt;en_gpio);
+-&nbsp;&nbsp;&nbsp;&nbsp;if (bcm2079x_dev-&gt;wake_gpio != -1)
+-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpio_free(bcm2079x_dev-&gt;wake_gpio);
++&nbsp;&nbsp;&nbsp;&nbsp;gpio_free(bcm2079x_dev-&gt;wake_gpio);
+ 
+ &nbsp;&nbsp;&nbsp;&nbsp;kfree(bcm2079x_dev);
+ 
+diff --git a/device/amlogic/g18ref/g18ref.mk b/device/amlogic/g18ref/g18ref.mk
+index c1d14bd..b5fd979 100755
+--- a/device/amlogic/g18ref/g18ref.mk
++++ b/device/amlogic/g18ref/g18ref.mk
+@@ -237,26 +237,6 @@ PRODUCT_COPY_FILES += \
+ &nbsp;&nbsp;&nbsp;&nbsp;$(LOCAL_PATH)/xiaocong/xcuts.idc:/system/usr/idc/xcuts.idc \
+ &nbsp;&nbsp;&nbsp;&nbsp;$(LOCAL_PATH)/xiaocong/sensors.amlogic.so:/system/lib/hw/sensors.amlogic.so
+ 
+-# NFC packages by sharon
+-PRODUCT_PACKAGES += \
+-    libnfc-nci \
+-    libnfc_nci_jni \
+-    nfc_nci.g18ref \
+-    NfcNci \
+-    Tag \
+-    com.android.nfc_extras \
+-#NFCEE access control
+-ifeq ($(TARGET_BUILD_VARIANT),user)
+-    NFCEE_ACCESS_PATH := device/amlogic/common/nfc/nfcee_access.xml
+-else
+-    NFCEE_ACCESS_PATH := device/amlogic/common/nfc/nfcee_access_debug.xml
+-endif
+-PRODUCT_COPY_FILES += \
+-    $(NFCEE_ACCESS_PATH):system/etc/nfcee_access.xml \
+-    frameworks/native/data/etc/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
+-    frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
+-    device/amlogic/common/nfc/libnfc-brcm.conf:system/etc/libnfc-brcm.conf \
+-    device/amlogic/common/nfc/BCM20791B4_002.005.010.0005.0000_Generic_I2C_NCD_Signed_configdata.ncd:system/vendor/firmware/bcm2079x_firmware.ncd
+ 
+ # inherit from the non-open-source side, if present
+ $(call inherit-product-if-exists, vendor/amlogic/g18ref/device-vendor.mk)
+diff --git a/device/amlogic/g18ref/init.amlogic.board.rc b/device/amlogic/g18ref/init.amlogic.board.rc
+index b112d68..371ece9 100755
+--- a/device/amlogic/g18ref/init.amlogic.board.rc
++++ b/device/amlogic/g18ref/init.amlogic.board.rc
+@@ -10,11 +10,7 @@ on fs
+     mount ext4 /dev/block/data /data noatime nodiratime norelatime nosuid nodev noauto_da_alloc
+     mount ext4 /dev/block/cache /cache noatime nodiratime norelatime nosuid nodev noauto_da_alloc
+     write /sys/class/aml_keys/aml_keys/version auto3
+-# NFC by sharon
+-&nbsp;&nbsp;&nbsp;&nbsp;  chmod 0666 /dev/bcm2079x
+-    chown nfc nfc /dev/bcm2079x
+-    mkdir /data/nfc 770 nfc nfc
+-    mkdir /data/nfc/param 770 nfc nfc
++
+ on post-fs-data
+ 
+ on boot
 </pre>
 
 </br></br></br></br></br></br></br></br>
