@@ -30,9 +30,9 @@
 <div class="title"><a href="#上层UI-buglist"> 13 : 上层UI-buglist </a></div>
 <div class="title"><a href="#Gsensor"> 14 : Gsensor </a></div>
 <div class="title"><a href="#AmlMiracast"> 15 : AmlMiracast </a></div>
-<div class="title"><a href="#patch"> 16 : patch </a></div>
-<div class="title"><a href="#Camera-SP0A19"> 17 : Camera-SP0A19 </a></div>
-<div class="title"><a href="#Codec硬件"> 18 : Codec硬件 </a></div>
+<div class="title"><a href="#Camera-SP0A19"> 16 : Camera-SP0A19 </a></div>
+<div class="title"><a href="#Codec硬件"> 17 : Codec硬件 </a></div>
+<div class="title"><a href="#燒錄patch"> 18 : 燒錄patch </a></div>
 <div class="title"><a href="#Camera-SP0838"> 19 : Camera-SP0838 </a></div>
 <div class="title"><a href="#WIFI-8188eu"> 20 : WIFI-8188eu </a></div>
 <div class="title"><a href="#TP-icn838x"> 21 : TP-icn838x </a></div>
@@ -125,20 +125,37 @@ dev_mount sdcard /storage/external_storage auto /devices/platform/AMLOGIC_CARD/c
 
 <pre class="text-style">
 1 uboot logo
-1) 修改logo
+1) 修改第一屏logo
 </pre>
 
 <pre class="code-style">
-&nbsp;&nbsp;&nbsp;&nbsp;device/amlogic/g33refNew/res_pack/*
+&nbsp;&nbsp;&nbsp;&nbsp;device/amlogic/g18ref/BoardConfig.mk
+</pre>
+
+<pre class="code-style">
+TARGET_AMLOGIC_LOGO := $(PRODUCT_OUT)/res-package.img
+TARGET_AMLOGIC_RES_PACKAGE := device/amlogic/g18ref/res_pack
+#TARGET_AMLOGIC_AML_LOGO := device/amlogic/g18ref/aml_logo.bmp
 </pre>
 
 <pre class="text-style">
-2) 删除out/target/product/g33refNew/res-package.img 重新编译
+&nbsp;&nbsp;&nbsp;&nbsp;device/amlogic/g18ref/res_pack/bootup即第一屏,要注意是RGB565还是RGB888
 </pre>
 
 <pre class="code-style">
 &nbsp;&nbsp;&nbsp;&nbsp;rm out/target/product/g33refNew/res-package.img
-&nbsp;&nbsp;&nbsp;&nbsp;make otapackage -j4
+</pre>
+
+<pre class="text-style">
+2) 修改第二屏logo
+</pre>
+
+<pre class="code-style">
+    $(LOCAL_PATH)/initlogo-robot-1280x720.rle:root/initlogo.720p.rle
+</pre>
+
+<pre class="text-style">
+&nbsp;&nbsp;&nbsp;&nbsp;制作rle图片,自己找帖子
 
 </pre>
 
@@ -934,77 +951,6 @@ ro.sf.gsensorposition=0
 </pre>
 
 </br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="patch"> patch </a></h1>
-
-<li>
-usb烧录patch
-</li>
-
-<pre class="code-style">
-diff --git a/common/customer/configs/meson6_g18_usb_burning_defconfig b/common/customer/configs/meson6_g18_usb_burning_defconfig
-index 766aef3..c5af731 100755
---- a/common/customer/configs/meson6_g18_usb_burning_defconfig
-+++ b/common/customer/configs/meson6_g18_usb_burning_defconfig
-@@ -34,13 +34,13 @@ CONFIG_MESON_CUSTOM_BOARD_SUPPORT=y
- CONFIG_MACH_MESON6_G18=y
- CONFIG_MISC_DEVICES=y
- CONFIG_SUPPORT_USB_BURNING=y
--CONFIG_MESON_INPUT_TOUCHSCREEN=y
-+#CONFIG_MESON_INPUT_TOUCHSCREEN=y
- CONFIG_ARM_ERRATA_751472=y
- CONFIG_ARM_ERRATA_754322=y
- CONFIG_ARM_ERRATA_764369=y
- CONFIG_NO_HZ=y
- CONFIG_HIGH_RES_TIMERS=y
--CONFIG_SMP=y
-+# CONFIG_SMP=y
- CONFIG_NR_CPUS=2
- CONFIG_PREEMPT=y
- CONFIG_AEABI=y
-@@ -167,7 +167,7 @@ CONFIG_SARADC_AM=y
- CONFIG_AM_REMOTE=y
- CONFIG_ADC_KEYPADS_AM=y
- CONFIG_KEY_INPUT_CUSTOM_AM=y
--CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
-+#CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
- CONFIG_MESON_CS_DCDC_REGULATOR=y
- CONFIG_EFUSE=y
- CONFIG_AM_SMARTCARD=y
-@@ -284,6 +284,8 @@ CONFIG_BACKLIGHT_LCD_SUPPORT=y
- CONFIG_SND_USB_AUDIO=y
- CONFIG_SND_AML_M6_RT5631=y
- CONFIG_SND_AML_M_DUMMY_CODEC=y
-+CONFIG_YAFFS_DISABLE_BACKGROUND=y
-+CONFIG_UBIFS_FS=y
- CONFIG_USB_DEVICEFS=y
- CONFIG_USB_ACM=y
- CONFIG_USB_STORAGE=y
-</pre>
-
-<li>
-按键进usb烧录模式
-</li>
-
-<pre class="code-style">
-
-diff --git a/uboot/customer/board/configs/m6_mbx_v1.h b/uboot/customer/board/configs/m6_mbx_v1.h
-index 7408ab9..ce56065 100755
---- a/uboot/customer/board/configs/m6_mbx_v1.h
-+++ b/uboot/customer/board/configs/m6_mbx_v1.h
-@@ -186,8 +186,8 @@
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;preboot=run detect_storage;get_rebootmode; clear_rebootmode; echo reboot_mode=${reboot_mode}; if test ${reboot_mode} = usb_burning; then tiny_usbtool 20000; fi; run nand_key_burning; run upgrade_check; run updatekey_or_not; run irremote_update; run switch_bootmode\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;mbr_write=if test ${upgrade_step} != 2; then mmcinfo 1; mmc read 1 82000000 0 1; mw.l 820001fc 0 1; mmc write 1 82000000 0 1;fi;\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;upgrade_check=if itest ${upgrade_step} == 1; then defenv_without reboot_mode;setenv upgrade_step 2; save; fi\0&quot; \
--&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;run recovery\0&quot; \
--&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x50 ;then msleep 500;if saradc get_in_range 0x0 0x50; then run update; fi; fi\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=echo 123;if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 234;run recovery;fi;tiny_usbtool 20000;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 345;run recovery;fi;\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x20 ;then msleep 500;if saradc get_in_range 0x0 0x20; then run update; fi; fi\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;irremote_update=if irkey 0x41beb14e 500000 ;then run update; fi\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;nand_key_burning=saradc open 4;if saradc get_in_range 0x164 0x1b4 ;then msleep 500;if saradc get_in_range 0x164 0x1b4; then tiny_usbtool 20000; fi; fi\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0&quot; \
-</pre>
-
-</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="Camera-SP0A19"> Camera-SP0A19 </a></h1>
 
 <pre class="text-style">
@@ -1092,6 +1038,77 @@ I2S有3个主要信号
 tips:
     DAI:    Digital Audio Interface (DAI) API.
     DAPM:   ALSA SoC Dynamic Audio Power Management.
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="燒錄patch"> 燒錄patch </a></h1>
+
+<li>
+usb烧录patch
+</li>
+
+<pre class="code-style">
+diff --git a/common/customer/configs/meson6_g18_usb_burning_defconfig b/common/customer/configs/meson6_g18_usb_burning_defconfig
+index 766aef3..c5af731 100755
+--- a/common/customer/configs/meson6_g18_usb_burning_defconfig
++++ b/common/customer/configs/meson6_g18_usb_burning_defconfig
+@@ -34,13 +34,13 @@ CONFIG_MESON_CUSTOM_BOARD_SUPPORT=y
+ CONFIG_MACH_MESON6_G18=y
+ CONFIG_MISC_DEVICES=y
+ CONFIG_SUPPORT_USB_BURNING=y
+-CONFIG_MESON_INPUT_TOUCHSCREEN=y
++#CONFIG_MESON_INPUT_TOUCHSCREEN=y
+ CONFIG_ARM_ERRATA_751472=y
+ CONFIG_ARM_ERRATA_754322=y
+ CONFIG_ARM_ERRATA_764369=y
+ CONFIG_NO_HZ=y
+ CONFIG_HIGH_RES_TIMERS=y
+-CONFIG_SMP=y
++# CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_PREEMPT=y
+ CONFIG_AEABI=y
+@@ -167,7 +167,7 @@ CONFIG_SARADC_AM=y
+ CONFIG_AM_REMOTE=y
+ CONFIG_ADC_KEYPADS_AM=y
+ CONFIG_KEY_INPUT_CUSTOM_AM=y
+-CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
++#CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
+ CONFIG_MESON_CS_DCDC_REGULATOR=y
+ CONFIG_EFUSE=y
+ CONFIG_AM_SMARTCARD=y
+@@ -284,6 +284,8 @@ CONFIG_BACKLIGHT_LCD_SUPPORT=y
+ CONFIG_SND_USB_AUDIO=y
+ CONFIG_SND_AML_M6_RT5631=y
+ CONFIG_SND_AML_M_DUMMY_CODEC=y
++CONFIG_YAFFS_DISABLE_BACKGROUND=y
++CONFIG_UBIFS_FS=y
+ CONFIG_USB_DEVICEFS=y
+ CONFIG_USB_ACM=y
+ CONFIG_USB_STORAGE=y
+</pre>
+
+<li>
+按键进usb烧录模式
+</li>
+
+<pre class="code-style">
+
+diff --git a/uboot/customer/board/configs/m6_mbx_v1.h b/uboot/customer/board/configs/m6_mbx_v1.h
+index 7408ab9..ce56065 100755
+--- a/uboot/customer/board/configs/m6_mbx_v1.h
++++ b/uboot/customer/board/configs/m6_mbx_v1.h
+@@ -186,8 +186,8 @@
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;preboot=run detect_storage;get_rebootmode; clear_rebootmode; echo reboot_mode=${reboot_mode}; if test ${reboot_mode} = usb_burning; then tiny_usbtool 20000; fi; run nand_key_burning; run upgrade_check; run updatekey_or_not; run irremote_update; run switch_bootmode\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;mbr_write=if test ${upgrade_step} != 2; then mmcinfo 1; mmc read 1 82000000 0 1; mw.l 820001fc 0 1; mmc write 1 82000000 0 1;fi;\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;upgrade_check=if itest ${upgrade_step} == 1; then defenv_without reboot_mode;setenv upgrade_step 2; save; fi\0&quot; \
+-&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;run recovery\0&quot; \
+-&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x50 ;then msleep 500;if saradc get_in_range 0x0 0x50; then run update; fi; fi\0&quot; \
++&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=echo 123;if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 234;run recovery;fi;tiny_usbtool 20000;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 345;run recovery;fi;\0&quot; \
++&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x20 ;then msleep 500;if saradc get_in_range 0x0 0x20; then run update; fi; fi\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;irremote_update=if irkey 0x41beb14e 500000 ;then run update; fi\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;nand_key_burning=saradc open 4;if saradc get_in_range 0x164 0x1b4 ;then msleep 500;if saradc get_in_range 0x164 0x1b4; then tiny_usbtool 20000; fi; fi\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0&quot; \
 </pre>
 
 </br></br></br></br></br></br></br></br>
