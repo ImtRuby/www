@@ -1047,6 +1047,10 @@ tips:
 usb烧录patch
 </li>
 
+<strong>
+&nbsp;&nbsp;&nbsp;&nbsp;usb烧录在79%无法找到盘符问题，有可能与编译环境有关系。标准做法是删除out目录下的recovery.img、ramdisk.img重新编译，然后重新生成ota包即可。
+</strong>
+
 <pre class="code-style">
 diff --git a/common/customer/configs/meson6_g18_usb_burning_defconfig b/common/customer/configs/meson6_g18_usb_burning_defconfig
 index 766aef3..c5af731 100755
@@ -1091,6 +1095,13 @@ index 766aef3..c5af731 100755
 <li>
 按键进usb烧录模式
 </li>
+
+<strong>
+&nbsp;&nbsp;&nbsp;&nbsp;可以在uboot命令行模式下setenv cmd_name &quot;XXXXX&quot;，语法需要注意的是
+&nbsp;&nbsp;&nbsp;&nbsp;1、if XX; then XX; fi;必须是配对出现。
+&nbsp;&nbsp;&nbsp;&nbsp;2、run后面接cmd_name。
+&nbsp;&nbsp;&nbsp;&nbsp;3、u盘升级的检测存在检测错误的bug，也就是即使没插U盘也会进入U盘升级分支。
+</strong>
 
 <pre class="code-style">
 
