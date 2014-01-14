@@ -29,17 +29,18 @@
 <div class="title"><a href="#常用源码位置项目文件"> 12 : 常用源码位置项目文件 </a></div>
 <div class="title"><a href="#上层UI-buglist"> 13 : 上层UI-buglist </a></div>
 <div class="title"><a href="#Gsensor"> 14 : Gsensor </a></div>
-<div class="title"><a href="#AmlMiracast"> 15 : AmlMiracast </a></div>
-<div class="title"><a href="#Camera-SP0A19"> 16 : Camera-SP0A19 </a></div>
-<div class="title"><a href="#Codec硬件"> 17 : Codec硬件 </a></div>
-<div class="title"><a href="#燒錄patch"> 18 : 燒錄patch </a></div>
-<div class="title"><a href="#Camera-SP0838"> 19 : Camera-SP0838 </a></div>
-<div class="title"><a href="#WIFI-8188eu"> 20 : WIFI-8188eu </a></div>
-<div class="title"><a href="#TP-icn838x"> 21 : TP-icn838x </a></div>
-<div class="title"><a href="#编译烧录指令和bug"> 22 : 编译烧录指令和bug </a></div>
-<div class="title"><a href="#NFC"> 23 : NFC </a></div>
-<div class="title"><a href="#android编译环境搭建"> 24 : android编译环境搭建 </a></div>
-<div class="title"><a href="#m6_编译说明"> 25 : m6_编译说明 </a></div>
+<div class="title"><a href="#ADC键值修改"> 15 : ADC键值修改 </a></div>
+<div class="title"><a href="#AmlMiracast"> 16 : AmlMiracast </a></div>
+<div class="title"><a href="#ADC按键升级"> 17 : ADC按键升级 </a></div>
+<div class="title"><a href="#Camera-SP0A19"> 18 : Camera-SP0A19 </a></div>
+<div class="title"><a href="#Codec硬件"> 19 : Codec硬件 </a></div>
+<div class="title"><a href="#Camera-SP0838"> 20 : Camera-SP0838 </a></div>
+<div class="title"><a href="#WIFI-8188eu"> 21 : WIFI-8188eu </a></div>
+<div class="title"><a href="#TP-icn838x"> 22 : TP-icn838x </a></div>
+<div class="title"><a href="#编译烧录指令和bug"> 23 : 编译烧录指令和bug </a></div>
+<div class="title"><a href="#NFC"> 24 : NFC </a></div>
+<div class="title"><a href="#android编译环境搭建"> 25 : android编译环境搭建 </a></div>
+<div class="title"><a href="#m6_编译说明"> 26 : m6_编译说明 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="VDD_EE电压修改"> VDD_EE电压修改 </a></h1>
@@ -936,6 +937,25 @@ ro.sf.gsensorposition=0
 </pre>
 
 </br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="ADC键值修改"> ADC键值修改 </a></h1>
+
+<li>
+common/customer/boards/board-m6g18.c
+</li>
+
+<pre class="code-style">
+static struct adc_key adc_kp_key[] = {  // include/linux/input.h
+    {KEY_REPLY,    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;ok&quot;, &nbsp;&nbsp;&nbsp;&nbsp;CHAN_4, 646, 40},&nbsp;&nbsp;&nbsp;&nbsp;// 1.55v
+    {KEY_HOME,      &nbsp;&nbsp;&nbsp;&nbsp;&quot;home&quot;, CHAN_4, 520, 40},&nbsp;&nbsp;&nbsp;&nbsp;// 1.25v
+    {KEY_BACK,    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;back&quot;, &nbsp;&nbsp;&nbsp;&nbsp;CHAN_4, 396, 40},&nbsp;&nbsp;&nbsp;&nbsp;// 0.95v
+    {KEY_VOLUMEUP,      &quot;vol+&quot;, CHAN_4, 275, 40},&nbsp;&nbsp;&nbsp;&nbsp;// 0.65V  2.5V-&gt;1024 (1065)
+    {KEY_VOLUMEDOWN,    &quot;vol-&quot;, CHAN_4, 150, 40},    // 0.35V
+    {KEY_MENU,      &nbsp;&nbsp;&nbsp;&nbsp;&quot;menu&quot;, CHAN_4, 0, 40},    // 0v    
+};
+
+</pre>
+
+</br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="AmlMiracast"> AmlMiracast </a></h1>
 
 <pre class="text-style">
@@ -948,6 +968,88 @@ ro.sf.gsensorposition=0
 
 <pre class="code-style">
 &lt;bool name=&quot;def_wifi_display_on&quot;&gt;true&lt;/bool&gt;
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="ADC按键升级"> ADC按键升级 </a></h1>
+
+<li>
+usb烧录patch
+</li>
+
+<strong>
+&nbsp;&nbsp;&nbsp;&nbsp;usb烧录在79%无法找到盘符问题，有可能与编译环境有关系。标准做法是删除out目录下的recovery.img、ramdisk.img重新编译，然后重新生成ota包即可。
+</strong>
+
+<pre class="code-style">
+diff --git a/common/customer/configs/meson6_g18_usb_burning_defconfig b/common/customer/configs/meson6_g18_usb_burning_defconfig
+index 766aef3..c5af731 100755
+--- a/common/customer/configs/meson6_g18_usb_burning_defconfig
++++ b/common/customer/configs/meson6_g18_usb_burning_defconfig
+@@ -34,13 +34,13 @@ CONFIG_MESON_CUSTOM_BOARD_SUPPORT=y
+ CONFIG_MACH_MESON6_G18=y
+ CONFIG_MISC_DEVICES=y
+ CONFIG_SUPPORT_USB_BURNING=y
+-CONFIG_MESON_INPUT_TOUCHSCREEN=y
++#CONFIG_MESON_INPUT_TOUCHSCREEN=y
+ CONFIG_ARM_ERRATA_751472=y
+ CONFIG_ARM_ERRATA_754322=y
+ CONFIG_ARM_ERRATA_764369=y
+ CONFIG_NO_HZ=y
+ CONFIG_HIGH_RES_TIMERS=y
+-CONFIG_SMP=y
++# CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_PREEMPT=y
+ CONFIG_AEABI=y
+@@ -167,7 +167,7 @@ CONFIG_SARADC_AM=y
+ CONFIG_AM_REMOTE=y
+ CONFIG_ADC_KEYPADS_AM=y
+ CONFIG_KEY_INPUT_CUSTOM_AM=y
+-CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
++#CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
+ CONFIG_MESON_CS_DCDC_REGULATOR=y
+ CONFIG_EFUSE=y
+ CONFIG_AM_SMARTCARD=y
+@@ -284,6 +284,8 @@ CONFIG_BACKLIGHT_LCD_SUPPORT=y
+ CONFIG_SND_USB_AUDIO=y
+ CONFIG_SND_AML_M6_RT5631=y
+ CONFIG_SND_AML_M_DUMMY_CODEC=y
++CONFIG_YAFFS_DISABLE_BACKGROUND=y
++CONFIG_UBIFS_FS=y
+ CONFIG_USB_DEVICEFS=y
+ CONFIG_USB_ACM=y
+ CONFIG_USB_STORAGE=y
+</pre>
+
+<li>
+按键进usb烧录模式
+</li>
+
+<strong>
+&nbsp;&nbsp;&nbsp;&nbsp;可以在uboot命令行模式下setenv cmd_name &quot;XXXXX&quot;，语法需要注意的是
+&nbsp;&nbsp;&nbsp;&nbsp;1、if XX; then XX; fi;必须是配对出现。
+&nbsp;&nbsp;&nbsp;&nbsp;2、run后面接cmd_name。
+&nbsp;&nbsp;&nbsp;&nbsp;3、u盘升级的检测存在检测错误的bug，也就是即使没插U盘也会进入U盘升级分支。
+</strong>
+
+<pre class="code-style">
+
+diff --git a/uboot/customer/board/configs/m6_mbx_v1.h b/uboot/customer/board/configs/m6_mbx_v1.h
+index 7408ab9..ce56065 100755
+--- a/uboot/customer/board/configs/m6_mbx_v1.h
++++ b/uboot/customer/board/configs/m6_mbx_v1.h
+@@ -186,8 +186,8 @@
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;preboot=run detect_storage;get_rebootmode; clear_rebootmode; echo reboot_mode=${reboot_mode}; if test ${reboot_mode} = usb_burning; then tiny_usbtool 20000; fi; run nand_key_burning; run upgrade_check; run updatekey_or_not; run irremote_update; run switch_bootmode\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;mbr_write=if test ${upgrade_step} != 2; then mmcinfo 1; mmc read 1 82000000 0 1; mw.l 820001fc 0 1; mmc write 1 82000000 0 1;fi;\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;upgrade_check=if itest ${upgrade_step} == 1; then defenv_without reboot_mode;setenv upgrade_step 2; save; fi\0&quot; \
+-&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;run recovery\0&quot; \
+-&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x50 ;then msleep 500;if saradc get_in_range 0x0 0x50; then run update; fi; fi\0&quot; \
++&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=echo 123;if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 234;run recovery;fi;tiny_usbtool 20000;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 345;run recovery;fi;\0&quot; \
++&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x20 ;then msleep 500;if saradc get_in_range 0x0 0x20; then run update; fi; fi\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;irremote_update=if irkey 0x41beb14e 500000 ;then run update; fi\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;nand_key_burning=saradc open 4;if saradc get_in_range 0x164 0x1b4 ;then msleep 500;if saradc get_in_range 0x164 0x1b4; then tiny_usbtool 20000; fi; fi\0&quot; \
+ &nbsp;&nbsp;&nbsp;&nbsp;&quot;cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0&quot; \
 </pre>
 
 </br></br></br></br></br></br></br></br>
@@ -1038,88 +1140,6 @@ I2S有3个主要信号
 tips:
     DAI:    Digital Audio Interface (DAI) API.
     DAPM:   ALSA SoC Dynamic Audio Power Management.
-</pre>
-
-</br></br></br></br></br></br></br></br>
-<h1 align="center"><a name="燒錄patch"> 燒錄patch </a></h1>
-
-<li>
-usb烧录patch
-</li>
-
-<strong>
-&nbsp;&nbsp;&nbsp;&nbsp;usb烧录在79%无法找到盘符问题，有可能与编译环境有关系。标准做法是删除out目录下的recovery.img、ramdisk.img重新编译，然后重新生成ota包即可。
-</strong>
-
-<pre class="code-style">
-diff --git a/common/customer/configs/meson6_g18_usb_burning_defconfig b/common/customer/configs/meson6_g18_usb_burning_defconfig
-index 766aef3..c5af731 100755
---- a/common/customer/configs/meson6_g18_usb_burning_defconfig
-+++ b/common/customer/configs/meson6_g18_usb_burning_defconfig
-@@ -34,13 +34,13 @@ CONFIG_MESON_CUSTOM_BOARD_SUPPORT=y
- CONFIG_MACH_MESON6_G18=y
- CONFIG_MISC_DEVICES=y
- CONFIG_SUPPORT_USB_BURNING=y
--CONFIG_MESON_INPUT_TOUCHSCREEN=y
-+#CONFIG_MESON_INPUT_TOUCHSCREEN=y
- CONFIG_ARM_ERRATA_751472=y
- CONFIG_ARM_ERRATA_754322=y
- CONFIG_ARM_ERRATA_764369=y
- CONFIG_NO_HZ=y
- CONFIG_HIGH_RES_TIMERS=y
--CONFIG_SMP=y
-+# CONFIG_SMP=y
- CONFIG_NR_CPUS=2
- CONFIG_PREEMPT=y
- CONFIG_AEABI=y
-@@ -167,7 +167,7 @@ CONFIG_SARADC_AM=y
- CONFIG_AM_REMOTE=y
- CONFIG_ADC_KEYPADS_AM=y
- CONFIG_KEY_INPUT_CUSTOM_AM=y
--CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
-+#CONFIG_GOODIX_GT82X_CAPACITIVE_TOUCHSCREEN=y
- CONFIG_MESON_CS_DCDC_REGULATOR=y
- CONFIG_EFUSE=y
- CONFIG_AM_SMARTCARD=y
-@@ -284,6 +284,8 @@ CONFIG_BACKLIGHT_LCD_SUPPORT=y
- CONFIG_SND_USB_AUDIO=y
- CONFIG_SND_AML_M6_RT5631=y
- CONFIG_SND_AML_M_DUMMY_CODEC=y
-+CONFIG_YAFFS_DISABLE_BACKGROUND=y
-+CONFIG_UBIFS_FS=y
- CONFIG_USB_DEVICEFS=y
- CONFIG_USB_ACM=y
- CONFIG_USB_STORAGE=y
-</pre>
-
-<li>
-按键进usb烧录模式
-</li>
-
-<strong>
-&nbsp;&nbsp;&nbsp;&nbsp;可以在uboot命令行模式下setenv cmd_name &quot;XXXXX&quot;，语法需要注意的是
-&nbsp;&nbsp;&nbsp;&nbsp;1、if XX; then XX; fi;必须是配对出现。
-&nbsp;&nbsp;&nbsp;&nbsp;2、run后面接cmd_name。
-&nbsp;&nbsp;&nbsp;&nbsp;3、u盘升级的检测存在检测错误的bug，也就是即使没插U盘也会进入U盘升级分支。
-</strong>
-
-<pre class="code-style">
-
-diff --git a/uboot/customer/board/configs/m6_mbx_v1.h b/uboot/customer/board/configs/m6_mbx_v1.h
-index 7408ab9..ce56065 100755
---- a/uboot/customer/board/configs/m6_mbx_v1.h
-+++ b/uboot/customer/board/configs/m6_mbx_v1.h
-@@ -186,8 +186,8 @@
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;preboot=run detect_storage;get_rebootmode; clear_rebootmode; echo reboot_mode=${reboot_mode}; if test ${reboot_mode} = usb_burning; then tiny_usbtool 20000; fi; run nand_key_burning; run upgrade_check; run updatekey_or_not; run irremote_update; run switch_bootmode\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;mbr_write=if test ${upgrade_step} != 2; then mmcinfo 1; mmc read 1 82000000 0 1; mw.l 820001fc 0 1; mmc write 1 82000000 0 1;fi;\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;upgrade_check=if itest ${upgrade_step} == 1; then defenv_without reboot_mode;setenv upgrade_step 2; save; fi\0&quot; \
--&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;fi;run recovery\0&quot; \
--&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x50 ;then msleep 500;if saradc get_in_range 0x0 0x50; then run update; fi; fi\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;update=echo 123;if mmcinfo; then if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 234;run recovery;fi;tiny_usbtool 20000;if usb start; then if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;echo 345;run recovery;fi;\0&quot; \
-+&nbsp;&nbsp;&nbsp;&nbsp;&quot;updatekey_or_not=saradc open 4;if saradc get_in_range 0x0 0x20 ;then msleep 500;if saradc get_in_range 0x0 0x20; then run update; fi; fi\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;irremote_update=if irkey 0x41beb14e 500000 ;then run update; fi\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;nand_key_burning=saradc open 4;if saradc get_in_range 0x164 0x1b4 ;then msleep 500;if saradc get_in_range 0x164 0x1b4; then tiny_usbtool 20000; fi; fi\0&quot; \
- &nbsp;&nbsp;&nbsp;&nbsp;&quot;cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0&quot; \
 </pre>
 
 </br></br></br></br></br></br></br></br>
