@@ -29,7 +29,7 @@ push:
 	git config --global user.email "hacker.do@163.com"
 	git config --global user.name "mark.huang"
 	git add .
-	echo -e "\033[33mha*  D*\033[0m"
+	@echo -e "\033[33mha*  D*\033[0m"
 	git commit -s && git push -u origin master
 
 tag:
