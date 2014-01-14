@@ -18,7 +18,8 @@
 <div class="title"><a href="#Ubuntu相关"> 1 : Ubuntu相关 </a></div>
 <div class="title"><a href="#常用shell命令"> 2 : 常用shell命令 </a></div>
 <div class="title"><a href="#你可能不知道的Shell"> 3 : 你可能不知道的Shell </a></div>
-<div class="title"><a href="#ssh公密匙"> 4 : ssh公密匙 </a></div>
+<div class="title"><a href="#samba"> 4 : samba </a></div>
+<div class="title"><a href="#ssh公密匙"> 5 : ssh公密匙 </a></div>
 </br></br></br></br></br></br></br></br>
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="git"> git </a></h1>
@@ -349,6 +350,59 @@ python -m SimpleHTTPServer
 <pre class="text-style">
 一句话实现一个 HTTP 服务，把当前目录设为 HTTP 服务目录，可以通过
 http://localhost:8000访问这也许是这个星球上最简单的 HTTP 服务器的实现了。
+</pre>
+
+</br></br></br></br></br></br></br></br>
+<h1 align="center"><a name="samba"> samba </a></h1>
+
+<h2>
+新建Ubuntu用户
+</h2>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;sudo useradd username
+&nbsp;&nbsp;&nbsp;&nbsp;sudo passwd username
+</pre>
+
+<h2>
+新建samba用户
+</h2>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;sudo smbpasswd -a username
+</pre>
+
+<h2>
+设置samba共享目录,修改/etc/samba/smb.conf,在文件末尾加入:
+</h2>
+
+<pre class="code-style">
+[Q&amp;A]
+&nbsp;&nbsp;&nbsp;&nbsp;path = /home/rojam/rojam/Q&amp;A
+&nbsp;&nbsp;&nbsp;&nbsp;writeable = yes
+;&nbsp;&nbsp;&nbsp;&nbsp;browseable = yes
+&nbsp;&nbsp;&nbsp;&nbsp;valid users = fanemo, kitty, mark, rojam, sam_zhang
+
+[mark]
+&nbsp;&nbsp;&nbsp;&nbsp;path = /home/rojam/aml_mid_2/mark
+&nbsp;&nbsp;&nbsp;&nbsp;writeable = yes
+;&nbsp;&nbsp;&nbsp;&nbsp;browseable = yes
+&nbsp;&nbsp;&nbsp;&nbsp;valid users = mark, rojam, sam_zhan
+
+[mark-home]
+&nbsp;&nbsp;&nbsp;&nbsp;path = /home/mark
+&nbsp;&nbsp;&nbsp;&nbsp;writeable = yes
+;&nbsp;&nbsp;&nbsp;&nbsp;browseable = yes
+&nbsp;&nbsp;&nbsp;&nbsp;valid users = mark
+
+</pre>
+
+<h2>
+重启samba服务,使之生效
+</h2>
+
+<pre class="code-style">
+&nbsp;&nbsp;&nbsp;&nbsp;sudo service smbd restart
 </pre>
 
 </br></br></br></br></br></br></br></br>

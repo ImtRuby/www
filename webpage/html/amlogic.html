@@ -342,28 +342,34 @@ Tips:注意config_progress.xml中最后一个common应为shutdown，若是reset�
  &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;0&quot; path=&quot;usb_spl.bin&quot; address=&quot;0xd9000000&quot; run=&quot;true&quot;&gt;load spl&lt;/command&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;1&quot; path=&quot;u-boot-orig.bin&quot; address=&quot;0x8f800000&quot; run=&quot;false&quot;&gt;load uboot&lt;/command&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;2&quot; &gt;crc 0x8f800000 size value&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;3&quot; count=&quot;10&quot;&gt;run 0x8f800000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;3&quot; &gt;run 0x8f800000&lt;/command&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;4&quot;&gt;set_chgcur 0&lt;/command&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;5&quot;&gt;video dev bl_off&lt;/command&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;6&quot;&gt;video dev disable&lt;/command&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;7&quot;&gt;nand rom_protect off&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;8&quot;&gt;nand erase 0&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;9&quot;&gt;nand info&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;10&quot;&gt;defenv&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;11&quot;&gt;setenv bootargs ${bootargs} a9_clk_max=600000000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;12&quot; cmd=&quot;setenv recovery_command --usb_burning&quot; address=&quot;0x82000000&quot;&gt;load addr&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;13&quot;&gt;cmd_in_mem 0x82000000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;14&quot;&gt;save&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;15&quot; path=&quot;recovery.img&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;16&quot; &gt;crc 0x82000000 size value&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;17&quot; count=&quot;100&quot;&gt;bootm 0x82000000&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;18&quot;&gt;wipe_data&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;19&quot;&gt;wipe_cache&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;20&quot;&gt;copy_media&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;21&quot; count=&quot;400&quot;&gt;update:update.zip&lt;/command&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;22&quot;&gt;shutdown&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;8&quot;&gt;nand device 0&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;9&quot;&gt;nand erase 0&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;10&quot;&gt;nand device 1&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;11&quot;&gt;defenv&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;12&quot;&gt;pr&lt;/command&gt;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;13&quot;&gt;setenv bootargs ${bootargs} a9_clk_max=600000000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;14&quot; cmd=&quot;setenv recovery_command --usb_burning&quot; address=&quot;0x82000000&quot;&gt;load addr&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;15&quot;&gt;cmd_in_mem 0x82000000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;16&quot;&gt;save&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;17&quot; path=&quot;uImage_usb_burning&quot; address=&quot;0x82000000&quot; run=&quot;false&quot;&gt;load uimage&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;18&quot; &gt;crc 0x82000000 size value&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;19&quot;&gt;bootm 0x82000000&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;20&quot;&gt;wipe_data&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;21&quot;&gt;wipe_cache&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;22&quot;&gt;copy_media&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;23&quot; count=&quot;400&quot;&gt;update:g18ref-ota-20131205.zip&lt;/command&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;command sn=&quot;24&quot;&gt;shutdown&lt;/command&gt;
 &lt;/progress_configs&gt;
 </pre>
+
+<img src="
+../res/amlogic/picture2.jpg
+"/>
 
 </br></br></br></br></br></br></br></br>
 <h1 align="center"><a name="遥控器修改"> 遥控器修改 </a></h1>
